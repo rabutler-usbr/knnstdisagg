@@ -9,12 +9,14 @@
 #'
 #' @param x The annual paleo data to disaagregate.
 #' @param ann_index_flow Observed annual flow data used for picking index year.
-#' @param mon_flw Intervening monthly natural flow. Used for spatially and
-#'   temporaly disaggregating paleo data based on the index year.
-#' @param nsite The number of sites to diaggregate the data too.
-#' @param sf_sites The site numbers (indeces), that will scale the index year's
-#'   volume based on the annual flow being disaggregated. The remaining sites
-#'   will select the index year directly. See **Details**.
+#' @param mon_flow Intervening monthly natural flow. Used for spatially and
+#'   temporaly disaggregating paleo data based on the index year. Each column
+#'   should be a differnt site to disaggregate the flow to. If there are three
+#'   columns in this matrix, then the values in `x` will be disaggregated to
+#'   three sites. `mon_flow` should have the same years as `ann_index_flow`
+#' @param sf_sites The site numbers (column indeces), that will scale the
+#'   index year's volume based on the annual flow being disaggregated. The
+#'   remaining sites will select the index year directly. See **Details**.
 #' @param nsim Number of times to repeat the space/time disaggregation.
 #' @param ofolder Optional. If specified, the disaggregated flow data and the
 #'   selected index years are saved to this folder as csv files. There will be
@@ -35,52 +37,48 @@
 #'
 #' @examples
 #' \dontrun{
-#' # read in annual synthetic mon_flw for disag
+#' # read in annual synthetic mon_flow for disag
 #' x <- matrix(scan("data-raw/Meko.txt"), ncol = 2, byrow = TRUE)
-#' # intervening natural flow mon_flw - monthly CY text file
-#' mon_flw <- as.matrix(read.table(
+#' # intervening natural flow mon_flow - monthly CY text file
+#' mon_flow <- as.matrix(read.table(
 #'   "tests/dp/NFfullbasinWY0608intervening.txt",
 #'   sep = "\t"
 #' ))
 #'
 #' # observed annual flow for picking analog disag yr
 #' ann_index_flow <- as.matrix(read.table("tests/dp/LFWYTotal.txt"))
-#' zz <- paleo_disagg(x, ann_index_flow, mon_flw, 29, 1)
+#' zz <- paleo_disagg(x, ann_index_flow, mon_flow, 29, 1)
 #' }
 #'
 #' @export
-paleo_disagg <- function(x,
+knn_space_time_disagg <- function(x,
                          ann_index_flow,
-                         mon_flw,
-                         nsite = 29,
-                         sf_sites = 1:20,
+                         mon_flow,
                          nsim = 1,
+                         sf_sites = NULL,
                          ofolder = NULL,
                          index_years = NULL,
                          k_weights = NULL)
 {
-  n_paleo_yrs <- nrow(x) # 1244 for meko; length of each simulation (yrs)
+  n_disagg_yrs <- nrow(x)
 
-  # how many yrs of observed mon_flw
+  # how many yrs of observed mon_flow
   assert_that(
-    nrow(mon_flw) %% 12 == 0,
-    msg = "`mon_flw` needs to have an even year's worth of data"
+    nrow(mon_flow) %% 12 == 0,
+    msg = "`mon_flow` needs to have an even year's worth of data"
   )
 
-  n_obs_yrs <- nrow(mon_flw)/12
+  n_obs_yrs <- nrow(mon_flow)/12
 
   assert_that(
     n_obs_yrs == nrow(ann_index_flow),
-    msg = "`ann_index_flow` and `mon_flw` must have the same number of years."
+    msg = "`ann_index_flow` and `mon_flow` must have the same number of years."
   )
 
   assert_that(ncol(ann_index_flow) == 2)
   assert_that(ncol(x) == 2)
 
-  assert_that(
-    nsite == ncol(mon_flw),
-    msg = "`mon_flow` needs to have `nsite` columns."
-  )
+  nsite <- ncol(mon_flow)
 
   if (!is.null(index_years)) {
     if (ncol(index_years) != nsim)
@@ -136,7 +134,7 @@ paleo_disagg <- function(x,
   # matrix for recording scale factors used (optional)
   sf_mat <- matrix(ncol = nsim, nrow = n_paleo_yrs)
 
-  # this loop moves observed monthly mon_flw from 2d matrix to 3d array
+  # this loop moves observed monthly mon_flow from 2d matrix to 3d array
   mgn <- length(dat_a[1,1,])
 
   for (j in seq_len(mgn)) {
@@ -146,7 +144,7 @@ paleo_disagg <- function(x,
 
     for (i in seq_len(n_obs_yrs)) {
 
-      dat_a[i, , j] <- mon_flw[s:e, j]
+      dat_a[i, , j] <- mon_flow[s:e, j]
 
       s <- s + 12
       e <- e + 12
