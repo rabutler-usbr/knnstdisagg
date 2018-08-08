@@ -50,6 +50,17 @@
 #' zz <- paleo_disagg(x, ann_index_flow, mon_flow, 29, 1)
 #' }
 #'
+#' # a sample of three years of flow data
+#' flow_mat <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))
+#' # made up historical data to use as index years
+#' ind_flow <- cbind(1901:1980, rnorm(80, mean = 1500, sd = 300))
+#' # make up monthly flow for two sites
+#' mon_flow <- cbind(
+#'   rnorm(80 * 12, mean = 20, sd = 5),
+#'   rnorm(80 * 12, mean = 120, sd = 45)
+#' )
+#' knn_space_time_disagg(flow_mat, ind_flow, mon_flow, sf_sites = 1:2)
+#'
 #' @export
 knn_space_time_disagg <- function(x,
                          ann_index_flow,
@@ -88,7 +99,7 @@ knn_space_time_disagg <- function(x,
         call. = FALSE
       )
 
-    if (nrow(index_years) != n_paleo_yrs)
+    if (nrow(index_years) != n_disagg_yrs)
       stop(
         "`index_years` must be specified for every year in the paleo record.",
         call. = FALSE
@@ -126,13 +137,13 @@ knn_space_time_disagg <- function(x,
   dat_a <- array(data = NA, dim=c(n_obs_yrs, 12, nsite))
 
   # matrix for disag values - row(yr), col (month), index1 (site), index2(sim #)
-  disag <- array(data = NA, dim = c(n_paleo_yrs, 12, nsite, nsim))
+  disag <- array(data = NA, dim = c(n_disagg_yrs, 12, nsite, nsim))
 
   # matrix for recording yr index for disag (optional)
-  index_mat <- matrix(ncol = nsim, nrow = n_paleo_yrs)
+  index_mat <- matrix(ncol = nsim, nrow = n_disagg_yrs)
 
   # matrix for recording scale factors used (optional)
-  sf_mat <- matrix(ncol = nsim, nrow = n_paleo_yrs)
+  sf_mat <- matrix(ncol = nsim, nrow = n_disagg_yrs)
 
   # this loop moves observed monthly mon_flow from 2d matrix to 3d array
   mgn <- length(dat_a[1,1,])
@@ -165,7 +176,7 @@ knn_space_time_disagg <- function(x,
     }
 
     # loop through all years that need disaggregated ---------------
-    for(h in seq_len(n_paleo_yrs)) {
+    for(h in seq_len(n_disagg_yrs)) {
 
       # select the index year and scaling factor
       index_atts <- get_scale_factor(ind_yrs[h, 1], x[h, 2], ann_index_flow)

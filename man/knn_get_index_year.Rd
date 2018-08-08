@@ -10,22 +10,22 @@ knn_get_index_year(ann_flow, ann_index_flow, k_weights = NULL)
 \item{ann_flow}{A 2-column matrix, with years in column 1, and an annual flow
 in column 2. This is the annual flow that needs to be disaggregated.}
 
-\item{ann_index_flow}{A 2-column matrix, with years in column 1, and an 
-annual flow in column 2. This is the index gage that the flows in 
-`ann_flow` will be compared to. After the comparison, the nearest neighbor
-year is selected.}
+\item{ann_index_flow}{A 2-column matrix, with years in column 1, and an
+annual flow in column 2. This is the index gage that the flows in
+\code{ann_flow} will be compared to. After the comparison, the nearest neighbor
+years are selected.}
 
-\item{k_weights}{If `NULL`, parameters are set based on definitions in Nowak
-et al. (2010). Users may force `k` and the `weights` by specifiying this 
-argument. It should be a list with two named entries: `k` and `weights`.
-`k` should be a single integer specifying the number of neightbors to 
-select from. `weights` should be a vector with length equal to `k`, 
-specifying the weights to apply to the 1-`k` neighbors for selecting the 
+\item{k_weights}{If \code{NULL}, parameters are set based on definitions in Nowak
+et al. (2010). Users may force \code{k} and the \code{weights} by specifiying this
+argument. It should be a list with two named entries: \code{k} and \code{weights}.
+\code{k} should be a single integer specifying the number of neighbors to
+select from. \code{weights} should be a vector with length equal to \code{k},
+specifying the weights to apply to the 1-\code{k} neighbors for selecting the
 neighbor.}
 }
 \value{
-N x 1 matrix of index years, with the number of rows, equal to the 
-  number of rows in `ann_flow`.
+N x 1 matrix of index years, with the number of rows, equal to the
+number of rows in \code{ann_flow}.
 }
 \description{
 For an index gage, select the years that are closest to a flow that needs to
@@ -41,6 +41,6 @@ knn_get_index_year(flow_mat, ind_flow)
 }
 \references{
 Nowak, K., Prairie, J., Rajagopalan, B., Lall, U. (2010).
-  A nonparametric stochastic approach for multisite disaggregation of
-  annual to daily streamflow. *Water Resources Research.*
+A nonparametric stochastic approach for multisite disaggregation of
+annual to daily streamflow. \emph{Water Resources Research.}
 }
