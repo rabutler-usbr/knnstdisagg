@@ -1,33 +1,70 @@
 
-#' Spatial and temporal diaggregattion of paleo flow data
+#' Spatial and temporal diaggregattion of flow data
 #'
-#' The default parameter values are setup to perform the typical disaggregation
-#' for CRSS, based on scaling the Upper Basin inflows, and performing a
-#' direct resampling of Lower Basin tributaries, i.e., no scale factor is
-#' applied to the LB tributaries. Sites 1-20 are scaled (`sf_sites = 1:20`);
-#' therefore the remaining sites (21:29) are not scaled.
+#' `knn_space_time_disagg()` disaggregates annual flow data spatially and
+#' temporaly (to monthly), using a spatial and monthly flow pattern selected
+#' from an "index year". The index year is selected using a k nearest-neighbor
+#' approach, (Knowak et al., 2010).
 #'
-#' @param x The annual paleo data to disaagregate.
-#' @param ann_index_flow Observed annual flow data used for picking index year.
-#' @param mon_flow Intervening monthly natural flow. Used for spatially and
-#'   temporaly disaggregating paleo data based on the index year. Each column
-#'   should be a differnt site to disaggregate the flow to. If there are three
-#'   columns in this matrix, then the values in `x` will be disaggregated to
-#'   three sites. `mon_flow` should have the same years as `ann_index_flow`
+#' The method is described in detail in *Knowak et al.* (2010). The methodology
+#' disaggregates annual flow data (`x`) by selecting an index year from
+#' `ann_index_flow` using [knn_get_index_year()]. After the index year is
+#' selected, values from `x` are disaggregated spatially, and temporaly based on
+#' `mon_flow`. The spatial pattern is reflected by including different sites as
+#' columns in `mon_flow`, and the monthly disaggregation, uses the monthly
+#' pattern in `mon_flow` to disaggregate the data temporarly. Summability is
+#' preserved using this method, if the values selected in `mon_flow` are scaled
+#' and if the columns (or a subset of columns) in `mon_flow` sum together to
+#' equal `ann_index_flow`.
+#'
+#' In some cases, it is desirable to select monthly flow directly, instead of
+#' scaling it. This can be performed by only scaling certain sites, using
+#' `sf_sites`. `sf_sites` should be a boolean, or a vector of numerics. If
+#' `TRUE`, then all sites are scaled. If `FALSE`, all sites monthly values
+#' are selected directly. Otherwise, `sf_sites` should be a vector of the sites
+#' that should be scaled, based on their column index from `mon_flow`. For
+#' example, if `mon_flow` is a matrix with 4 columns, then setting `mon_flow` to
+#' `c(2, 3)` will scale the values in sites 2 and 3 (columns 2 and 3), while
+#' selecting flow values directly in sites 1 and 2.
+#'
+#' @param x The annual flow data to dissaggregate.
+#'
+#' @param mon_flow Monthly natural flow. Used for spatially and
+#'   temporaly disaggregating the flow data (`x`) based on the index year
+#'   selected from `ann_index_flow`, by [knn_get_index_year()]. Each column
+#'   represents a differnt site, and the annual flow at the index gage will be
+#'   disaggregated to each of these sites at he monthly level. If there are
+#'   three columns in this matrix, then the values in `x` will be disaggregated
+#'   to three sites. `mon_flow` should have the same years as `ann_index_flow`,
+#'   therefore, it should contain 12 times more rows than `ann_index_flow`. The
+#'   flow data in `mon_flow` should also contain values for the same years as
+#'   `ann_index_flow`, though there are no checks performed to check this, since
+#'   this is expected to be a dimensionless matrix.
+#'
 #' @param sf_sites The site numbers (column indeces), that will scale the
 #'   index year's volume based on the annual flow being disaggregated. The
 #'   remaining sites will select the index year directly. See **Details**.
+#'
 #' @param nsim Number of times to repeat the space/time disaggregation.
+#'
 #' @param ofolder Optional. If specified, the disaggregated flow data and the
 #'   selected index years are saved to this folder as csv files. There will be
 #'   one csv file for each time the disaggregation is repeated (`nsim`). This
 #'   file will contain one column for each site (`nsite`), and one row for each
 #'   month of data (12 * number of years in `x`).
+#'
 #' @param index_years Optional. If specified, these index years will be used
-#'   instead of selecting years based on weights and sampling.
-#' @param k_weights If `NULL`, parameters are set based on definitions in Nowak
-#'   et al. (2010). Users may force `k` and the `weights` by specifiying this
-#'   argument. It should be a list with two named entries: `k` and `weights`.
+#'   instead of selecting years based on weighted sampling via
+#'   [knn_get_index_year()].
+#'
+#' @return A list with two entries: `disagg_flow` and `index_years`.
+#'   `index_years` contains a vector of the years that were selected as index
+#'   years for the flow values from `x`. `disagg_flow` is a list, with one entry
+#'   for each simulation (`nsim`). Each entry is a matrix with the same number
+#'   of columns as `mon_flow`, and 12 * the number of rows in `x`, number of
+#'   rows.
+#'
+#' @inheritParams knn_get_index_year
 #'
 #' @author Ken Nowak
 #'
@@ -35,20 +72,9 @@
 #'   A nonparametric stochastic approach for multisite disaggregation of
 #'   annual to daily streamflow. *Water Resources Research.*
 #'
-#' @examples
-#' \dontrun{
-#' # read in annual synthetic mon_flow for disag
-#' x <- matrix(scan("data-raw/Meko.txt"), ncol = 2, byrow = TRUE)
-#' # intervening natural flow mon_flow - monthly CY text file
-#' mon_flow <- as.matrix(read.table(
-#'   "tests/dp/NFfullbasinWY0608intervening.txt",
-#'   sep = "\t"
-#' ))
+#' @seealso [knn_get_index_year()]
 #'
-#' # observed annual flow for picking analog disag yr
-#' ann_index_flow <- as.matrix(read.table("tests/dp/LFWYTotal.txt"))
-#' zz <- paleo_disagg(x, ann_index_flow, mon_flow, 29, 1)
-#' }
+#' @examples
 #'
 #' # a sample of three years of flow data
 #' flow_mat <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))
@@ -92,18 +118,19 @@ knn_space_time_disagg <- function(x,
   nsite <- ncol(mon_flow)
 
   if (!is.null(index_years)) {
-    if (ncol(index_years) != nsim)
-      stop(
+    assert_that(
+      ncol(index_years) == nsim,
+      msg = paste(
         "`index_years` must be specified for all simulations.\n",
         " So, `nsim` must equal the number of columns in `index_years`.",
-        call. = FALSE
       )
+    )
 
-    if (nrow(index_years) != n_disagg_yrs)
-      stop(
-        "`index_years` must be specified for every year in the paleo record.",
-        call. = FALSE
-      )
+    assert_that(
+      nrow(index_years) == n_disagg_yrs,
+      msg =
+        "`index_years` must be specified for every year in the paleo record."
+    )
   }
 
   if (!is.null(index_years) && !is.null(k_weights)) {
@@ -113,10 +140,10 @@ knn_space_time_disagg <- function(x,
     )
   }
 
-  if (max(sf_sites) > nsite) {
-    stop(
-      "max(`sf_sites`), must be <= the number of sites (`site`).",
-      call. = FALSE
+  if (!is.null(sf_sites)) {
+    assert_that(
+      max(sf_sites) <= nsite,
+      msg = "max(`sf_sites`), must be <= the number of sites (`site`)."
     )
   }
 
@@ -204,7 +231,7 @@ knn_space_time_disagg <- function(x,
     write_knn_disagg(disag_out, index_mat, ofolder = ofolder)
   }
 
-  invisible(list(paleo_disagg = disag_out, index_years = index_mat))
+  invisible(list(disagg_flow = disag_out, index_years = index_mat))
 }
 
 #' Compute the scaling factor for the current year's flow from the index year
@@ -242,7 +269,7 @@ write_knn_disagg <- function(disag_out, index_mat, ofolder = ".")
   lapply(seq_len(nsim), function(ii)
     utils::write.csv(
       disag_out[[ii]],
-      file = file.path(ofolder, paste0("paleo_disagg_", ii, ".csv")),
+      file = file.path(ofolder, paste0("disagg_flow_", ii, ".csv")),
       row.names = FALSE
     )
   )

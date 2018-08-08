@@ -2,21 +2,30 @@
 % Please edit documentation in R/space_time_disagg.R
 \name{knn_space_time_disagg}
 \alias{knn_space_time_disagg}
-\title{Spatial and temporal diaggregattion of paleo flow data}
+\title{Spatial and temporal diaggregattion of flow data}
 \usage{
 knn_space_time_disagg(x, ann_index_flow, mon_flow, nsim = 1,
   sf_sites = NULL, ofolder = NULL, index_years = NULL, k_weights = NULL)
 }
 \arguments{
-\item{x}{The annual paleo data to disaagregate.}
+\item{x}{The annual flow data to dissaggregate.}
 
-\item{ann_index_flow}{Observed annual flow data used for picking index year.}
+\item{ann_index_flow}{A 2-column matrix, with years in column 1, and an
+annual flow in column 2. This is the index gage that the flows in
+\code{ann_flow} will be compared to. After the comparison, the nearest neighbor
+years are selected.}
 
-\item{mon_flow}{Intervening monthly natural flow. Used for spatially and
-temporaly disaggregating paleo data based on the index year. Each column
-should be a differnt site to disaggregate the flow to. If there are three
-columns in this matrix, then the values in \code{x} will be disaggregated to
-three sites. \code{mon_flow} should have the same years as \code{ann_index_flow}}
+\item{mon_flow}{Monthly natural flow. Used for spatially and
+temporaly disaggregating the flow data (\code{x}) based on the index year
+selected from \code{ann_index_flow}, by \code{\link[=knn_get_index_year]{knn_get_index_year()}}. Each column
+represents a differnt site, and the annual flow at the index gage will be
+disaggregated to each of these sites at he monthly level. If there are
+three columns in this matrix, then the values in \code{x} will be disaggregated
+to three sites. \code{mon_flow} should have the same years as \code{ann_index_flow},
+therefore, it should contain 12 times more rows than \code{ann_index_flow}. The
+flow data in \code{mon_flow} should also contain values for the same years as
+\code{ann_index_flow}, though there are no checks performed to check this, since
+this is expected to be a dimensionless matrix.}
 
 \item{nsim}{Number of times to repeat the space/time disaggregation.}
 
@@ -31,39 +40,74 @@ file will contain one column for each site (\code{nsite}), and one row for each
 month of data (12 * number of years in \code{x}).}
 
 \item{index_years}{Optional. If specified, these index years will be used
-instead of selecting years based on weights and sampling.}
+instead of selecting years based on weighted sampling via
+\code{\link[=knn_get_index_year]{knn_get_index_year()}}.}
 
 \item{k_weights}{If \code{NULL}, parameters are set based on definitions in Nowak
 et al. (2010). Users may force \code{k} and the \code{weights} by specifiying this
-argument. It should be a list with two named entries: \code{k} and \code{weights}.}
+argument. It should be a list with two named entries: \code{k} and \code{weights}.
+\code{k} should be a single integer specifying the number of neighbors to
+select from. \code{weights} should be a vector with length equal to \code{k},
+specifying the weights to apply to the 1-\code{k} neighbors for selecting the
+neighbor.}
+}
+\value{
+A list with two entries: \code{disagg_flow} and \code{index_years}.
+\code{index_years} contains a vector of the years that were selected as index
+years for the flow values from \code{x}. \code{disagg_flow} is a list, with one entry
+for each simulation (\code{nsim}). Each entry is a matrix with the same number
+of columns as \code{mon_flow}, and 12 * the number of rows in \code{x}, number of
+rows.
 }
 \description{
-The default parameter values are setup to perform the typical disaggregation
-for CRSS, based on scaling the Upper Basin inflows, and performing a
-direct resampling of Lower Basin tributaries, i.e., no scale factor is
-applied to the LB tributaries. Sites 1-20 are scaled (\code{sf_sites = 1:20});
-therefore the remaining sites (21:29) are not scaled.
+\code{knn_space_time_disagg()} disaggregates annual flow data spatially and
+temporaly (to monthly), using a spatial and monthly flow pattern selected
+from an "index year". The index year is selected using a k nearest-neighbor
+approach, (Knowak et al., 2010).
+}
+\details{
+The method is described in detail in \emph{Knowak et al.} (2010). The methodology
+disaggregates annual flow data (\code{x}) by selecting an index year from
+\code{ann_index_flow} using \code{\link[=knn_get_index_year]{knn_get_index_year()}}. After the index year is
+selected, values from \code{x} are disaggregated spatially, and temporaly based on
+\code{mon_flow}. The spatial pattern is reflected by including different sites as
+columns in \code{mon_flow}, and the monthly disaggregation, uses the monthly
+pattern in \code{mon_flow} to disaggregate the data temporarly. Summability is
+preserved using this method, if the values selected in \code{mon_flow} are scaled
+and if the columns (or a subset of columns) in \code{mon_flow} sum together to
+equal \code{ann_index_flow}.
+
+In some cases, it is desirable to select monthly flow directly, instead of
+scaling it. This can be performed by only scaling certain sites, using
+\code{sf_sites}. \code{sf_sites} should be a boolean, or a vector of numerics. If
+\code{TRUE}, then all sites are scaled. If \code{FALSE}, all sites monthly values
+are selected directly. Otherwise, \code{sf_sites} should be a vector of the sites
+that should be scaled, based on their column index from \code{mon_flow}. For
+example, if \code{mon_flow} is a matrix with 4 columns, then setting \code{mon_flow} to
+\code{c(2, 3)} will scale the values in sites 2 and 3 (columns 2 and 3), while
+selecting flow values directly in sites 1 and 2.
 }
 \examples{
-\dontrun{
-# read in annual synthetic mon_flow for disag
-x <- matrix(scan("data-raw/Meko.txt"), ncol = 2, byrow = TRUE)
-# intervening natural flow mon_flow - monthly CY text file
-mon_flow <- as.matrix(read.table(
-  "tests/dp/NFfullbasinWY0608intervening.txt",
-  sep = "\\t"
-))
 
-# observed annual flow for picking analog disag yr
-ann_index_flow <- as.matrix(read.table("tests/dp/LFWYTotal.txt"))
-zz <- paleo_disagg(x, ann_index_flow, mon_flow, 29, 1)
-}
+# a sample of three years of flow data
+flow_mat <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))
+# made up historical data to use as index years
+ind_flow <- cbind(1901:1980, rnorm(80, mean = 1500, sd = 300))
+# make up monthly flow for two sites
+mon_flow <- cbind(
+  rnorm(80 * 12, mean = 20, sd = 5),
+  rnorm(80 * 12, mean = 120, sd = 45)
+)
+knn_space_time_disagg(flow_mat, ind_flow, mon_flow, sf_sites = 1:2)
 
 }
 \references{
 Nowak, K., Prairie, J., Rajagopalan, B., Lall, U. (2010).
 A nonparametric stochastic approach for multisite disaggregation of
 annual to daily streamflow. \emph{Water Resources Research.}
+}
+\seealso{
+\code{\link[=knn_get_index_year]{knn_get_index_year()}}
 }
 \author{
 Ken Nowak

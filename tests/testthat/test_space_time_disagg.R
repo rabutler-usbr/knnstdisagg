@@ -4,7 +4,7 @@ context("check paleo space time disagg code")
 tmpDir <- "../dp/tmp"
 
 dir.create(tmpDir)
-#teardown(unlink(tmpDir, recursive = T))
+teardown(unlink(tmpDir, recursive = T))
 
 # unzip the example nc file
 unzip(file.path("../dp", "dp_to_compare.zip"), exdir = tmpDir)
@@ -28,6 +28,8 @@ zz <- as.matrix(read.csv(
   file.path(tmpDir, "MatrixSimDataCRBwithObsLB_DP_rab20180620.csv")
 ))
 
+attr(zz, "dimnames") <- NULL
+
 index_yrs <- matrix(scan("../dp/indexpick.txt", quiet = TRUE), ncol = 1)
 
 # knn_space_time_disagg <- function(x,
@@ -47,7 +49,7 @@ test_that("disagg matches previous code's results", {
       ann_index_flow = ann_flw,
       mon_flow = mon_flw,
       index_years = index_yrs,
-      sf_sites = 1:20)$paleo_disagg[[1]]),
+      sf_sites = 1:20)$disagg_flow[[1]]),
     zz,
     tolerance = 0.00001
   )
@@ -62,7 +64,10 @@ dimnames(orig_index) <- NULL
 set.seed(403) # this was the first entry of .Random.seed when implementing this
 
 test_that("current random selection matches original random selection", {
-  expect_equal(knn_space_time_disagg(x, ann_flw, mon_flw)$index_years, orig_index)
+  expect_equal(
+    knn_space_time_disagg(x, ann_flw, mon_flw, sf_sites = 1:20)$index_years,
+    orig_index
+  )
   set.seed(403)
   expect_equal(knn_get_index_year(x, ann_flw), orig_index)
 })
@@ -84,32 +89,17 @@ test_that("`knn_space_time_disagg()` errors correctly", {
   expect_error(knn_space_time_disagg(x, ann_flw[,2], mon_flw))
   expect_error(
     knn_space_time_disagg(x, ann_flw, mon_flw[1:60,]),
-    "`ann_index_flow` and `mon_flw` must have the same number of years.",
+    "`ann_index_flow` and `mon_flow` must have the same number of years.",
     fixed = TRUE
   )
   expect_error(
     knn_space_time_disagg(x, ann_flw[1:60,], mon_flw),
-    "`ann_index_flow` and `mon_flw` must have the same number of years.",
+    "`ann_index_flow` and `mon_flow` must have the same number of years.",
     fixed = TRUE
   )
   expect_error(
     knn_space_time_disagg(x, ann_flw, mon_flw[1:143,]),
-    "`mon_flw` needs to have an even year's worth of data",
-    fixed = TRUE
-  )
-  expect_error(
-    knn_space_time_disagg(x, ann_flw, mon_flw[, 1:28]),
-    "`mon_flow` needs to have `nsite` columns.",
-    fixed = TRUE
-  )
-  expect_error(
-    knn_space_time_disagg(x, ann_flw, mon_flw),
-    "`mon_flow` needs to have `nsite` columns.",
-    fixed = TRUE
-  )
-  expect_error(
-    knn_space_time_disagg(x, ann_flw, mon_flw),
-    "`mon_flow` needs to have `nsite` columns.",
+    "`mon_flow` needs to have an even year's worth of data",
     fixed = TRUE
   )
 })
@@ -161,5 +151,9 @@ test_that("`get_scale_factor()` returns correctly", {
 # need to check that the monthly data for all gages sums to the annual data for
 # the flow to disaggregate, but must check the appropriate gage.
 
-# need a test where there are no sf_sites: currently it creates a warning since
-# max(sf_sites = NULL) returns -Inf
+# need a test where there are no sf_sites, that works, to ensure that no warnings
+# post anymore
+
+# future enhancement: use rownames for mon_flow so that we can check that it
+# contains the same years of data as the ann_index_flow. Also consider putting
+# the years in the rownames of that variable, and (`x`), for consistency

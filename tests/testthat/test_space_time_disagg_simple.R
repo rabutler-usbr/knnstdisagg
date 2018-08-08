@@ -40,7 +40,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
     "list"
   )
   for (i in seq_len(nsim)) {
-    f1 <- file.path("tmp_disagg", paste0("paleo_disagg_", i, ".csv"))
+    f1 <- file.path("tmp_disagg", paste0("disagg_flow_", i, ".csv"))
     expect_true(file.exists(f1))
     t1 <- read.csv(f1)
     expect_identical(dim(t1), as.integer(c(36, 29)))
@@ -48,14 +48,14 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
     # all 5 files should not be the same at the monthly level
     j <- ifelse(i == nsim, 1, i + 1)
     expect_false(
-      identical(tmp$paleo_disagg[[i]], tmp$paleo_disagg[[j]]),
+      identical(tmp$disagg_flow[[i]], tmp$disagg_flow[[j]]),
       info = paste(i, "compared to", j)
     )
 
     # but they should all sum to the same annual value for lees ferry (not LB)
-    t1 <- tmp$paleo_disagg[[i]]
+    t1 <- tmp$disagg_flow[[i]]
     t1 <- ann_sum(t1)
-    t2 <- tmp$paleo_disagg[[j]]
+    t2 <- tmp$disagg_flow[[j]]
     t2 <- ann_sum(t2)
     expect_equal(
       apply(t1[,1:20], 1, sum),
@@ -71,7 +71,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
     )
     dimnames(lb) <- NULL
 
-    expect_equal(tmp$paleo_disagg[[i]][,21:29], lb)
+    expect_equal(tmp$disagg_flow[[i]][,21:29], lb)
   }
 
 
@@ -106,14 +106,14 @@ test_that("`knn_space_time_disagg()` works for specifying index years for nsim !
     # all sims should not be the same at the monthly level
     j <- ifelse(i == nsim, 1, i + 1)
     expect_false(
-      identical(tmp$paleo_disagg[[i]], tmp$paleo_disagg[[j]]),
+      identical(tmp$disagg_flow[[i]], tmp$disagg_flow[[j]]),
       info = paste(i, "compared to", j)
     )
 
     # but they should all sum to the same annual value for lees ferry (not LB)
-    t1 <- tmp$paleo_disagg[[i]]
+    t1 <- tmp$disagg_flow[[i]]
     t1 <- ann_sum(t1)
-    t2 <- tmp$paleo_disagg[[j]]
+    t2 <- tmp$disagg_flow[[j]]
     t2 <- ann_sum(t2)
     expect_equal(
       apply(t1[,1:20], 1, sum),
@@ -129,23 +129,23 @@ test_that("`knn_space_time_disagg()` works for specifying index years for nsim !
     )
     dimnames(lb) <- NULL
 
-    expect_equal(tmp$paleo_disagg[[i]][,21:29], lb)
+    expect_equal(tmp$disagg_flow[[i]][,21:29], lb)
   }
 
   expect_equivalent(
-    tmp$paleo_disagg[[1]][1:12, 15] / sum(tmp$paleo_disagg[[1]][1:12, 15]),
+    tmp$disagg_flow[[1]][1:12, 15] / sum(tmp$disagg_flow[[1]][1:12, 15]),
     as.vector(mon_flow[as.character(ind_yrs[1,1]), 15] /
       sum(mon_flow[as.character(ind_yrs[1,1]), 15]))
   )
 
   expect_equivalent(
-    tmp$paleo_disagg[[2]][25:36, 18] / sum(tmp$paleo_disagg[[2]][25:36, 18]),
+    tmp$disagg_flow[[2]][25:36, 18] / sum(tmp$disagg_flow[[2]][25:36, 18]),
     as.vector(mon_flow[as.character(ind_yrs[3, 2]), 18] /
       sum(mon_flow[as.character(ind_yrs[3, 2]), 18]))
   )
 
   expect_equivalent(
-    tmp$paleo_disagg[[3]][13:24, 1] / sum(tmp$paleo_disagg[[3]][13:24, 1]),
+    tmp$disagg_flow[[3]][13:24, 1] / sum(tmp$disagg_flow[[3]][13:24, 1]),
     as.vector(mon_flow[as.character(ind_yrs[2, 3]), 1] /
       sum(mon_flow[as.character(ind_yrs[2, 3]), 1]))
   )
