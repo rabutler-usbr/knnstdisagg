@@ -4,13 +4,26 @@
 \name{knnstdisagg-package}
 \alias{knnstdisagg}
 \alias{knnstdisagg-package}
-\title{knnstdisagg: What the Package Does (Title Case)}
+\title{knnstdisagg: Nonparametric Space-Time Streamflow Disaggregation Using KNN}
 \description{
-More about what it does (maybe more than one line)
-Use four spaces when indenting paragraphs within the Description.
+Perform space and time disaggregation of streamflow using a
+K-nearest neighbor (KNN) approach.
 }
+\section{Acknowledgements}{
+
+This package implements the methods developed by Ken Nowak, Jim Prairie et
+al.
+}
+
+\section{Reference}{
+
+Nowak, K., J. Prairie, B. Rajagopalan, and U. Lall (2010), A nonparametric
+stochastic approach for multisite disaggregation of annual to daily
+streamflow, Water Resour. Res., 46, W08529,
+\href{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2009WR008530}{doi:10.1029/2009WR008530.}
+}
+
 \author{
 \strong{Maintainer}: Alan Butler \email{rabutler@usbr.gov}
 
 }
-\keyword{internal}
