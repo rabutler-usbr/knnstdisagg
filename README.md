@@ -2,7 +2,10 @@
 
 An R package to perform space and time disaggregation of streamflow using a K-nearest neighbor (knn) approach. 
 
-**In development**
+**In development** [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+
+
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/rabutler-usbr/knnstdisagg?branch=master&svg=true)](https://ci.appveyor.com/project/rabutler-usbr/knnstdisagg) [![Travis-CI Build Status](https://travis-ci.org/rabutler-usbr/knnstdisagg.svg?branch=master)](https://travis-ci.org/rabutler-usbr/knnstdisagg) [![Coverage Status](https://img.shields.io/codecov/c/github/rabutler-usbr/knnstdisagg/master.svg)](https://codecov.io/github/rabutler-usbr/knnstdisagg?branch=master)
 
 ## Acknowledgements
 

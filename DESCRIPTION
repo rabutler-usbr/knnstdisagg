@@ -1,22 +1,21 @@
 Package: knnstdisagg
-Title: What the Package Does (Title Case)
+Title: Nonparametric Space-Time Streamflow Disaggregation Using KNN
 Version: 0.0.0.9000
 Authors@R: person("Alan", "Butler", , "rabutler@usbr.gov", c("aut", "cre"))
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Perform space and time disaggregation of streamflow using a 
+    K-nearest neighbor (KNN) approach.
 License: CC0
-Depends: 
+Depends:
     R (>= 2.10)
 Imports:
     assertthat
 Encoding: UTF-8
 LazyData: true
 Suggests:
-    CoRiverNF,
+    covr,
     knitr,
-    testthat
-Remotes:
-    BoulderCodeHub/CoRiverNF
+    testthat,
+    xts
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
