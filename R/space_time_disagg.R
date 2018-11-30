@@ -7,9 +7,9 @@
 #' approach, (Knowak et al., 2010).
 #'
 #' The method is described in detail in *Knowak et al.* (2010). The methodology
-#' disaggregates annual flow data (`x`) by selecting an index year from
+#' disaggregates annual flow data (`ann_flow`) by selecting an index year from
 #' `ann_index_flow` using [knn_get_index_year()]. After the index year is
-#' selected, values from `x` are disaggregated spatially, and temporaly based on
+#' selected, values from `ann_flow` are disaggregated spatially, and temporaly based on
 #' `mon_flow`. The spatial pattern is reflected by including different sites as
 #' columns in `mon_flow`, and the monthly disaggregation, uses the monthly
 #' pattern in `mon_flow` to disaggregate the data temporarly. Summability is
@@ -27,19 +27,18 @@
 #' `c(2, 3)` will scale the values in sites 2 and 3 (columns 2 and 3), while
 #' selecting flow values directly in sites 1 and 2.
 #'
-#' @param x The annual flow data to dissaggregate.
-#'
 #' @param mon_flow Monthly natural flow. Used for spatially and
-#'   temporaly disaggregating the flow data (`x`) based on the index year
+#'   temporaly disaggregating the flow data (`ann_flow`) based on the index year
 #'   selected from `ann_index_flow`, by [knn_get_index_year()]. Each column
 #'   represents a differnt site, and the annual flow at the index gage will be
 #'   disaggregated to each of these sites at he monthly level. If there are
-#'   three columns in this matrix, then the values in `x` will be disaggregated
-#'   to three sites. `mon_flow` should have the same years as `ann_index_flow`,
-#'   therefore, it should contain 12 times more rows than `ann_index_flow`. The
-#'   flow data in `mon_flow` should also contain values for the same years as
-#'   `ann_index_flow`, though there are no checks performed to check this, since
-#'   this is expected to be a dimensionless matrix.
+#'   three columns in this matrix, then the values in `ann_flow` will be
+#'   disaggregated to three sites. `mon_flow` should have the same years as
+#'   `ann_index_flow`, therefore, it should contain 12 times more rows than
+#'   `ann_index_flow`. The flow data in `mon_flow` should also contain values
+#'   for the same years as `ann_index_flow`, though there are no checks
+#'   performed to check this, since this is expected to be a dimensionless
+#'   matrix.
 #'
 #' @param sf_sites The site numbers (column indeces), that will scale the
 #'   index year's volume based on the annual flow being disaggregated. The
@@ -51,7 +50,7 @@
 #'   selected index years are saved to this folder as csv files. There will be
 #'   one csv file for each time the disaggregation is repeated (`nsim`). This
 #'   file will contain one column for each site (`nsite`), and one row for each
-#'   month of data (12 * number of years in `x`).
+#'   month of data (12 * number of years in `ann_flow`).
 #'
 #' @param index_years Optional. If specified, these index years will be used
 #'   instead of selecting years based on weighted sampling via
@@ -59,10 +58,10 @@
 #'
 #' @return A list with two entries: `disagg_flow` and `index_years`.
 #'   `index_years` contains a vector of the years that were selected as index
-#'   years for the flow values from `x`. `disagg_flow` is a list, with one entry
+#'   years for the flow values from `ann_flow`. `disagg_flow` is a list, with one entry
 #'   for each simulation (`nsim`). Each entry is a matrix with the same number
-#'   of columns as `mon_flow`, and 12 * the number of rows in `x`, number of
-#'   rows.
+#'   of columns as `mon_flow`, and 12 * the number of rows in `ann_flow`, number
+#'   of rows.
 #'
 #' @inheritParams knn_get_index_year
 #'
@@ -88,7 +87,7 @@
 #' knn_space_time_disagg(flow_mat, ind_flow, mon_flow, sf_sites = 1:2)
 #'
 #' @export
-knn_space_time_disagg <- function(x,
+knn_space_time_disagg <- function(ann_flow,
                          ann_index_flow,
                          mon_flow,
                          nsim = 1,
@@ -97,7 +96,7 @@ knn_space_time_disagg <- function(x,
                          index_years = NULL,
                          k_weights = NULL)
 {
-  n_disagg_yrs <- nrow(x)
+  n_disagg_yrs <- nrow(ann_flow)
 
   # how many yrs of observed mon_flow
   assert_that(
@@ -113,7 +112,7 @@ knn_space_time_disagg <- function(x,
   )
 
   assert_that(ncol(ann_index_flow) == 2)
-  assert_that(ncol(x) == 2)
+  assert_that(ncol(ann_flow) == 2)
 
   nsite <- ncol(mon_flow)
 
@@ -195,7 +194,7 @@ knn_space_time_disagg <- function(x,
     # this picks the 1st year for disag based only on the annual flow
 
     if (is.null(index_years)) {
-      ind_yrs <- knn_get_index_year(x, ann_index_flow, k_weights)
+      ind_yrs <- knn_get_index_year(ann_flow, ann_index_flow, k_weights)
       index_mat[, j] <- ind_yrs[, 1]
     } else {
       ind_yrs <- index_years[, j, drop = FALSE]
@@ -206,7 +205,11 @@ knn_space_time_disagg <- function(x,
     for(h in seq_len(n_disagg_yrs)) {
 
       # select the index year and scaling factor
-      index_atts <- get_scale_factor(ind_yrs[h, 1], x[h, 2], ann_index_flow)
+      index_atts <- get_scale_factor(
+        ind_yrs[h, 1],
+        ann_flow[h, 2],
+        ann_index_flow
+      )
 
       sf_mat[h, j] <- index_atts$SF
 

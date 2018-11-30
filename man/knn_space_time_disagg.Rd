@@ -4,11 +4,12 @@
 \alias{knn_space_time_disagg}
 \title{Spatial and temporal diaggregattion of flow data}
 \usage{
-knn_space_time_disagg(x, ann_index_flow, mon_flow, nsim = 1,
+knn_space_time_disagg(ann_flow, ann_index_flow, mon_flow, nsim = 1,
   sf_sites = NULL, ofolder = NULL, index_years = NULL, k_weights = NULL)
 }
 \arguments{
-\item{x}{The annual flow data to dissaggregate.}
+\item{ann_flow}{A 2-column matrix, with years in column 1, and an annual flow
+in column 2. This is the annual flow that needs to be disaggregated.}
 
 \item{ann_index_flow}{A 2-column matrix, with years in column 1, and an
 annual flow in column 2. This is the index gage that the flows in
@@ -16,16 +17,17 @@ annual flow in column 2. This is the index gage that the flows in
 years are selected.}
 
 \item{mon_flow}{Monthly natural flow. Used for spatially and
-temporaly disaggregating the flow data (\code{x}) based on the index year
+temporaly disaggregating the flow data (\code{ann_flow}) based on the index year
 selected from \code{ann_index_flow}, by \code{\link[=knn_get_index_year]{knn_get_index_year()}}. Each column
 represents a differnt site, and the annual flow at the index gage will be
 disaggregated to each of these sites at he monthly level. If there are
-three columns in this matrix, then the values in \code{x} will be disaggregated
-to three sites. \code{mon_flow} should have the same years as \code{ann_index_flow},
-therefore, it should contain 12 times more rows than \code{ann_index_flow}. The
-flow data in \code{mon_flow} should also contain values for the same years as
-\code{ann_index_flow}, though there are no checks performed to check this, since
-this is expected to be a dimensionless matrix.}
+three columns in this matrix, then the values in \code{ann_flow} will be
+disaggregated to three sites. \code{mon_flow} should have the same years as
+\code{ann_index_flow}, therefore, it should contain 12 times more rows than
+\code{ann_index_flow}. The flow data in \code{mon_flow} should also contain values
+for the same years as \code{ann_index_flow}, though there are no checks
+performed to check this, since this is expected to be a dimensionless
+matrix.}
 
 \item{nsim}{Number of times to repeat the space/time disaggregation.}
 
@@ -37,7 +39,7 @@ remaining sites will select the index year directly. See \strong{Details}.}
 selected index years are saved to this folder as csv files. There will be
 one csv file for each time the disaggregation is repeated (\code{nsim}). This
 file will contain one column for each site (\code{nsite}), and one row for each
-month of data (12 * number of years in \code{x}).}
+month of data (12 * number of years in \code{ann_flow}).}
 
 \item{index_years}{Optional. If specified, these index years will be used
 instead of selecting years based on weighted sampling via
@@ -54,10 +56,10 @@ neighbor.}
 \value{
 A list with two entries: \code{disagg_flow} and \code{index_years}.
 \code{index_years} contains a vector of the years that were selected as index
-years for the flow values from \code{x}. \code{disagg_flow} is a list, with one entry
+years for the flow values from \code{ann_flow}. \code{disagg_flow} is a list, with one entry
 for each simulation (\code{nsim}). Each entry is a matrix with the same number
-of columns as \code{mon_flow}, and 12 * the number of rows in \code{x}, number of
-rows.
+of columns as \code{mon_flow}, and 12 * the number of rows in \code{ann_flow}, number
+of rows.
 }
 \description{
 \code{knn_space_time_disagg()} disaggregates annual flow data spatially and
@@ -67,9 +69,9 @@ approach, (Knowak et al., 2010).
 }
 \details{
 The method is described in detail in \emph{Knowak et al.} (2010). The methodology
-disaggregates annual flow data (\code{x}) by selecting an index year from
+disaggregates annual flow data (\code{ann_flow}) by selecting an index year from
 \code{ann_index_flow} using \code{\link[=knn_get_index_year]{knn_get_index_year()}}. After the index year is
-selected, values from \code{x} are disaggregated spatially, and temporaly based on
+selected, values from \code{ann_flow} are disaggregated spatially, and temporaly based on
 \code{mon_flow}. The spatial pattern is reflected by including different sites as
 columns in \code{mon_flow}, and the monthly disaggregation, uses the monthly
 pattern in \code{mon_flow} to disaggregate the data temporarly. Summability is
