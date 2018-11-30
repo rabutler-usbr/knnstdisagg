@@ -2,11 +2,13 @@
 # small scale, but full disagg with current data, and for a subset of the gages
 # disagg based on total flow for bluff, green river ut, and cisco, and int for
 # mead
+library(xts)
 context("small, but full scale test of `knn_space_time_disagg()`")
 
-index_flow <- cbind(1906:2015, as.matrix(CoRiverNF::cyAnnTot$LeesFerry))
+load(file = "nf_test_data.rda")
 
-mon_flow <- CoRiverNF::monthlyInt["1906/"]
+index_flow <- nf_index_flow
+mon_flow <- nf_mon_flow
 
 lf <- cbind(2019:2021, c(9000000, 15000000, 12500000))
 nsim <- 5
@@ -87,7 +89,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
 ind_yrs <- cbind(c(2000, 1906, 1936), c(1999, 1976, 2010), c(2000, 1909, 1954))
 nsim <- 3
 
-test_that("`knn_space_time_disagg()` works for specifying index years for nsim != 1", {
+test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
   expect_type(
     tmp <- knn_space_time_disagg(
       lf,
