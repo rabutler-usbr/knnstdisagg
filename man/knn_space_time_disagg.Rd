@@ -5,7 +5,8 @@
 \title{Spatial and temporal diaggregattion of flow data}
 \usage{
 knn_space_time_disagg(ann_flow, ann_index_flow, mon_flow, nsim = 1,
-  sf_sites = NULL, ofolder = NULL, index_years = NULL, k_weights = NULL)
+  sf_sites = NULL, ofolder = NULL, index_years = NULL,
+  k_weights = knn_params_default(nrow(ann_index_flow)))
 }
 \arguments{
 \item{ann_flow}{A 2-column matrix, with years in column 1, and an annual flow
@@ -45,21 +46,16 @@ month of data (12 * number of years in \code{ann_flow}).}
 instead of selecting years based on weighted sampling via
 \code{\link[=knn_get_index_year]{knn_get_index_year()}}.}
 
-\item{k_weights}{If \code{NULL}, parameters are set based on definitions in Nowak
-et al. (2010). Users may force \code{k} and the \code{weights} by specifiying this
-argument. It should be a list with two named entries: \code{k} and \code{weights}.
-\code{k} should be a single integer specifying the number of neighbors to
-select from. \code{weights} should be a vector with length equal to \code{k},
-specifying the weights to apply to the 1-\code{k} neighbors for selecting the
-neighbor.}
+\item{k_weights}{A \code{\link[=knn_params]{knn_params()}} object. By default, it uses
+\code{\link[=knn_params_default]{knn_params_default()}}.}
 }
 \value{
 A list with two entries: \code{disagg_flow} and \code{index_years}.
 \code{index_years} contains a vector of the years that were selected as index
-years for the flow values from \code{ann_flow}. \code{disagg_flow} is a list, with one entry
-for each simulation (\code{nsim}). Each entry is a matrix with the same number
-of columns as \code{mon_flow}, and 12 * the number of rows in \code{ann_flow}, number
-of rows.
+years for the flow values from \code{ann_flow}. \code{disagg_flow} is a list, with
+one entry for each simulation (\code{nsim}). Each entry is a matrix with the
+same number of columns as \code{mon_flow}, and 12 * the number of rows in
+\code{ann_flow}, number of rows.
 }
 \description{
 \code{knn_space_time_disagg()} disaggregates annual flow data spatially and
@@ -71,13 +67,13 @@ approach, (Knowak et al., 2010).
 The method is described in detail in \emph{Knowak et al.} (2010). The methodology
 disaggregates annual flow data (\code{ann_flow}) by selecting an index year from
 \code{ann_index_flow} using \code{\link[=knn_get_index_year]{knn_get_index_year()}}. After the index year is
-selected, values from \code{ann_flow} are disaggregated spatially, and temporaly based on
-\code{mon_flow}. The spatial pattern is reflected by including different sites as
-columns in \code{mon_flow}, and the monthly disaggregation, uses the monthly
-pattern in \code{mon_flow} to disaggregate the data temporarly. Summability is
-preserved using this method, if the values selected in \code{mon_flow} are scaled
-and if the columns (or a subset of columns) in \code{mon_flow} sum together to
-equal \code{ann_index_flow}.
+selected, values from \code{ann_flow} are disaggregated spatially, and temporaly
+based on\code{mon_flow}. The spatial pattern is reflected by including different
+sites as columns in \code{mon_flow}, and the monthly disaggregation, uses the
+monthly pattern in \code{mon_flow} to disaggregate the data temporarly.
+Summability is preserved using this method, if the values selected in
+\code{mon_flow} are scaled and if the columns (or a subset of columns) in
+\code{mon_flow} sum together to equal \code{ann_index_flow}.
 
 In some cases, it is desirable to select monthly flow directly, instead of
 scaling it. This can be performed by only scaling certain sites, using

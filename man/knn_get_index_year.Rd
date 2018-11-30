@@ -4,7 +4,8 @@
 \alias{knn_get_index_year}
 \title{Get the index years using k-nearest neighbor method}
 \usage{
-knn_get_index_year(ann_flow, ann_index_flow, k_weights = NULL)
+knn_get_index_year(ann_flow, ann_index_flow,
+  k_weights = knn_params_default(nrow(ann_index_flow)))
 }
 \arguments{
 \item{ann_flow}{A 2-column matrix, with years in column 1, and an annual flow
@@ -15,13 +16,8 @@ annual flow in column 2. This is the index gage that the flows in
 \code{ann_flow} will be compared to. After the comparison, the nearest neighbor
 years are selected.}
 
-\item{k_weights}{If \code{NULL}, parameters are set based on definitions in Nowak
-et al. (2010). Users may force \code{k} and the \code{weights} by specifiying this
-argument. It should be a list with two named entries: \code{k} and \code{weights}.
-\code{k} should be a single integer specifying the number of neighbors to
-select from. \code{weights} should be a vector with length equal to \code{k},
-specifying the weights to apply to the 1-\code{k} neighbors for selecting the
-neighbor.}
+\item{k_weights}{A \code{\link[=knn_params]{knn_params()}} object. By default, it uses
+\code{\link[=knn_params_default]{knn_params_default()}}.}
 }
 \value{
 N x 1 matrix of index years, with the number of rows, equal to the
@@ -43,4 +39,7 @@ knn_get_index_year(flow_mat, ind_flow)
 Nowak, K., Prairie, J., Rajagopalan, B., Lall, U. (2010).
 A nonparametric stochastic approach for multisite disaggregation of
 annual to daily streamflow. \emph{Water Resources Research.}
+}
+\seealso{
+\code{\link[=knn_params]{knn_params()}}, \code{\link[=knn_params_default]{knn_params_default()}}
 }

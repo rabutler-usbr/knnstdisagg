@@ -22,11 +22,7 @@ test_that("knn_get_index_year errors correctly", {
   expect_error(knn_get_index_year(flow_mat, ind_flow, k_weights = c(1, 7)))
   expect_error(
     knn_get_index_year(flow_mat, ind_flow, list(K = 2, weights = c(0.6, 0.4))),
-    "`k_weights` should have only names `k` and `weights`"
-  )
-  expect_error(
-    knn_get_index_year(flow_mat, ind_flow, list(k = 2, Weights = c(0.6, 0.4))),
-    "`k_weights` should have only names `k` and `weights`"
+    "`k_weights` should be a `knn_params` object"
   )
 
   expect_error(
@@ -35,57 +31,19 @@ test_that("knn_get_index_year errors correctly", {
       ind_flow,
       list(k = 2, weights = c(0.6, 0.4), z = 1)
     ),
-    "`k_weights` should have only names `k` and `weights`"
-  )
-
-  expect_error(
-    knn_get_index_year(
-      flow_mat,
-      ind_flow,
-      list(k = c(2, 1),
-           weights = c(0.6, 0.4))
-    ),
-    "`k_weights$k` should be a single whole number >= 1",
-    fixed = TRUE
-  )
-
-  expect_error(
-    knn_get_index_year(flow_mat, ind_flow, list(k = -7, weights = c(0.6, 0.4))),
-    "`k_weights$k` should be a single whole number >= 1",
-    fixed = TRUE
-  )
-
-  expect_error(
-    knn_get_index_year(
-      flow_mat,
-      ind_flow,
-      list(k = 4.2, weights = c(0.6, 0.4))
-    ),
-    "`k_weights$k` should be a single whole number >= 1",
-    fixed = TRUE
+    "`k_weights` should be a `knn_params` object"
   )
 
   expect_error(
     knn_get_index_year(
       flow_mat,
       ind_flow[1:3,],
-      list(k = 4, weights = rep(0.25, 4))
+      knn_params(k = 4, weights = rep(0.25, 4))
     ),
-    "`k` should be <= the number of potential index years.",
+    "`k_weights$k` should be <= the number of potential index years.",
     fixed = TRUE
   )
 
-  expect_error(
-    knn_get_index_year(flow_mat, ind_flow, list(k = 2, weights = c(1, 2))),
-    "`k_weights$weights` should sum to 1",
-    fixed = TRUE
-  )
-
-  expect_error(
-    knn_get_index_year(flow_mat, ind_flow, list(k = 2, weights = c(0.1, 0.5))),
-    "`k_weights$weights` should sum to 1",
-    fixed = TRUE
-  )
 })
 
 
@@ -108,7 +66,7 @@ test_that("knn_get_index_year returns correct structure", {
     tmp <- knn_get_index_year(
       flow_mat,
       ind_flow,
-      list(k = 4, weights = rep(0.25, 4))
+      knn_params(k = 4, weights = rep(0.25, 4))
     ),
     "double"
   )
@@ -120,7 +78,7 @@ test_that("knn_get_index_year returns correct structure", {
     tmp <- knn_get_index_year(
       flow_mat,
       ind_flow,
-      list(k = 4, weights = c(.9, .08, 0.01, 0.01))
+      knn_params(k = 4, weights = c(.9, .08, 0.01, 0.01))
     ),
     "double"
   )
@@ -133,7 +91,7 @@ test_that("knn_get_index_year returns correct structure", {
     tmp <- knn_get_index_year(
       flow_mat,
       ind_flow,
-      list(k = 1, weights = 1)
+      knn_params(k = 1, weights = 1)
     ),
     "double"
   )

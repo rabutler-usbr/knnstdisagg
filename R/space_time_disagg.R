@@ -9,13 +9,13 @@
 #' The method is described in detail in *Knowak et al.* (2010). The methodology
 #' disaggregates annual flow data (`ann_flow`) by selecting an index year from
 #' `ann_index_flow` using [knn_get_index_year()]. After the index year is
-#' selected, values from `ann_flow` are disaggregated spatially, and temporaly based on
-#' `mon_flow`. The spatial pattern is reflected by including different sites as
-#' columns in `mon_flow`, and the monthly disaggregation, uses the monthly
-#' pattern in `mon_flow` to disaggregate the data temporarly. Summability is
-#' preserved using this method, if the values selected in `mon_flow` are scaled
-#' and if the columns (or a subset of columns) in `mon_flow` sum together to
-#' equal `ann_index_flow`.
+#' selected, values from `ann_flow` are disaggregated spatially, and temporaly
+#' based on`mon_flow`. The spatial pattern is reflected by including different
+#' sites as columns in `mon_flow`, and the monthly disaggregation, uses the
+#' monthly pattern in `mon_flow` to disaggregate the data temporarly.
+#' Summability is preserved using this method, if the values selected in
+#' `mon_flow` are scaled and if the columns (or a subset of columns) in
+#' `mon_flow` sum together to equal `ann_index_flow`.
 #'
 #' In some cases, it is desirable to select monthly flow directly, instead of
 #' scaling it. This can be performed by only scaling certain sites, using
@@ -58,10 +58,10 @@
 #'
 #' @return A list with two entries: `disagg_flow` and `index_years`.
 #'   `index_years` contains a vector of the years that were selected as index
-#'   years for the flow values from `ann_flow`. `disagg_flow` is a list, with one entry
-#'   for each simulation (`nsim`). Each entry is a matrix with the same number
-#'   of columns as `mon_flow`, and 12 * the number of rows in `ann_flow`, number
-#'   of rows.
+#'   years for the flow values from `ann_flow`. `disagg_flow` is a list, with
+#'   one entry for each simulation (`nsim`). Each entry is a matrix with the
+#'   same number of columns as `mon_flow`, and 12 * the number of rows in
+#'   `ann_flow`, number of rows.
 #'
 #' @inheritParams knn_get_index_year
 #'
@@ -94,7 +94,7 @@ knn_space_time_disagg <- function(ann_flow,
                          sf_sites = NULL,
                          ofolder = NULL,
                          index_years = NULL,
-                         k_weights = NULL)
+                         k_weights = knn_params_default(nrow(ann_index_flow)))
 {
   n_disagg_yrs <- nrow(ann_flow)
 
@@ -132,10 +132,9 @@ knn_space_time_disagg <- function(ann_flow,
     )
   }
 
-  if (!is.null(index_years) && !is.null(k_weights)) {
-    stop(
-      "If specifying `index_years`, there is no need to specify `k_weights`",
-      call. = FALSE
+  if (!missing(index_years)) {
+    message(
+      "`index_years` is specified, so `k_weights` will be ignored."
     )
   }
 

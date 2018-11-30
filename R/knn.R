@@ -12,13 +12,8 @@
 #'   `ann_flow` will be compared to. After the comparison, the nearest neighbor
 #'   years are selected.
 #'
-#' @param k_weights If `NULL`, parameters are set based on definitions in Nowak
-#'   et al. (2010). Users may force `k` and the `weights` by specifiying this
-#'   argument. It should be a list with two named entries: `k` and `weights`.
-#'   `k` should be a single integer specifying the number of neighbors to
-#'   select from. `weights` should be a vector with length equal to `k`,
-#'   specifying the weights to apply to the 1-`k` neighbors for selecting the
-#'   neighbor.
+#' @param k_weights A [knn_params()] object. By default, it uses
+#'   [knn_params_default()].
 #'
 #' @return N x 1 matrix of index years, with the number of rows, equal to the
 #'   number of rows in `ann_flow`.
@@ -34,8 +29,11 @@
 #'   A nonparametric stochastic approach for multisite disaggregation of
 #'   annual to daily streamflow. *Water Resources Research.*
 #'
+#' @seealso [knn_params()], [knn_params_default()]
+#'
 #' @export
-knn_get_index_year <- function(ann_flow, ann_index_flow, k_weights = NULL)
+knn_get_index_year <- function(ann_flow, ann_index_flow,
+                          k_weights = knn_params_default(nrow(ann_index_flow)))
 {
   # check inputs -------------------
   assert_that(
@@ -48,37 +46,19 @@ knn_get_index_year <- function(ann_flow, ann_index_flow, k_weights = NULL)
 
   n_index_yrs <- nrow(ann_index_flow)
 
-  is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
-    abs(x - round(x)) < tol
-  }
-
   # knn parameters (k) and weights
-  if (is.null(k_weights)) {
-    tmp <- knn_params(n_index_yrs)
-    k <- tmp$k
-    weights <- tmp$weights
-  } else {
-    stopifnot(is.list(k_weights))
-    if (length(k_weights) != 2 || !all(names(k_weights) %in% c("k", "weights")))
-      stop("`k_weights` should have only names `k` and `weights`")
+  assertthat::assert_that(
+    is_knn_params(k_weights),
+    msg = "`k_weights` should be a `knn_params` object"
+  )
 
-    k <- k_weights$k
-    if (length(k) != 1 || k < 1 || !is.wholenumber(k))
-      stop("`k_weights$k` should be a single whole number >= 1", call. = FALSE)
+  k <- k_weights$k
+  weights <- k_weights$weights
 
-    if (k > n_index_yrs)
-      stop(
-        "`k` should be <= the number of potential index years.",
-        call. = FALSE
-      )
-
-    weights <- k_weights$weights
-    if (sum(weights) != 1)
-      stop("`k_weights$weights` should sum to 1", call. = FALSE)
-
-    if (length(weights) != k)
-      stop("`length(weights)` should equal `k`", call. = FALSE)
-  }
+  assertthat::assert_that(
+    n_index_yrs >= k,
+    msg = "`k_weights$k` should be <= the number of potential index years."
+  )
 
   # disagg all ann_flow values --------------
   x <- ann_flow[, 2, drop = FALSE]
@@ -86,24 +66,6 @@ knn_get_index_year <- function(ann_flow, ann_index_flow, k_weights = NULL)
 
   matrix(index_yrs, ncol = 1)
 }
-
-#' Returns "k" and weights for the KNN algorithm
-#'
-#' @param n The number of observations
-#'
-#' @noRd
-knn_params <- function(n)
-{
-  k <- floor(sqrt(n)) # floor was never used before, but that's the implication
-  # of indexing into a vector with a decimal
-
-  # defines matrix for weights
-  w <- 1 / matrix(seq_len(k), ncol = 1)
-  w <- w / sum(w)
-
-  list(k = k, weights = w)
-}
-
 
 knn_get_nn <- function(ann_flow, ann_index_flow, k, w)
 {

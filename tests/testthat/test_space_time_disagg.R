@@ -40,7 +40,7 @@ index_yrs <- matrix(scan("../dp/indexpick.txt", quiet = TRUE), ncol = 1)
 #                          nsim = 1,
 #                          ofolder = NULL,
 #                          index_years = NULL,
-#                          k_weights = NULL)
+#                          k_weights = knn_params(n))
 
 test_that("disagg matches previous code's results", {
   expect_equivalent(
@@ -74,17 +74,6 @@ test_that("current random selection matches original random selection", {
 
 # check knn_space_time_disagg errros -----------------------------
 test_that("`knn_space_time_disagg()` errors correctly", {
-  expect_error(
-    knn_space_time_disagg(
-      x,
-      ann_flw,
-      mon_flw,
-      index_years = orig_index,
-      k_weights = list(k = 1, weights = 1)
-    ),
-    "If specifying `index_years`, there is no need to specify `k_weights`",
-    fixed = TRUE
-  )
   expect_error(knn_space_time_disagg(x[,1], ann_flw, mon_flw))
   expect_error(knn_space_time_disagg(x, ann_flw[,2], mon_flw))
   expect_error(
@@ -130,30 +119,3 @@ test_that("`get_scale_factor()` returns correctly", {
     list(pos = as.integer(2), SF = 1100/1100)
   )
 })
-
-
-# ***** still need to make function much safer to the format of incoming data,
-# i.e., which input need years associated with them, and which don't, matrices,
-# vs. vectors, etc.
-
-# Should also consider round to nearest AF, but what are the effects of that on
-# matching the inut Lees Ferry value
-
-# should check that multiple simulations work; also need to check that multiple
-# simulations when specifying index_years works
-
-# should check that the mon_flow is either specified on water year vs. cy, or
-# somehow check that
-# - not sure if I can; might be up to the user
-
-# should error if index_years and k_weights are specified by user
-
-# need to check that the monthly data for all gages sums to the annual data for
-# the flow to disaggregate, but must check the appropriate gage.
-
-# need a test where there are no sf_sites, that works, to ensure that no warnings
-# post anymore
-
-# future enhancement: use rownames for mon_flow so that we can check that it
-# contains the same years of data as the ann_index_flow. Also consider putting
-# the years in the rownames of that variable, and (`x`), for consistency

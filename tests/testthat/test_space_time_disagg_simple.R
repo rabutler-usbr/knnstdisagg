@@ -91,14 +91,14 @@ nsim <- 3
 
 test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
   expect_type(
-    tmp <- knn_space_time_disagg(
+    expect_message(tmp <- knn_space_time_disagg(
       lf,
       index_flow,
       mon_flow,
       sf_sites = 1:20,
       nsim = nsim,
       index_years = ind_yrs
-    ),
+    )),
     "list"
   )
 
