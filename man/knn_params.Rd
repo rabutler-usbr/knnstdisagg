@@ -11,7 +11,8 @@ knn_params(k, weights)
 select from.}
 
 \item{weights}{a vector with length equal to \code{k}, specifying the weights to
-apply to the 1-\code{k} neighbors before selecting the neighbor.}
+apply to the 1-\code{k} neighbors before selecting the neighbor. The weights
+must sum to 1.}
 }
 \description{
 \code{knn_params()} creates an object, which lets the user specify values for
@@ -21,5 +22,9 @@ nearest neighbor.
 \examples{
 # uniformly select from the 5 nearest neighbors
 knn_params(5, rep(1/5, 5))
+# select from 4 neigbors, with decreasing likelihood of being selected
+knn_params(4, c(.4, .3, .2, .1))
+# select the nearest neighbor
+knn_params(1, 1)
 
 }

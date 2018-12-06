@@ -8,11 +8,16 @@
 #'   select from.
 #'
 #' @param weights a vector with length equal to `k`, specifying the weights to
-#'   apply to the 1-`k` neighbors before selecting the neighbor.
+#'   apply to the 1-`k` neighbors before selecting the neighbor. The weights
+#'   must sum to 1.
 #'
 #' @examples
 #' # uniformly select from the 5 nearest neighbors
 #' knn_params(5, rep(1/5, 5))
+#' # select from 4 neigbors, with decreasing likelihood of being selected
+#' knn_params(4, c(.4, .3, .2, .1))
+#' # select the nearest neighbor
+#' knn_params(1, 1)
 #'
 #' @export
 
@@ -70,15 +75,25 @@ is_knn_params <- function(x)
 
 #' The default knn parameters
 #'
-#' `knn_params_default()` creates a `knn_params` object based on the parameter
+#' `knn_params_default()` creates a [knn_params] object based on the parameter
 #' definitions in Nowak et al. (2010).
 #'
 #' Nowak et al. (2010) selects from `k` nearest neighbors, where `k` is equal to
 #' the squareroot of the number of observations in the index data set. The
 #' `k` neighbors use a weighting function that decreases based on distance.
-#' The weights are eqaul to (1 / `n`) / sum(1 / i) where i goes from 1 to `k`.
+#' The weights are eqaul to (1 / `n`) / sum(1 / `i`) where `i` goes from 1 to
+#' `k`.
 #'
 #' @param n The number of observations in the index data set
+#'
+#' @examples
+#' # there are 100 observations
+#' knn_params_default(100)
+#' # there are 20 observations in the data
+#' knn_params_default(20)
+#'
+#' @seealso
+#' [knn_params]
 #'
 #' @export
 knn_params_default <- function(n)
