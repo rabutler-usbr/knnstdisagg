@@ -77,6 +77,25 @@ is_knn_params <- function(x)
 print.knn_params <- function(x, ...)
 {
   k <- seq(1, x$k)
-  print(data.frame("neighbor" = k, "weight" = x$weights))
+  m <- cbind(k, x$weights)
+  colnames(m) <- c("neighbor:", "weight:")
+  rownames(m) <- rep("", nrow(m))
+
+  m[,2] <- round(m[,2], getOption("digits"))
+
+  print_tail <- FALSE
+  if(nrow(m) > 10) {
+    m2 <- tail(m, 3)
+    colnames(m2) <- c("      ...", "...")
+    print_tail <- TRUE
+    m <- m[1:7,]
+  }
+
+  cat(paste0("k = ", x$k, "\n"))
+  print(m, ..., quote = FALSE, right = TRUE)
+  if(print_tail)
+    print(m2, ..., quote = FALSE, right = TRUE)
+
+
   invisible(x)
 }
