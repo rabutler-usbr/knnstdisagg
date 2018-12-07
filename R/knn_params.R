@@ -46,7 +46,7 @@ validate_knn_params <- function(x)
 
   weights <- x$weights
   assertthat::assert_that(
-    sum(weights) == 1,
+    round(sum(weights), 10) == 1,
     msg = "`weights` should sum to 1"
   )
 
