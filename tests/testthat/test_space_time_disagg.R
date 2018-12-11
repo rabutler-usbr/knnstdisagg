@@ -63,15 +63,18 @@ orig_index <- as.matrix(read.csv("../dp/index_years_rseed408.csv"))
 dimnames(orig_index) <- NULL
 set.seed(403) # this was the first entry of .Random.seed when implementing this
 
+tmp2 <- knn_space_time_disagg(x, ann_flw, mon_flw, sf_sites = 1:20)
+
 test_that("current random selection matches original random selection", {
-  expect_equal(
-    knn_space_time_disagg(
-      x, ann_flw, mon_flw, sf_sites = 1:20
-    )[[1]]$index_years,
-    as.vector(orig_index)
-  )
+  expect_equal(tmp2[[1]]$index_years, as.vector(orig_index))
+  expect_equal(knnst_index_years(tmp2), orig_index)
   set.seed(403)
   expect_equal(knn_get_index_year(x, ann_flw), orig_index)
+})
+
+test_that("nsim and index_years are correct", {
+  expect_equal(knnst_nsim(tmp2), 1)
+  expect_equal(dim(knnst_index_years(tmp2)), c(nrow(x), 1))
 })
 
 # check knn_space_time_disagg errros -----------------------------

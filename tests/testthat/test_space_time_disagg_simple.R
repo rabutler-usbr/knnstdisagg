@@ -84,6 +84,9 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
   expect_true(!anyNA(index_out))
   expect_true(!anyNA(knnst_index_years(tmp)))
   expect_true(all(index_out %in% index_flow[,1]))
+  expect_equal(dim(knnst_index_years(tmp)), c(nrow(lf), nsim))
+  # sim
+  expect_equal(knnst_nsim(tmp), nsim)
 })
 
 ind_yrs <- cbind(c(2000, 1906, 1936), c(1999, 1976, 2010), c(2000, 1909, 1954))
@@ -103,6 +106,9 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
   )
 
   expect_equal(knnst_index_years(tmp), ind_yrs)
+  expect_equal(dim(knnst_index_years(tmp)), c(nrow(lf), nsim))
+  # sim
+  expect_equal(knnst_nsim(tmp), nsim)
 
   for (i in seq_len(nsim)) {
     # all sims should not be the same at the monthly level
