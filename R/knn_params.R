@@ -85,7 +85,7 @@ print.knn_params <- function(x, ...)
 
   print_tail <- FALSE
   if(nrow(m) > 10) {
-    m2 <- tail(m, 3)
+    m2 <- utils::tail(m, 3)
     colnames(m2) <- c("      ...", "...")
     print_tail <- TRUE
     m <- m[1:7,]

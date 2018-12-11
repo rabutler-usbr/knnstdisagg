@@ -2,8 +2,11 @@
 
 S3method(print,knn_params)
 export(is_knn_params)
+export(is_knnst)
 export(knn_get_index_year)
 export(knn_params)
 export(knn_params_default)
 export(knn_space_time_disagg)
+export(knnst_index_years)
+export(knnst_nsim)
 importFrom(assertthat,assert_that)

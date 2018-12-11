@@ -56,12 +56,7 @@
 #'   instead of selecting years based on weighted sampling via
 #'   [knn_get_index_year()].
 #'
-#' @return A list with two entries: `disagg_flow` and `index_years`.
-#'   `index_years` contains a vector of the years that were selected as index
-#'   years for the flow values from `ann_flow`. `disagg_flow` is a list, with
-#'   one entry for each simulation (`nsim`). Each entry is a matrix with the
-#'   same number of columns as `mon_flow`, and 12 * the number of rows in
-#'   `ann_flow`, number of rows.
+#' @return A `knnst` object.
 #'
 #' @inheritParams knn_get_index_year
 #'
@@ -221,19 +216,26 @@ knn_space_time_disagg <- function(ann_flow,
 
   # convert from 4-d array to list of 2-d arrays
   disag_out <- lapply(seq_len(nsim), function(ii) {
-    do.call(
-      cbind,
-      lapply(seq_len(nsite), function(jj) as.vector(t(disag[,,jj,ii])))
+    list(
+      disagg_flow = do.call(
+        cbind,
+        lapply(seq_len(nsite), function(jj) as.vector(t(disag[,,jj,ii])))
+      ),
+      index_years = index_mat[,ii]
     )
   })
+
+  disag_out <- structure(disag_out, class = c("knnst", "list"))
+  validate_knnst(disag_out)
 
   # output to "flat" file
 
   if (!is.null(ofolder)) {
-    write_knn_disagg(disag_out, index_mat, ofolder = ofolder)
+    write_knnst(disag_out, ofolder = ofolder)
   }
 
-  invisible(list(disagg_flow = disag_out, index_years = index_mat))
+  #invisible(list(disagg_flow = disag_out, index_years = index_mat))
+  disag_out
 }
 
 #' Compute the scaling factor for the current year's flow from the index year
@@ -264,17 +266,24 @@ get_scale_factor <- function(index_year, flow, ann_index_flow)
   list(pos = pos, SF = SF)
 }
 
-write_knn_disagg <- function(disag_out, index_mat, ofolder = ".")
+write_knnst <- function(disagg_flow, ofolder = ".")
 {
-  nsim <- length(disag_out)
+  assertthat::assert_that(
+    is_knnst(disagg_flow),
+    msg = "`disagg_flow` should be a `knnst` object"
+  )
+
+  nsim <- knnst_nsim(disagg_flow)
 
   lapply(seq_len(nsim), function(ii)
     utils::write.csv(
-      disag_out[[ii]],
+      disagg_flow[[ii]]$disagg_flow,
       file = file.path(ofolder, paste0("disagg_flow_", ii, ".csv")),
       row.names = FALSE
     )
   )
+
+  index_mat <- knnst_index_years(disagg_flow)
   utils::write.csv(
     index_mat,
     file = file.path(ofolder, "index_years.csv"),

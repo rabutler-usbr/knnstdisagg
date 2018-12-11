@@ -50,12 +50,7 @@ instead of selecting years based on weighted sampling via
 \code{\link[=knn_params_default]{knn_params_default()}}.}
 }
 \value{
-A list with two entries: \code{disagg_flow} and \code{index_years}.
-\code{index_years} contains a vector of the years that were selected as index
-years for the flow values from \code{ann_flow}. \code{disagg_flow} is a list, with
-one entry for each simulation (\code{nsim}). Each entry is a matrix with the
-same number of columns as \code{mon_flow}, and 12 * the number of rows in
-\code{ann_flow}, number of rows.
+A \code{knnst} object.
 }
 \description{
 \code{knn_space_time_disagg()} disaggregates annual flow data spatially and

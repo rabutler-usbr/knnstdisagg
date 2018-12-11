@@ -49,7 +49,7 @@ test_that("disagg matches previous code's results", {
       ann_index_flow = ann_flw,
       mon_flow = mon_flw,
       index_years = index_yrs,
-      sf_sites = 1:20)$disagg_flow[[1]]),
+      sf_sites = 1:20)[[1]]$disagg_flow),
     zz,
     tolerance = 0.00001
   )
@@ -65,8 +65,10 @@ set.seed(403) # this was the first entry of .Random.seed when implementing this
 
 test_that("current random selection matches original random selection", {
   expect_equal(
-    knn_space_time_disagg(x, ann_flw, mon_flw, sf_sites = 1:20)$index_years,
-    orig_index
+    knn_space_time_disagg(
+      x, ann_flw, mon_flw, sf_sites = 1:20
+    )[[1]]$index_years,
+    as.vector(orig_index)
   )
   set.seed(403)
   expect_equal(knn_get_index_year(x, ann_flw), orig_index)
@@ -108,7 +110,10 @@ test_that("`get_scale_factor()` errors correctly", {
 })
 
 test_that("`get_scale_factor()` returns correctly", {
-  expect_type(tmp <- knnstdisagg:::get_scale_factor(2000, 950, index_flow), "list")
+  expect_type(
+    tmp <- knnstdisagg:::get_scale_factor(2000, 950, index_flow),
+    "list"
+  )
   expect_identical(tmp, list(pos = as.integer(1), SF = 950/1000))
   expect_identical(
     knnstdisagg:::get_scale_factor(2002, 950, index_flow),
