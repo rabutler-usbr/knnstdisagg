@@ -1,3 +1,22 @@
+#' `knnst` Class
+#'
+#' The `knnst` class contains all output after performing the knn space-time
+#' streamflow disaggregation
+#'
+#' The knn space-time disaggregation is performed by [knn_space_time_disagg()].
+#' The `knnst` object contains all of the monthly data for the specified
+#' number of simulations. The `index_years` that were selected for each
+#' simulation are also stored in the `knnst` object.
+#'
+#' The data in the `knnst` object can be accessed through the following
+#' functions:
+#'   - [knnst_nsim()] will return the number of simulations, while
+#'   - [knnst_index_years()] will return all of the selected index years.
+#'
+#' @seealso [knn_space_time_disagg()], [knnst_nsim()], [knnst_index_years()]
+#' @name knnst
+NULL
+
 #' Test if the object inherits from  `knnst` class
 #'
 #' @param x An object
@@ -113,4 +132,22 @@ knnst_index_years <- function(disagg_flow)
       function(x) disagg_flow[[x]]$index_years
     )
   )
+}
+
+#' @export
+print.knnst <- function(x, ...)
+{
+  nsim <- knnst_nsim(x)
+  nyears <- nrow(knnst_index_years(x))
+  nsites <- ncol(x[[1]]$disagg_flow)
+
+  cat(
+    "`knnst`:",
+    paste("  ", nsim, "disaggregation simulations"),
+    paste("  ", nsites, "sites"),
+    paste("  ", nyears, "years of disaggregated data"),
+    sep = "\n"
+  )
+
+  invisible(x)
 }

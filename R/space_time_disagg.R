@@ -56,7 +56,7 @@
 #'   instead of selecting years based on weighted sampling via
 #'   [knn_get_index_year()].
 #'
-#' @return A `knnst` object.
+#' @return A [`knnst`] object.
 #'
 #' @inheritParams knn_get_index_year
 #'
@@ -66,7 +66,7 @@
 #'   A nonparametric stochastic approach for multisite disaggregation of
 #'   annual to daily streamflow. *Water Resources Research.*
 #'
-#' @seealso [knn_get_index_year()]
+#' @seealso [`knnst`], [knn_get_index_year()]
 #'
 #' @examples
 #'

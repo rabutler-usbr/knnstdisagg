@@ -50,7 +50,7 @@ instead of selecting years based on weighted sampling via
 \code{\link[=knn_params_default]{knn_params_default()}}.}
 }
 \value{
-A \code{knnst} object.
+A \code{\link{knnst}} object.
 }
 \description{
 \code{knn_space_time_disagg()} disaggregates annual flow data spatially and
@@ -100,7 +100,7 @@ A nonparametric stochastic approach for multisite disaggregation of
 annual to daily streamflow. \emph{Water Resources Research.}
 }
 \seealso{
-\code{\link[=knn_get_index_year]{knn_get_index_year()}}
+\code{\link{knnst}}, \code{\link[=knn_get_index_year]{knn_get_index_year()}}
 }
 \author{
 Ken Nowak

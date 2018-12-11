@@ -29,6 +29,7 @@ ann_sum <- function(x)
   )
 }
 
+# test output ---------------------------
 test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
   expect_is(
     tmp <- knn_space_time_disagg(
@@ -87,11 +88,13 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
   expect_equal(dim(knnst_index_years(tmp)), c(nrow(lf), nsim))
   # sim
   expect_equal(knnst_nsim(tmp), nsim)
+  expect_equal(print(tmp), tmp)
 })
 
 ind_yrs <- cbind(c(2000, 1906, 1936), c(1999, 1976, 2010), c(2000, 1909, 1954))
 nsim <- 3
 
+# specified index_years ---------------------------
 test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
   expect_is(
     expect_message(tmp <- knn_space_time_disagg(
@@ -109,6 +112,8 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
   expect_equal(dim(knnst_index_years(tmp)), c(nrow(lf), nsim))
   # sim
   expect_equal(knnst_nsim(tmp), nsim)
+  # print
+  expect_equal(print(tmp), tmp)
 
   for (i in seq_len(nsim)) {
     # all sims should not be the same at the monthly level
