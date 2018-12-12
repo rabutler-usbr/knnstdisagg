@@ -12,6 +12,8 @@ mon_flow <- nf_mon_flow
 
 lf <- cbind(2019:2021, c(9000000, 15000000, 12500000))
 nsim <- 5
+ym <- zoo::as.yearmon("2019-01") + 0:35/12
+ym <- paste(format(ym, "%Y"), format(ym, "%m"), sep = "-")
 
 # ** check specifying index years, and make sure values match exactly
 # ** check specifiying 1, and no sf_sites
@@ -73,6 +75,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
       as.matrix(mon_flow[as.character(tmp[[i]]$index_years[3]), 21:29])
     )
     dimnames(lb) <- NULL
+    rownames(lb) <- ym
 
     expect_equal(tmp[[i]]$disagg_flow[,21:29], lb)
   }
@@ -88,7 +91,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
   expect_equal(dim(knnst_index_years(tmp)), c(nrow(lf), nsim))
   # sim
   expect_equal(knnst_nsim(tmp), nsim)
-  expect_equal(print(tmp), tmp)
+  expect_equal(expect_output(print(tmp)), tmp)
 })
 
 ind_yrs <- cbind(c(2000, 1906, 1936), c(1999, 1976, 2010), c(2000, 1909, 1954))
@@ -113,7 +116,7 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
   # sim
   expect_equal(knnst_nsim(tmp), nsim)
   # print
-  expect_equal(print(tmp), tmp)
+  expect_equal(expect_output(print(tmp)), tmp)
 
   for (i in seq_len(nsim)) {
     # all sims should not be the same at the monthly level
@@ -141,6 +144,7 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
       as.matrix(mon_flow[as.character(ind_yrs[3, i]), 21:29])
     )
     dimnames(lb) <- NULL
+    rownames(lb) <- ym
 
     expect_equal(tmp[[i]]$disagg_flow[,21:29], lb)
   }

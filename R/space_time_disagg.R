@@ -213,14 +213,24 @@ knn_space_time_disagg <- function(ann_flow,
     }
   }
 
+  # create rownames for yyyy-mm
+  # ** For now, always assume it starts in January **
+  yy <- expand.grid(1:12, ann_flow[,1])
+  yy <- paste(
+    yy[,2],
+    formatC(yy[,1], width = 2, format = "d", flag = "0"),
+    sep = "-"
+  )
 
   # convert from 4-d array to list of 2-d arrays
   disag_out <- lapply(seq_len(nsim), function(ii) {
+    disagg_flow <- do.call(
+      cbind,
+      lapply(seq_len(nsite), function(jj) as.vector(t(disag[,,jj,ii])))
+    )
+    rownames(disagg_flow) <- yy
     list(
-      disagg_flow = do.call(
-        cbind,
-        lapply(seq_len(nsite), function(jj) as.vector(t(disag[,,jj,ii])))
-      ),
+      disagg_flow = disagg_flow,
       index_years = index_mat[,ii]
     )
   })
