@@ -7,6 +7,11 @@
 \usage{
 \method{as.data.frame}{knnst}(x, ...)
 }
+\arguments{
+\item{x}{A \code{knnst} object.}
+
+\item{...}{additional arguents to be passed to or from methods.}
+}
 \description{
 The \code{knnst} class contains all output after performing the knn space-time
 streamflow disaggregation

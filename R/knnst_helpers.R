@@ -162,6 +162,10 @@ print.knnst <- function(x, ...)
 #' added for year and month, by themselves. Each site (column) in the
 #' disaggregated flow data are named S1, S2, S3, ...
 #'
+#' @param x A `knnst` object.
+#'
+#' @param ... additional arguents to be passed to or from methods.
+#'
 #' @rdname knnst
 #'
 #' @export
