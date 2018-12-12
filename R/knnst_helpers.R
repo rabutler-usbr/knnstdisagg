@@ -151,3 +151,59 @@ print.knnst <- function(x, ...)
 
   invisible(x)
 }
+
+#' Convert `knnst` to `data.frame`
+#'
+#' @details
+#' `knnst` objects can be converted to `data.frame`s. When doing so, the
+#' disaggregated monthly data are combined with the a simulation number, and
+#' the index years, are repeated for each month. The rownames of the
+#' disaggregated data (yyyy-mm) format are kept, and additional columns are
+#' added for year and month, by themselves. Each site (column) in the
+#' disaggregated flow data are named S1, S2, S3, ...
+#'
+#' @rdname knnst
+#'
+#' @export
+
+as.data.frame.knnst <- function(x, ...)
+{
+  nsim <- knnst_nsim(x)
+  index_yrs <- knnst_index_years(x)
+
+  do.call(
+    rbind,
+    lapply(seq_len(nsim), function(i) {
+      tmp_m <- x[[i]]$disagg_flow
+      if (is.null(colnames(tmp_m)))
+        colnames(tmp_m) <- paste0("S", 1:ncol(tmp_m))
+
+      # rownames are yyyy-mm
+      ym <- rownames(tmp_m)
+      rownames(tmp_m) <- NULL
+
+      # get year and month by themselves
+      yy <- simplify2array(strsplit(ym, "-"))
+      mm <- as.numeric(yy[2,])
+      yy <- as.numeric(yy[1,])
+
+      # repeat the index year for each monthly entry
+      tmp_iy <- as.vector(matrix(
+        rep(index_yrs[,i], 12),
+        ncol = nrow(index_yrs),
+        byrow = TRUE
+      ))
+
+      # now create the data.frame
+      data.frame(
+        ym = ym,
+        year = yy,
+        month = mm,
+        as.data.frame(tmp_m, stringsAsFactors = FALSE),
+        simulation = i,
+        index_year = tmp_iy,
+        stringsAsFactors = FALSE
+      )
+    })
+  )
+}

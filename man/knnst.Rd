@@ -2,10 +2,16 @@
 % Please edit documentation in R/knnst_helpers.R
 \name{knnst}
 \alias{knnst}
+\alias{as.data.frame.knnst}
 \title{\code{knnst} Class}
+\usage{
+\method{as.data.frame}{knnst}(x, ...)
+}
 \description{
 The \code{knnst} class contains all output after performing the knn space-time
 streamflow disaggregation
+
+Convert \code{knnst} to \code{data.frame}
 }
 \details{
 The knn space-time disaggregation is performed by \code{\link[=knn_space_time_disagg]{knn_space_time_disagg()}}.
@@ -19,6 +25,13 @@ functions:
 \item \code{\link[=knnst_nsim]{knnst_nsim()}} will return the number of simulations, while
 \item \code{\link[=knnst_index_years]{knnst_index_years()}} will return all of the selected index years.
 }
+
+\code{knnst} objects can be converted to \code{data.frame}s. When doing so, the
+disaggregated monthly data are combined with the a simulation number, and
+the index years, are repeated for each month. The rownames of the
+disaggregated data (yyyy-mm) format are kept, and additional columns are
+added for year and month, by themselves. Each site (column) in the
+disaggregated flow data are named S1, S2, S3, ...
 }
 \seealso{
 \code{\link[=knn_space_time_disagg]{knn_space_time_disagg()}}, \code{\link[=knnst_nsim]{knnst_nsim()}}, \code{\link[=knnst_index_years]{knnst_index_years()}}
