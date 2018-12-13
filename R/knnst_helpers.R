@@ -13,6 +13,8 @@
 #'   - [knnst_nsim()] will return the number of simulations, while
 #'   - [knnst_index_years()] will return all of the selected index years.
 #'
+#' `knnst` objects can be converted to a `data.frame`: [as.data.frame.knnst()]
+#'
 #' @seealso [knn_space_time_disagg()], [knnst_nsim()], [knnst_index_years()]
 #' @name knnst
 NULL
@@ -152,9 +154,8 @@ print.knnst <- function(x, ...)
   invisible(x)
 }
 
-#' Convert `knnst` to `data.frame`
+#' Convert a `knnst` object to a `data.frame`
 #'
-#' @details
 #' `knnst` objects can be converted to `data.frame`s. When doing so, the
 #' disaggregated monthly data are combined with the a simulation number, and
 #' the index years, are repeated for each month. The rownames of the
@@ -165,8 +166,6 @@ print.knnst <- function(x, ...)
 #' @param x A `knnst` object.
 #'
 #' @param ... additional arguents to be passed to or from methods.
-#'
-#' @rdname knnst
 #'
 #' @export
 
