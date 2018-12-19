@@ -2,8 +2,8 @@ Package: knnstdisagg
 Title: Nonparametric Space-Time Streamflow Disaggregation Using KNN
 Version: 0.0.0.9000
 Authors@R: person("Alan", "Butler", , "rabutler@usbr.gov", c("aut", "cre"))
-Description: Perform space and time disaggregation of streamflow using a 
-    K-nearest neighbor (KNN) approach.
+Description: Perform space and time (annual to monthly) disaggregation of 
+    streamflow using a K-nearest neighbor (knn) approach.
 License: CC0
 Depends:
     R (>= 2.10)

@@ -6,8 +6,8 @@
 \alias{knnstdisagg-package}
 \title{knnstdisagg: Nonparametric Space-Time Streamflow Disaggregation Using KNN}
 \description{
-Perform space and time disaggregation of streamflow using a
-K-nearest neighbor (KNN) approach.
+Perform space and time (annual to monthly) disaggregation of
+streamflow using a K-nearest neighbor (knn) approach.
 }
 \section{Acknowledgements}{
 
