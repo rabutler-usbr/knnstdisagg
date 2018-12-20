@@ -44,12 +44,16 @@ index_yrs <- matrix(scan("../dp/indexpick.txt", quiet = TRUE), ncol = 1)
 
 test_that("disagg matches previous code's results", {
   expect_equivalent(
-    expect_message(tmp <- knn_space_time_disagg(
-      x,
-      ann_index_flow = ann_flw,
-      mon_flow = mon_flw,
-      index_years = index_yrs,
-      sf_sites = 1:20)[[1]]$disagg_flow),
+    tmp <- knnst_get_disagg_data(
+      expect_message(knn_space_time_disagg(
+        x,
+        ann_index_flow = ann_flw,
+        mon_flow = mon_flw,
+        index_years = index_yrs,
+        sf_sites = 1:20
+      )),
+      1
+    ),
     zz,
     tolerance = 0.00001
   )
@@ -66,7 +70,7 @@ set.seed(403) # this was the first entry of .Random.seed when implementing this
 tmp2 <- knn_space_time_disagg(x, ann_flw, mon_flw, sf_sites = 1:20)
 
 test_that("current random selection matches original random selection", {
-  expect_equal(tmp2[[1]]$index_years, as.vector(orig_index))
+  expect_equal(tmp2$disagg_sims[[1]]$index_years, as.vector(orig_index))
   expect_equal(knnst_index_years(tmp2), orig_index)
   set.seed(403)
   expect_equal(knn_get_index_year(x, ann_flw), orig_index)

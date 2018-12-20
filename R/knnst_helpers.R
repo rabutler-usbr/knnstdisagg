@@ -34,23 +34,49 @@ is_knnst <- function(x)
 validate_knnst <- function(x)
 {
   assertthat::assert_that(
-    length(x) > 0,
-    msg = "Should have length > 0"
+    length(x) == 3,
+    msg = "Should have length == 3"
+  )
+
+  disagg_names <- c("disagg_sims", "index_data", "mon_flow")
+  assert_that(
+    all(names(x) %in% disagg_names),
+    msg = paste(
+      "Object should only have these named entries:",
+      cat(disagg_names)
+    )
   )
 
   assertthat::assert_that(
-    all(sapply(x, length) %in% 2),
-    msg = "Each entry should only have a length of 2."
+    all(
+      sapply(
+        seq_len(knnst_nsim(x)),
+        function(ii) length(x$disagg_sims[[ii]])
+      ) %in% 2
+    ),
+    msg = "Each disagg_flow entry should only have a length of 2."
   )
 
+  knnst_names <- c("disagg_flow", "index_years")
   assertthat::assert_that(
-    all(sapply(x, names) %in% c("disagg_flow", "index_years")),
-    msg = "All names of entries should be disagg_flow and index_years."
+    all(
+      sapply(
+        seq_len(knnst_nsim(x)),
+        function(ii) names(x$disagg_sims[[ii]])
+      ) %in% knnst_names
+    ),
+    msg = "Unexpected names in knnst object's `disagg_sims` list were found."
   )
 
   # check that each matrix has 12*number of index years
-  nmonths <- sapply(seq_len(length(x)), function(i) nrow(x[[i]]$disagg_flow))
-  nyears <- sapply(seq_len(length(x)), function(i) length(x[[i]]$index_years))
+  nmonths <- sapply(
+    seq_len(knnst_nsim(x)),
+    function(i) nrow(x$disagg_sims[[i]]$disagg_flow)
+  )
+  nyears <- sapply(
+    seq_len(knnst_nsim(x)),
+    function(i) length(x$disagg_sims[[i]]$index_years)
+  )
 
   assertthat::assert_that(
     all(nyears * 12 == nmonths),
@@ -60,9 +86,9 @@ validate_knnst <- function(x)
   x
 }
 
-#' Get the number of diaggregation simulations from `knn_st` objects
+#' Get the number of diaggregation simulations from `knnst` objects
 #'
-#' @param disagg_flow A `knn_st` object
+#' @param disagg_flow A `knnst` object
 #'
 #' @return The number of diaggregation simulations
 #'
@@ -90,7 +116,7 @@ knnst_nsim <- function(disagg_flow)
     msg = "`disagg_flow` should be a `knnst` object"
   )
 
-  length(disagg_flow)
+  length(disagg_flow$disagg_sims)
 }
 
 #' Get all the index years from `knn_st` objects
@@ -131,7 +157,7 @@ knnst_index_years <- function(disagg_flow)
     cbind,
     lapply(
       seq_len(knnst_nsim(disagg_flow)),
-      function(x) disagg_flow[[x]]$index_years
+      function(x) disagg_flow$disagg_sims[[x]]$index_years
     )
   )
 }
@@ -141,7 +167,7 @@ print.knnst <- function(x, ...)
 {
   nsim <- knnst_nsim(x)
   nyears <- nrow(knnst_index_years(x))
-  nsites <- ncol(x[[1]]$disagg_flow)
+  nsites <- ncol(knnst_get_disagg_data(x, 1))
 
   cat(
     "`knnst`:",
@@ -177,7 +203,7 @@ as.data.frame.knnst <- function(x, ...)
   do.call(
     rbind,
     lapply(seq_len(nsim), function(i) {
-      tmp_m <- x[[i]]$disagg_flow
+      tmp_m <- knnst_get_disagg_data(x, i)
       if (is.null(colnames(tmp_m)))
         colnames(tmp_m) <- paste0("S", 1:ncol(tmp_m))
 
@@ -208,5 +234,39 @@ as.data.frame.knnst <- function(x, ...)
         stringsAsFactors = FALSE
       )
     })
+  )
+}
+
+#' Get the disaggregated data
+#'
+#' `knnst_get_disagg_data()` gets the disaggregated streamflow data from a
+#' `knnst` object.
+#'
+#' As `knnst` objects can contain multiple simulations of disaggregated data,
+#' `sim_num` specifies which simulation of data to return.
+#'
+#' @inheritParams knnst_nsim
+#'
+#' @param sim_num The simulation number.
+#'
+#' @return A matrix.
+#'
+#' @export
+knnst_get_disagg_data <- function(disagg_flow, sim_num = 1)
+{
+  check_sim_num(sim_num, disagg_flow, "knnst_get_disagg_data")
+
+  disagg_flow$disagg_sims[[sim_num]]$disagg_flow
+}
+
+check_sim_num <- function(sim_num, disagg_flow, called_from)
+{
+  assert_that(
+    length(sim_num) == 1 && is.numeric(sim_num) && sim_num <= knnst_nsim(x) &&
+      sim_num > 0,
+    msg = paste0(
+      "In `", called_from,
+      "()`, `sim_num` should be a postivie numeric <= `knnst_nsim(x)`."
+    )
   )
 }

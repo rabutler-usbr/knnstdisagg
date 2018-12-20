@@ -53,14 +53,14 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
     # all 5 files should not be the same at the monthly level
     j <- ifelse(i == nsim, 1, i + 1)
     expect_false(
-      identical(tmp[[i]]$disagg_flow, tmp[[j]]$disagg_flow),
+      identical(knnst_get_disagg_data(tmp, i), knnst_get_disagg_data(tmp, j)),
       info = paste(i, "compared to", j)
     )
 
     # but they should all sum to the same annual value for lees ferry (not LB)
-    t1 <- tmp[[i]]$disagg_flow
+    t1 <- knnst_get_disagg_data(tmp, i)
     t1 <- ann_sum(t1)
-    t2 <- tmp[[j]]$disagg_flow
+    t2 <- knnst_get_disagg_data(tmp, j)
     t2 <- ann_sum(t2)
     expect_equal(
       apply(t1[,1:20], 1, sum),
@@ -70,14 +70,20 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
 
     # and LB should match the natural flow data exactly
     lb <- rbind(
-      as.matrix(mon_flow[as.character(tmp[[i]]$index_years[1]), 21:29]),
-      as.matrix(mon_flow[as.character(tmp[[i]]$index_years[2]), 21:29]),
-      as.matrix(mon_flow[as.character(tmp[[i]]$index_years[3]), 21:29])
+      as.matrix(
+        mon_flow[as.character(tmp$disagg_sims[[i]]$index_years[1]), 21:29]
+      ),
+      as.matrix(
+        mon_flow[as.character(tmp$disagg_sims[[i]]$index_years[2]), 21:29]
+      ),
+      as.matrix(
+        mon_flow[as.character(tmp$disagg_sims[[i]]$index_years[3]), 21:29]
+      )
     )
     dimnames(lb) <- NULL
     rownames(lb) <- ym
 
-    expect_equal(tmp[[i]]$disagg_flow[,21:29], lb)
+    expect_equal(knnst_get_disagg_data(tmp, i)[,21:29], lb)
   }
 
 
@@ -122,14 +128,14 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
     # all sims should not be the same at the monthly level
     j <- ifelse(i == nsim, 1, i + 1)
     expect_false(
-      identical(tmp[[i]]$disagg_flow, tmp[[j]]$disagg_flow),
+      identical(knnst_get_disagg_data(tmp, i), knnst_get_disagg_data(tmp, j)),
       info = paste(i, "compared to", j)
     )
 
     # but they should all sum to the same annual value for lees ferry (not LB)
-    t1 <- tmp[[i]]$disagg_flow
+    t1 <- knnst_get_disagg_data(tmp, i)
     t1 <- ann_sum(t1)
-    t2 <- tmp[[j]]$disagg_flow
+    t2 <- knnst_get_disagg_data(tmp, j)
     t2 <- ann_sum(t2)
     expect_equal(
       apply(t1[,1:20], 1, sum),
@@ -146,23 +152,26 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
     dimnames(lb) <- NULL
     rownames(lb) <- ym
 
-    expect_equal(tmp[[i]]$disagg_flow[,21:29], lb)
+    expect_equal(knnst_get_disagg_data(tmp, i)[,21:29], lb)
   }
 
   expect_equivalent(
-    tmp[[1]]$disagg_flow[1:12, 15] / sum(tmp[[1]]$disagg_flow[1:12, 15]),
+    knnst_get_disagg_data(tmp, 1)[1:12, 15] /
+      sum(knnst_get_disagg_data(tmp, 1)[1:12, 15]),
     as.vector(mon_flow[as.character(ind_yrs[1,1]), 15] /
       sum(mon_flow[as.character(ind_yrs[1,1]), 15]))
   )
 
   expect_equivalent(
-    tmp[[2]]$disagg_flow[25:36, 18] / sum(tmp[[2]]$disagg_flow[25:36, 18]),
+    knnst_get_disagg_data(tmp, 2)[25:36, 18] /
+      sum(knnst_get_disagg_data(tmp, 2)[25:36, 18]),
     as.vector(mon_flow[as.character(ind_yrs[3, 2]), 18] /
       sum(mon_flow[as.character(ind_yrs[3, 2]), 18]))
   )
 
   expect_equivalent(
-    tmp[[3]]$disagg_flow[13:24, 1] / sum(tmp[[3]]$disagg_flow[13:24, 1]),
+    knnst_get_disagg_data(tmp, 3)[13:24, 1] /
+      sum(knnst_get_disagg_data(tmp, 3)[13:24, 1]),
     as.vector(mon_flow[as.character(ind_yrs[2, 3]), 1] /
       sum(mon_flow[as.character(ind_yrs[2, 3]), 1]))
   )

@@ -7,7 +7,7 @@
 knnst_index_years(disagg_flow)
 }
 \arguments{
-\item{disagg_flow}{A \code{knn_st} object}
+\item{disagg_flow}{A \code{knnst} object}
 }
 \value{
 A matrix where each column is the index years selected for that

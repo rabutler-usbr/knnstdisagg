@@ -235,6 +235,15 @@ knn_space_time_disagg <- function(ann_flow,
     )
   })
 
+  # add in the historical data and index gage data, and move all the simulation
+  # data in one layer.
+
+  disag_out <- list(
+    disagg_sims = disag_out,
+    index_data = ann_index_flow,
+    mon_flow = mon_flow
+  )
+
   disag_out <- structure(disag_out, class = c("knnst", "list"))
   validate_knnst(disag_out)
 
@@ -287,7 +296,7 @@ write_knnst <- function(disagg_flow, ofolder = ".")
 
   lapply(seq_len(nsim), function(ii)
     utils::write.csv(
-      disagg_flow[[ii]]$disagg_flow,
+      knnst_get_disagg_data(disagg_flow, ii),
       file = file.path(ofolder, paste0("disagg_flow_", ii, ".csv")),
       row.names = FALSE
     )
