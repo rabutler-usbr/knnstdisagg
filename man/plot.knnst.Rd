@@ -5,7 +5,7 @@
 \title{\code{plot.knnst} implements the \link{plot} method for \code{knnst} objects, and relies on
 ggplot2}
 \usage{
-\method{plot}{knnst}(x, ..., site = "S1", sim_num = 1)
+\method{plot}{knnst}(x, ..., site = "S1")
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}
@@ -13,8 +13,6 @@ ggplot2}
 \item{...}{arguments to be passed to subsequent methods}
 
 \item{site}{The site to plot. Site name as a character.}
-
-\item{sim_num}{The simulation to plot. Simulation number (numerical).}
 }
 \description{
 \code{plot.knnst} implements the \link{plot} method for \code{knnst} objects, and relies on

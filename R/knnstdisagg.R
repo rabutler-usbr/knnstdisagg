@@ -9,4 +9,8 @@
 #' [doi:10.1029/2009WR008530.](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2009WR008530)
 #'
 #' @importFrom assertthat assert_that
+#' @import ggplot2
+#' @importFrom dplyr %>%
 "_PACKAGE"
+
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))

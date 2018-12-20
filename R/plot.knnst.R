@@ -7,18 +7,9 @@
 #'
 #' @param site The site to plot. Site name as a character.
 #'
-#' @param sim_num The simulation to plot. Simulation number (numerical).
-#'
 #' @export
-plot.knnst <- function(x, ..., site = "S1", sim_num = 1)
+plot.knnst <- function(x, ..., site = "S1")
 {
-  # TODO: how to handle multiple simulations
-  # for now, will only select one simulation number;
-  # in the future, may accept multiple simulation numbers that will be
-  # aggregated together before plotting
-
-  check_sim_num(sim_num, x, "plot.knnst")
-
   assert_that(
     length(site) == 1 && is.character(site),
     msg = "In `plot.knnst()`, `site` should be a character with length of 1."
@@ -31,19 +22,35 @@ plot.knnst <- function(x, ..., site = "S1", sim_num = 1)
     msg = "In `plot.knnst()`, `site` should be a valid site name."
   )
 
+  keep_cols <- c("ym", "year", "month", site, "simulation")
+  vars_group <- c("month", "simulation")
+
+  x_df <- x_df %>%
+    # subset to site
+    dplyr::select_at(keep_cols) %>%
+    dplyr::group_by_at(vars_group) %>%
+    # means, standard deviation, max, min
+    # TODO: skew, lag-1 correlation
+    dplyr::summarise_at(site, dplyr::funs(mean, stats::var, max, min)) %>%
+    dplyr::mutate_at("var", dplyr::funs(.^0.5)) %>%
+    dplyr::rename_at("var", function(.){"sd"}) %>%
+    tidyr::gather_(
+      "Variable",
+      "Value",
+      tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
+    )
+
+  # TODO: get historical data as a data frame, organize, and compute same stats
+  # as on the simulated data
+
   # monthly means
-
-  # monthly standard deviation
-
-  # monthly skew
-
-  # monthly lag-1 correlation
-
-  # monthly max
-
-  # monthly min
+  gg <- ggplot(x_df, aes_string("month", "Value")) +
+    geom_boxplot(aes_string(group = "month")) +
+    facet_wrap("Variable", ncol = 2, scales = "free_y")
 
   # monthly pdf
 
   # annual pdf
+
+  gg
 }
