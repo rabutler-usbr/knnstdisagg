@@ -73,7 +73,7 @@ knnst <- knn_space_time_disagg(
 
 test_that("data in data.frame matches data in knnst", {
   expect_is(df <- as.data.frame(knnst), "data.frame")
-  expect_equal(ncol(df), 5 + ncol(knnst_get_disagg_data(knnst, i)))
+  expect_equal(ncol(df), 5 + ncol(knnst_get_disagg_data(knnst, 1)))
   expect_true(all(add_cols %in% names(df)))
   expect_true(all(unique(df$simulation) %in% 1:nsim))
   expect_true(all(1:nsim %in% unique(df$simulation)))

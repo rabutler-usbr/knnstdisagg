@@ -252,6 +252,8 @@ as.data.frame.knnst <- function(x, ...)
 #' @return A matrix.
 #'
 #' @export
+
+# TODO: need to add tests for this function by itsefl
 knnst_get_disagg_data <- function(disagg_flow, sim_num = 1)
 {
   check_sim_num(sim_num, disagg_flow, "knnst_get_disagg_data")
@@ -262,8 +264,8 @@ knnst_get_disagg_data <- function(disagg_flow, sim_num = 1)
 check_sim_num <- function(sim_num, disagg_flow, called_from)
 {
   assert_that(
-    length(sim_num) == 1 && is.numeric(sim_num) && sim_num <= knnst_nsim(x) &&
-      sim_num > 0,
+    length(sim_num) == 1 && is.numeric(sim_num) &&
+      sim_num <= knnst_nsim(disagg_flow) && sim_num > 0,
     msg = paste0(
       "In `", called_from,
       "()`, `sim_num` should be a postivie numeric <= `knnst_nsim(x)`."
