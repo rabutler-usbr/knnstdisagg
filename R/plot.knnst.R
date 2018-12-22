@@ -24,20 +24,38 @@ plot.knnst <- function(x, ..., site = "S1")
 
   keep_cols <- c("ym", "year", "month", site, "simulation")
   vars_group <- c("month", "simulation")
+  var_name_order <- c(
+    "mean" = "Mean",
+    "stats::var" = "Variance",
+    "max" = "Maximum",
+    "min" = "Minimum",
+    "stats::cor" = "Lag-1 Correlation",
+    "skew" = "Skew"
+  )
 
   x_df <- x_df %>%
     # subset to site
     dplyr::select_at(keep_cols) %>%
+    dplyr::group_by_at("simulation") %>%
+    dplyr::arrange_at("ym") %>%
+    dplyr::mutate_at(site, dplyr::funs("tmp" = dplyr::lag(.))) %>%
     dplyr::group_by_at(vars_group) %>%
-    # means, standard deviation, max, min
-    # TODO: skew, lag-1 correlation
-    dplyr::summarise_at(site, dplyr::funs(mean, stats::var, max, min)) %>%
-    dplyr::mutate_at("var", dplyr::funs(.^0.5)) %>%
-    dplyr::rename_at("var", function(.){"sd"}) %>%
+    # means, standard deviation, max, min, skew, lag-1 correlation
+    dplyr::summarise_at(
+      site,
+      dplyr::funs(
+        mean, stats::var, max, min, skew,
+        stats::cor(get(site), get("tmp"), use = "complete.obs")
+      )
+    ) %>%
     tidyr::gather_(
       "Variable",
       "Value",
       tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
+    ) %>%
+    dplyr::mutate_at(
+      "Variable",
+      dplyr::funs(factor(var_name_order[.], levels = var_name_order))
     )
 
   # TODO: get historical data as a data frame, organize, and compute same stats
