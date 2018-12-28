@@ -40,6 +40,9 @@ plot.knnst <- function(x, ..., site = "S1")
       aes_string("month", "Value"),
       color = "red",
       shape = 18
+    ) +
+    labs(
+      x = NULL
     )
 
   # TODO: monthly pdf
@@ -85,5 +88,10 @@ get_plot_stats <- function(x_df, site)
     dplyr::mutate_at(
       "Variable",
       dplyr::funs(factor(var_name_order[.], levels = var_name_order))
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate_at(
+      "month",
+      dplyr::funs(factor(month.abb[.], levels = month.abb))
     )
 }
