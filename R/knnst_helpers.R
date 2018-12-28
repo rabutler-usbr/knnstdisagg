@@ -272,3 +272,35 @@ check_sim_num <- function(sim_num, disagg_flow, called_from)
     )
   )
 }
+
+get_pattern_flow_data_df <- function(x, site)
+{
+  drop_cols <- c("ym", "year", "month", "simulation", "index_year")
+  all_cols <- names(as.data.frame(x))
+
+  tmp <- all_cols[!(all_cols %in% drop_cols)]
+
+  # assume years correspond to the years from the annual index data
+  # assume that data start in January
+  yy <- x$index_data[,1]
+
+  ym <- expand.grid(1:12, yy)
+  mm <- ym[,1]
+  yy <- ym[,2]
+  ym <- paste(
+    ym[,2],
+    formatC(ym[,1], width = 2, format = "d", flag = "0"),
+    sep = "-"
+  )
+
+  x_mon <- data.frame(
+    ym = ym,
+    year = yy,
+    month = mm,
+    simulation = 1
+  )
+
+  x_mon[[site]] <- x$mon_flow[, match(site, tmp)]
+
+  x_mon
+}

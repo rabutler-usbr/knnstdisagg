@@ -16,12 +16,41 @@ plot.knnst <- function(x, ..., site = "S1")
   )
 
   x_df <- as.data.frame(x)
+  all_cols <- names(x_df)
 
   assert_that(
     site %in% names(x_df),
     msg = "In `plot.knnst()`, `site` should be a valid site name."
   )
 
+  x_df <- get_plot_stats(x_df, site)
+
+  # get historical data as a data frame, organize, and compute same stats
+  # as on the simulated data
+  x_mon <- x %>%
+    get_pattern_flow_data_df(site) %>%
+    get_plot_stats(site)
+
+  # monthly means
+  gg <- ggplot(x_df, aes_string("month", "Value")) +
+    geom_boxplot(aes_string(group = "month")) +
+    facet_wrap("Variable", ncol = 2, scales = "free_y") +
+    geom_point(
+      data = x_mon,
+      aes_string("month", "Value"),
+      color = "red",
+      shape = 18
+    )
+
+  # TODO: monthly pdf
+
+  # TODO: annual pdf
+
+  gg
+}
+
+get_plot_stats <- function(x_df, site)
+{
   keep_cols <- c("ym", "year", "month", site, "simulation")
   vars_group <- c("month", "simulation")
   var_name_order <- c(
@@ -33,7 +62,7 @@ plot.knnst <- function(x, ..., site = "S1")
     "skew" = "Skew"
   )
 
-  x_df <- x_df %>%
+  x_df %>%
     # subset to site
     dplyr::select_at(keep_cols) %>%
     dplyr::group_by_at("simulation") %>%
@@ -57,18 +86,4 @@ plot.knnst <- function(x, ..., site = "S1")
       "Variable",
       dplyr::funs(factor(var_name_order[.], levels = var_name_order))
     )
-
-  # TODO: get historical data as a data frame, organize, and compute same stats
-  # as on the simulated data
-
-  # monthly means
-  gg <- ggplot(x_df, aes_string("month", "Value")) +
-    geom_boxplot(aes_string(group = "month")) +
-    facet_wrap("Variable", ncol = 2, scales = "free_y")
-
-  # monthly pdf
-
-  # annual pdf
-
-  gg
 }
