@@ -5,7 +5,7 @@
 \title{\code{plot.knnst} implements the \link{plot} method for \code{knnst} objects, and relies on
 ggplot2}
 \usage{
-\method{plot}{knnst}(x, ..., site = "S1")
+\method{plot}{knnst}(x, ..., site = "S1", base_units = NULL)
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}
@@ -13,6 +13,9 @@ ggplot2}
 \item{...}{arguments to be passed to subsequent methods}
 
 \item{site}{The site to plot. Site name as a character.}
+
+\item{base_units}{The (input) units of the flow that was disaggregated. These
+units will be shown as the y-axis label of the plot.}
 }
 \description{
 \code{plot.knnst} implements the \link{plot} method for \code{knnst} objects, and relies on

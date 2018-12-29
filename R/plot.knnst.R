@@ -7,8 +7,11 @@
 #'
 #' @param site The site to plot. Site name as a character.
 #'
+#' @param base_units The (input) units of the flow that was disaggregated. These
+#'   units will be shown as the y-axis label of the plot.
+#'
 #' @export
-plot.knnst <- function(x, ..., site = "S1")
+plot.knnst <- function(x, ..., site = "S1", base_units = NULL)
 {
   assert_that(
     length(site) == 1 && is.character(site),
@@ -42,7 +45,9 @@ plot.knnst <- function(x, ..., site = "S1")
       shape = 18
     ) +
     labs(
-      x = NULL
+      x = NULL,
+      title = site,
+      y = paste("Base units =", base_units)
     )
 
   # TODO: monthly pdf
