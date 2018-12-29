@@ -1,5 +1,10 @@
-#' `plot.knnst` implements the [plot] method for `knnst` objects, and relies on
-#' ggplot2
+#' Plot resulting statistics for knn space-time disaggregation
+#'
+#' `plot.knnst()` implements the [plot()] method for `knnst` objects, and relies on
+#' ggplot2. It plots the key statistics the knn space-time disaggregation method
+#' should be preserving.
+#'
+#' `...` is passed to [geom_point()] and [labs()].
 #'
 #' @param x An object inheriting from class `knnst`
 #'
@@ -11,7 +16,7 @@
 #'   units will be shown as the y-axis label of the plot.
 #'
 #' @export
-plot.knnst <- function(x, ..., site = "S1", base_units = NULL)
+plot.knnst <- function(x, site = "S1", base_units = NULL, ...)
 {
   assert_that(
     length(site) == 1 && is.character(site),
@@ -41,13 +46,14 @@ plot.knnst <- function(x, ..., site = "S1", base_units = NULL)
     geom_point(
       data = x_mon,
       aes_string("month", "Value"),
-      color = "red",
-      shape = 18
+      shape = 18,
+      ...
     ) +
     labs(
       x = NULL,
       title = site,
-      y = paste("Base units =", base_units)
+      y = paste("Base units =", base_units),
+      ...
     )
 
   # TODO: monthly pdf
