@@ -4,7 +4,8 @@
 \alias{plot.knnst}
 \title{Plot resulting statistics for knn space-time disaggregation}
 \usage{
-\method{plot}{knnst}(x, site = "S1", base_units = NULL, ...)
+\method{plot}{knnst}(x, site = "S1", base_units = NULL,
+  breaks = "Sturges", ...)
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}
@@ -13,6 +14,8 @@
 
 \item{base_units}{The (input) units of the flow that was disaggregated. These
 units will be shown as the y-axis label of the plot.}
+
+\item{breaks}{Specifies how breaks are computed for histograms. See \code{\link[=hist]{hist()}}.}
 
 \item{...}{arguments to be passed to subsequent methods.}
 }
