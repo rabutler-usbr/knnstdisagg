@@ -11,6 +11,7 @@ Imports:
     assertthat,
     dplyr,
     ggplot2,
+    sm,
     stats,
     tidyr,
     tidyselect

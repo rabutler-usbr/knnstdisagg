@@ -15,10 +15,8 @@
 #' @param base_units The (input) units of the flow that was disaggregated. These
 #'   units will be shown as the y-axis label of the plot.
 #'
-#' @param breaks Specifies how breaks are computed for histograms. See [hist()].
-#'
 #' @export
-plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ...)
+plot.knnst <- function(x, site = "S1", base_units = NULL, ...)
 {
   assert_that(
     length(site) == 1 && is.character(site),
@@ -65,13 +63,29 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
   # instead of hist()
   # compute histograms for all simulations
   nsim <- knnst_nsim(x)
-  # 1) call hist() initially, with breaks = breaks on all data
+  # 1) call sm.density() initially, with breaks = breaks on all data
   mon_breaks <- lapply(1:12, function(mm) {
+    tmp_hist <- dplyr::filter_at(x_mon, "month", dplyr::any_vars(. == mm))[[site]]
     tmp <- c(
-      dplyr::filter_at(x_mon, "month", dplyr::any_vars(. == mm))[[site]],
+      tmp_hist,
       dplyr::filter_at(x_df, "month", dplyr::any_vars(. == mm))[[site]]
     )
-    graphics::hist(tmp, plot = FALSE, breaks = breaks)
+
+    # adaptabed from Knowak
+    # set the normal bandwidth
+    bandd <- sm::hnorm(tmp)
+
+    # go one bandwidth from the min and max of the data..
+    xlow <- min(tmp) - bandd
+
+    if(min(tmp_hist) >= 0) {
+      xlow <- max(0, xlow)
+    }
+
+    xhigh <- max(tmp) + bandd
+
+    #create 50 points equally spaced between xlow and xhigh..
+    seq(xlow, xhigh, length = 50)
   })
 
   # 2) then call hist() with breaks = output of above
@@ -82,10 +96,10 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
       t2 <- x_df %>%
         dplyr::filter_at("simulation", dplyr::any_vars(. == n1)) %>%
         dplyr::filter_at("month", dplyr::any_vars(. == mm))
-      tmp[[mm]] <- graphics::hist(
+      tmp[[mm]] <- sm::sm.density(
         t2[[site]],
-        plot = FALSE,
-        breaks = mon_breaks[[mm]]$breaks
+        eval.points = mon_breaks[[mm]],
+        display = "none"
       )
     }
 
@@ -95,15 +109,15 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
   # 2b) and call hist() on historical data
   hist_pdf <- lapply(1:12, function(mm) {
     tmp <- dplyr::filter_at(x_mon, "month", dplyr::any_vars(. == mm))[[site]]
-    graphics::hist(tmp, plot = FALSE, breaks = mon_breaks[[mm]]$breaks)
+    sm::sm.density(tmp, display = "none", eval.points = mon_breaks[[mm]])
   })
 
   # 3) then create df with $density of all calls to hist and $breaks as flow (x)
   hist_pdf <- do.call(rbind, lapply(1:12, function(mm) {
     data.frame(
       month = mm,
-      x = hist_pdf[[mm]]$mids,
-      density = hist_pdf[[mm]]$density
+      x = mon_breaks[[mm]],
+      density = hist_pdf[[mm]]$estimate
     )
   }))
 
@@ -113,15 +127,15 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
     for (mm in 1:12) {
       tmp <- rbind(tmp, data.frame(
         month = mm,
-        x = sim_pdf[[n1]][[mm]]$mids,
-        density = sim_pdf[[n1]][[mm]]$density
+        x = mon_breaks[[mm]],
+        density = sim_pdf[[n1]][[mm]]$estimate
       ))
     }
 
     tmp
   }))
 
-  # 4) then plot with ggplot() + geom_boxplot()
+    # 4) then plot with ggplot() + geom_boxplot()
   mon_labels <- month.abb
   names(mon_labels) <- 1:12
   gg2 <- ggplot(sim_pdf, aes_string("x", "density")) +
