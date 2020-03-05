@@ -10,7 +10,7 @@
 #' disaggregates annual flow data (`ann_flow`) by selecting an index year from
 #' `ann_index_flow` using [knn_get_index_year()]. After the index year is
 #' selected, values from `ann_flow` are disaggregated spatially, and temporaly
-#' based on`mon_flow`. The spatial pattern is reflected by including different
+#' based on `mon_flow`. The spatial pattern is reflected by including different
 #' sites as columns in `mon_flow`, and the monthly disaggregation, uses the
 #' monthly pattern in `mon_flow` to disaggregate the data temporarly.
 #' Summability is preserved using this method, if the values selected in

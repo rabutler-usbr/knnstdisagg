@@ -4,9 +4,16 @@
 \alias{knn_space_time_disagg}
 \title{Spatial and temporal diaggregattion of flow data}
 \usage{
-knn_space_time_disagg(ann_flow, ann_index_flow, mon_flow, nsim = 1,
-  sf_sites = NULL, ofolder = NULL, index_years = NULL,
-  k_weights = knn_params_default(nrow(ann_index_flow)))
+knn_space_time_disagg(
+  ann_flow,
+  ann_index_flow,
+  mon_flow,
+  nsim = 1,
+  sf_sites = NULL,
+  ofolder = NULL,
+  index_years = NULL,
+  k_weights = knn_params_default(nrow(ann_index_flow))
+)
 }
 \arguments{
 \item{ann_flow}{A 2-column matrix, with years in column 1, and an annual flow
@@ -63,7 +70,7 @@ The method is described in detail in \emph{Knowak et al.} (2010). The methodolog
 disaggregates annual flow data (\code{ann_flow}) by selecting an index year from
 \code{ann_index_flow} using \code{\link[=knn_get_index_year]{knn_get_index_year()}}. After the index year is
 selected, values from \code{ann_flow} are disaggregated spatially, and temporaly
-based on\code{mon_flow}. The spatial pattern is reflected by including different
+based on \code{mon_flow}. The spatial pattern is reflected by including different
 sites as columns in \code{mon_flow}, and the monthly disaggregation, uses the
 monthly pattern in \code{mon_flow} to disaggregate the data temporarly.
 Summability is preserved using this method, if the values selected in

@@ -4,8 +4,11 @@
 \alias{knn_get_index_year}
 \title{Get the index years using k-nearest neighbor method}
 \usage{
-knn_get_index_year(ann_flow, ann_index_flow,
-  k_weights = knn_params_default(nrow(ann_index_flow)))
+knn_get_index_year(
+  ann_flow,
+  ann_index_flow,
+  k_weights = knn_params_default(nrow(ann_index_flow))
+)
 }
 \arguments{
 \item{ann_flow}{A 2-column matrix, with years in column 1, and an annual flow
