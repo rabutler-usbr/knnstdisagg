@@ -1,8 +1,8 @@
 #' Plot resulting statistics for knn space-time disaggregation
 #'
-#' `plot.knnst()` implements the [plot()] method for `knnst` objects, and relies on
-#' ggplot2. It plots the key statistics the knn space-time disaggregation method
-#' should be preserving.
+#' `plot.knnst()` implements the [plot()] method for `knnst` objects, and relies
+#' on ggplot2. It plots the key statistics the knn space-time disaggregation
+#' method should be preserving.
 #'
 #' `...` is passed to [geom_point()] and [labs()].
 #'
@@ -15,16 +15,15 @@
 #' @param base_units The (input) units of the flow that was disaggregated. These
 #'   units will be shown as the y-axis label of the plot.
 #'
-#' @param breaks Specifies how breaks are computed for histograms. See [hist()].
-#'
 #' @export
-plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ...)
+plot.knnst <- function(x, site = "S1", base_units = NULL, ...)
 {
   assert_that(
     length(site) == 1 && is.character(site),
     msg = "In `plot.knnst()`, `site` should be a character with length of 1."
   )
 
+  nsim <- knnst_nsim(x)
   x_df <- as.data.frame(x)
   all_cols <- names(x_df)
 
@@ -33,22 +32,141 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
     msg = "In `plot.knnst()`, `site` should be a valid site name."
   )
 
-  x_plot_data <- get_plot_stats(x_df, site)
+  x_plot_data <- get_mon_plot_stats(x_df, site)
+  x_ann_plot_data <- get_ann_plot_stats(x_df, site)
+  x_ann_sim_data <- x_df %>%
+    dplyr::group_by_at(c("year", "simulation")) %>%
+    dplyr::summarise_at(site, sum)
 
+  # get historical stats -------------------
   # get historical data as a data frame, organize, and compute same stats
   # as on the simulated data
   x_mon <- x %>%
     get_pattern_flow_data_df(site)
 
   x_mon_stats <- x_mon %>%
-    get_plot_stats(site)
+    get_mon_plot_stats(site)
 
-  # monthly means
-  gg <- ggplot(x_plot_data, aes_string("month", "Value")) +
+  # annual historical data
+  x_ann <- x_mon %>%
+    dplyr::group_by_at(c("year", "simulation")) %>%
+    dplyr::summarise_at(site, sum)
+  x_ann_stats <- get_ann_plot_stats(x_mon, site)
+
+  # TODO: set n as a package option
+
+  # monthly plots ----------------
+
+  gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, base_units, ...)
+  gg2 <- create_mon_cdf(x_df, x_mon, nsim, site, base_units, ...)
+
+  # annual plots --------------------
+  gg3 <- create_ann_bxp(x_ann_plot_data, x_ann_stats, site, base_units, ...)
+  gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, nsim, site, base_units, ...)
+
+  # TODO: add in control for which figures get plotted and interactive moving to
+  # next plot
+  list(p1 = gg1, p2 = gg2, p3 = gg3, p4 = gg4)
+}
+
+get_mon_plot_stats <- function(x_df, site)
+{
+  keep_cols <- c("ym", "year", "month", site, "simulation")
+  vars_group <- c("month", "simulation")
+
+  x_df %>%
+    # subset to site
+    dplyr::select_at(keep_cols) %>%
+    dplyr::group_by_at("simulation") %>%
+    dplyr::arrange_at("ym") %>%
+    # compute stats for all months
+    get_plot_stats(var_mutate = site, vars_group = vars_group) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate_at(
+      "month",
+      dplyr::funs(factor(month.abb[.], levels = month.abb))
+    )
+}
+
+get_ann_plot_stats <- function(x_df, site)
+{
+
+  x_df %>%
+    # sum to annual values
+    dplyr::select_at(c("year", site, "simulation")) %>%
+    dplyr::group_by(year, simulation) %>%
+    dplyr::summarise_at(site, list("ann" = sum)) %>%
+    # compute the same stats as monthly
+    dplyr::group_by_at("simulation") %>%
+    dplyr::arrange_at("year") %>%
+    get_plot_stats(var_mutate = "ann", vars_group = "simulation")
+
+}
+
+# for a single variable `var_mutate`, compute the mean, variance, max, min,
+# lag-1 correlation, and skew
+get_plot_stats <- function(x_df, var_mutate, vars_group)
+{
+  var_name_order <- c(
+    "mean" = "Mean",
+    "stats::var" = "Variance",
+    "max" = "Maximum",
+    "min" = "Minimum",
+    "stats::cor" = "Lag-1 Correlation",
+    "skew" = "Skew"
+  )
+
+  x_df %>%
+    dplyr::mutate_at(var_mutate, dplyr::funs("tmp" = dplyr::lag(.))) %>%
+
+    dplyr::group_by_at(vars_group) %>%
+    # means, standard deviation, max, min, skew, lag-1 correlation
+    dplyr::summarise_at(
+      var_mutate,
+      dplyr::funs(
+        mean, stats::var, max, min, skew,
+        stats::cor(get(var_mutate), get("tmp"), use = "complete.obs")
+      )
+    ) %>%
+    tidyr::gather_(
+      "Variable",
+      "Value",
+      tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
+    ) %>%
+    dplyr::mutate_at(
+      "Variable",
+      dplyr::funs(factor(var_name_order[.], levels = var_name_order))
+    )
+}
+
+create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL, ...)
+{
+  gg <- ggplot(sim_data, aes_string(y = "Value")) +
+    geom_boxplot() +
+    facet_wrap("Variable", ncol = 2, scales = "free_y") +
+    geom_point(
+      data = hist_data,
+      aes_string(x = 0, y = "Value"),
+      shape = 18,
+      ...
+    ) +
+    labs(
+      x = NULL,
+      title = paste(site, "- Annual Statistics"),
+      y = paste("Base units =", base_units),
+      ...
+    )
+
+  gg
+}
+
+create_mon_bxp <- function(sim_data, hist_data, site, base_units = NULL, ...)
+{
+  gg <- ggplot(sim_data, aes_string("month", "Value")) +
     geom_boxplot(aes_string(group = "month")) +
     facet_wrap("Variable", ncol = 2, scales = "free_y") +
     geom_point(
-      data = x_mon_stats,
+      data = hist_data,
       aes_string("month", "Value"),
       shape = 18,
       ...
@@ -60,50 +178,120 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
       ...
     )
 
-  # TODO: monthly pdf - move to function
+  gg
+}
+
+create_ann_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
+{
+  tmp <- c(sim_data[[site]], hist_data[[site]])
+
+  yr_breaks <- stats::density(tmp, n = 50)$x
+
+  # 2) then call density() with x from above
+  sim_pdf <- lapply(seq_len(nsim), function(n1) {
+
+    t2 <- sim_data %>%
+      dplyr::filter_at("simulation", dplyr::any_vars(. == n1))
+
+    tmp <- stats::density(
+      t2[[site]],
+      n = 50,
+      from = min(yr_breaks),
+      to = max(yr_breaks)
+    )
+
+    tmp
+  })
+
+  # 2b) and call on historical data
+  tmp <- hist_data[[site]]
+  hist_pdf <- stats::density(
+    tmp,
+    n = 50,
+    from = min(yr_breaks),
+    to = max(yr_breaks)
+  )
+
+
+  # 3) then create df with $y of all calls to density and $x as flow (x)
+  hist_pdf <- data.frame(
+    x = hist_pdf$x,
+    density = hist_pdf$y
+  )
+
+  sim_pdf <- do.call(rbind, lapply(seq_len(nsim), function(n1) {
+
+    tmp <- data.frame(
+      x = sim_pdf[[n1]]$x,
+      density = sim_pdf[[n1]]$y
+    )
+
+    tmp
+  }))
+
+  # 4) then plot with ggplot() + geom_boxplot()
+
+  gg <- ggplot(sim_pdf, aes_string("x", "density")) +
+    geom_boxplot(aes_string(group = "x")) +
+    geom_line(data = hist_pdf, aes_string("x", "density")) +
+    labs(
+      x = paste0("Flow (", base_units, ")"), y = "Probability Density",
+      title = "Annual CDF"
+    )
+
+  gg
+}
+
+create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
+{
   # TODO: do we need to re-do this based on Balaji/Ken's code? Using density
   # instead of hist()
   # compute histograms for all simulations
-  nsim <- knnst_nsim(x)
-  # 1) call hist() initially, with breaks = breaks on all data
+  # 1) call density() initially
   mon_breaks <- lapply(1:12, function(mm) {
     tmp <- c(
-      dplyr::filter_at(x_mon, "month", dplyr::any_vars(. == mm))[[site]],
-      dplyr::filter_at(x_df, "month", dplyr::any_vars(. == mm))[[site]]
+      dplyr::filter_at(hist_data, "month", dplyr::any_vars(. == mm))[[site]],
+      dplyr::filter_at(sim_data, "month", dplyr::any_vars(. == mm))[[site]]
     )
-    graphics::hist(tmp, plot = FALSE, breaks = breaks)
+    stats::density(tmp, n = 50)$x
   })
 
-  # 2) then call hist() with breaks = output of above
+  # 2) then call density() with x from above
   sim_pdf <- lapply(seq_len(nsim), function(n1) {
     tmp <- list()
 
     for (mm in 1:12) {
-      t2 <- x_df %>%
+      t2 <- sim_data %>%
         dplyr::filter_at("simulation", dplyr::any_vars(. == n1)) %>%
         dplyr::filter_at("month", dplyr::any_vars(. == mm))
-      tmp[[mm]] <- graphics::hist(
+      tmp[[mm]] <- stats::density(
         t2[[site]],
-        plot = FALSE,
-        breaks = mon_breaks[[mm]]$breaks
+        n = 50,
+        from = min(mon_breaks[[mm]]),
+        to = max(mon_breaks[[mm]])
       )
     }
 
     tmp
   })
 
-  # 2b) and call hist() on historical data
+  # 2b) and call on historical data
   hist_pdf <- lapply(1:12, function(mm) {
-    tmp <- dplyr::filter_at(x_mon, "month", dplyr::any_vars(. == mm))[[site]]
-    graphics::hist(tmp, plot = FALSE, breaks = mon_breaks[[mm]]$breaks)
+    tmp <- dplyr::filter_at(hist_data, "month", dplyr::any_vars(. == mm))[[site]]
+    stats::density(
+      tmp,
+      n = 50,
+      from = min(mon_breaks[[mm]]),
+      to = max(mon_breaks[[mm]])
+    )
   })
 
-  # 3) then create df with $density of all calls to hist and $breaks as flow (x)
+  # 3) then create df with $y of all calls to density and $x as flow (x)
   hist_pdf <- do.call(rbind, lapply(1:12, function(mm) {
     data.frame(
       month = mm,
-      x = hist_pdf[[mm]]$mids,
-      density = hist_pdf[[mm]]$density
+      x = hist_pdf[[mm]]$x,
+      density = hist_pdf[[mm]]$y
     )
   }))
 
@@ -113,8 +301,8 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
     for (mm in 1:12) {
       tmp <- rbind(tmp, data.frame(
         month = mm,
-        x = sim_pdf[[n1]][[mm]]$mids,
-        density = sim_pdf[[n1]][[mm]]$density
+        x = sim_pdf[[n1]][[mm]]$x,
+        density = sim_pdf[[n1]][[mm]]$y
       ))
     }
 
@@ -124,60 +312,23 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, breaks = "Sturges", ..
   # 4) then plot with ggplot() + geom_boxplot()
   mon_labels <- month.abb
   names(mon_labels) <- 1:12
-  gg2 <- ggplot(sim_pdf, aes_string("x", "density")) +
+
+  mm <- 1:12
+  gg2 <- ggplot(
+    dplyr::filter(sim_pdf, month %in% mm),
+    aes_string("x", "density")
+  ) +
     geom_boxplot(aes_string(group = "x")) +
-    geom_line(data = hist_pdf, aes_string("x", "density")) +
-    facet_wrap(~month, nrow = 4, ncol = 3, labeller = as_labeller(mon_labels)) +
+    geom_line(
+      data = dplyr::filter(hist_pdf, month %in% mm),
+      aes_string("x", "density")
+    ) +
+    facet_wrap(
+      ~month,
+      ncol = 1,
+      labeller = as_labeller(mon_labels),
+      scales = "free"
+    ) +
     labs(x = paste0("Flow (", base_units, ")"), y = "Probability Density")
-
-  # TODO: annual pdf
-
-  # TODO: add in control for which figures get plotted and interactive moving to
-  # next plot
-  #gg
   gg2
-}
-
-get_plot_stats <- function(x_df, site)
-{
-  keep_cols <- c("ym", "year", "month", site, "simulation")
-  vars_group <- c("month", "simulation")
-  var_name_order <- c(
-    "mean" = "Mean",
-    "stats::var" = "Variance",
-    "max" = "Maximum",
-    "min" = "Minimum",
-    "stats::cor" = "Lag-1 Correlation",
-    "skew" = "Skew"
-  )
-
-  x_df %>%
-    # subset to site
-    dplyr::select_at(keep_cols) %>%
-    dplyr::group_by_at("simulation") %>%
-    dplyr::arrange_at("ym") %>%
-    dplyr::mutate_at(site, dplyr::funs("tmp" = dplyr::lag(.))) %>%
-    dplyr::group_by_at(vars_group) %>%
-    # means, standard deviation, max, min, skew, lag-1 correlation
-    dplyr::summarise_at(
-      site,
-      dplyr::funs(
-        mean, stats::var, max, min, skew,
-        stats::cor(get(site), get("tmp"), use = "complete.obs")
-      )
-    ) %>%
-    tidyr::gather_(
-      "Variable",
-      "Value",
-      tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
-    ) %>%
-    dplyr::mutate_at(
-      "Variable",
-      dplyr::funs(factor(var_name_order[.], levels = var_name_order))
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate_at(
-      "month",
-      dplyr::funs(factor(month.abb[.], levels = month.abb))
-    )
 }
