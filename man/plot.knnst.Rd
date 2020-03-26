@@ -4,7 +4,7 @@
 \alias{plot.knnst}
 \title{Plot resulting statistics for knn space-time disaggregation}
 \usage{
-\method{plot}{knnst}(x, site = "S1", base_units = NULL, ...)
+\method{plot}{knnst}(x, site = "S1", base_units = NULL, which = c(13, 14, 15), ...)
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}
@@ -14,7 +14,10 @@
 \item{base_units}{The (input) units of the flow that was disaggregated. These
 units will be shown as the y-axis label of the plot.}
 
-\item{...}{arguments to be passed to subsequent methods.}
+\item{which}{The subset of plots to create; specify a subset of the number
+\code{1:15}. See 'Details' for the different plots.}
+
+\item{...}{Arguments to be passed to subsequent methods.}
 }
 \description{
 \code{plot.knnst()} implements the \code{\link[=plot]{plot()}} method for \code{knnst} objects, and relies
@@ -22,5 +25,17 @@ on ggplot2. It plots the key statistics the knn space-time disaggregation
 method should be preserving.
 }
 \details{
+\code{which} controls the plots that are created. There are both monthly and
+annual plots and two main plot types: a cdf of the flows accross all of the
+different disaggregations, and a panel showing the mean, max, min, variance,
+lag-1 correlation, and skew accross all of the different disaggregations. The
+numbers correspond to:
+\itemize{
+\item \code{1:12}: the different monthly cdfs.
+\item \code{13}: annual cdf
+\item \code{14}: monthly statistics panel
+\item \code{15}: annual statistics panel
+}
+
 \code{...} is passed to \code{\link[=geom_point]{geom_point()}} and \code{\link[=labs]{labs()}}.
 }

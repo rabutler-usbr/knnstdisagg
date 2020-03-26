@@ -4,23 +4,43 @@
 #' on ggplot2. It plots the key statistics the knn space-time disaggregation
 #' method should be preserving.
 #'
+#' `which` controls the plots that are created. There are both monthly and
+#' annual plots and two main plot types: a cdf of the flows accross all of the
+#' different disaggregations, and a panel showing the mean, max, min, variance,
+#' lag-1 correlation, and skew accross all of the different disaggregations. The
+#' numbers correspond to:
+#'
+#' - `1:12`: the different monthly cdfs.
+#' - `13`: annual cdf
+#' - `14`: monthly statistics panel
+#' - `15`: annual statistics panel
+#'
 #' `...` is passed to [geom_point()] and [labs()].
 #'
 #' @param x An object inheriting from class `knnst`
-#'
-#' @param ... arguments to be passed to subsequent methods.
 #'
 #' @param site The site to plot. Site name as a character.
 #'
 #' @param base_units The (input) units of the flow that was disaggregated. These
 #'   units will be shown as the y-axis label of the plot.
 #'
+#' @param which The subset of plots to create; specify a subset of the number
+#'   `1:15`. See 'Details' for the different plots.
+#'
+#' @param ... Arguments to be passed to subsequent methods.
+#'
 #' @export
-plot.knnst <- function(x, site = "S1", base_units = NULL, ...)
+plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
+                       ...)
 {
   assert_that(
     length(site) == 1 && is.character(site),
     msg = "In `plot.knnst()`, `site` should be a character with length of 1."
+  )
+
+  assert_that(
+    length(which) > 0 && is.numeric(which) && all(which %in% 1:15),
+    msg = "In `plot.knnst()`, `which` should be numeric values in 1:15"
   )
 
   nsim <- knnst_nsim(x)
@@ -55,17 +75,22 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, ...)
 
   # TODO: set n as a package option
 
+  gg1 <- gg2 <- gg3 <- gg4 <- NULL
   # monthly plots ----------------
+  if (14 %in% which)
+    gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, base_units, ...)
 
-  gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, base_units, ...)
-  gg2 <- create_mon_cdf(x_df, x_mon, nsim, site, base_units, ...)
+  if (any(1:12 %in% which))
+    gg2 <- create_mon_cdf(x_df, x_mon, nsim, site, base_units, which, ...)
 
   # annual plots --------------------
-  gg3 <- create_ann_bxp(x_ann_plot_data, x_ann_stats, site, base_units, ...)
-  gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, nsim, site, base_units, ...)
+  if (15 %in% which)
+    gg3 <- create_ann_bxp(x_ann_plot_data, x_ann_stats, site, base_units, ...)
 
-  # TODO: add in control for which figures get plotted and interactive moving to
-  # next plot
+  if (13 %in% which)
+    gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, nsim, site, base_units, ...)
+
+  # TODO: interactive moving to next plot
   gg_out <- c(
     list(
       "monthly-stats" = gg1,
@@ -252,33 +277,40 @@ create_ann_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
   gg
 }
 
-create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
+create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
+                           ...)
 {
   # TODO: do we need to re-do this based on Balaji/Ken's code? Using density
   # instead of hist()
   # compute histograms for all simulations
   # 1) call density() initially
-  mon_breaks <- lapply(1:12, function(mm) {
+
+  # find which months are supposed to be processed
+  proc_mon <- 1:12
+  proc_mon <- proc_mon[proc_mon %in% which]
+
+  mon_breaks <- lapply(proc_mon, function(mm) {
     tmp <- c(
       dplyr::filter_at(hist_data, "month", dplyr::any_vars(. == mm))[[site]],
       dplyr::filter_at(sim_data, "month", dplyr::any_vars(. == mm))[[site]]
     )
     stats::density(tmp, n = 50)$x
   })
+  names(mon_breaks) <- month.abb[proc_mon]
 
   # 2) then call density() with x from above
   sim_pdf <- lapply(seq_len(nsim), function(n1) {
     tmp <- list()
 
-    for (mm in 1:12) {
+    for (mm in proc_mon) {
       t2 <- sim_data %>%
         dplyr::filter_at("simulation", dplyr::any_vars(. == n1)) %>%
         dplyr::filter_at("month", dplyr::any_vars(. == mm))
-      tmp[[mm]] <- stats::density(
+      tmp[[month.abb[mm]]] <- stats::density(
         t2[[site]],
         n = 50,
-        from = min(mon_breaks[[mm]]),
-        to = max(mon_breaks[[mm]])
+        from = min(mon_breaks[[month.abb[mm]]]),
+        to = max(mon_breaks[[month.abb[mm]]])
       )
     }
 
@@ -286,7 +318,7 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
   })
 
   # 2b) and call on historical data
-  hist_pdf <- lapply(1:12, function(mm) {
+  hist_pdf <- lapply(proc_mon, function(mm) {
     tmp <- dplyr::filter_at(
       hist_data,
       "month",
@@ -296,28 +328,30 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
     stats::density(
       tmp,
       n = 50,
-      from = min(mon_breaks[[mm]]),
-      to = max(mon_breaks[[mm]])
+      from = min(mon_breaks[[month.abb[mm]]]),
+      to = max(mon_breaks[[month.abb[mm]]])
     )
   })
 
+  names(hist_pdf) <- month.abb[proc_mon]
+
   # 3) then create df with $y of all calls to density and $x as flow (x)
-  hist_pdf <- do.call(rbind, lapply(1:12, function(mm) {
+  hist_pdf <- do.call(rbind, lapply(proc_mon, function(mm) {
     data.frame(
       month = mm,
-      x = hist_pdf[[mm]]$x,
-      density = hist_pdf[[mm]]$y
+      x = hist_pdf[[month.abb[mm]]]$x,
+      density = hist_pdf[[month.abb[mm]]]$y
     )
   }))
 
   sim_pdf <- do.call(rbind, lapply(seq_len(nsim), function(n1) {
     tmp <- c()
 
-    for (mm in 1:12) {
+    for (mm in proc_mon) {
       tmp <- rbind(tmp, data.frame(
         month = mm,
-        x = sim_pdf[[n1]][[mm]]$x,
-        density = sim_pdf[[n1]][[mm]]$y
+        x = sim_pdf[[n1]][[month.abb[mm]]]$x,
+        density = sim_pdf[[n1]][[month.abb[mm]]]$y
       ))
     }
 
@@ -330,7 +364,7 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
 
   gg <- list()
 
-  for (mm in 1:12) {
+  for (mm in proc_mon) {
     pname <- paste0(month.abb[mm], "-cdf")
     gg[[pname]] <- ggplot(
       dplyr::filter(sim_pdf, month %in% mm),
