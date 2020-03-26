@@ -27,11 +27,15 @@
 #' @param which The subset of plots to create; specify a subset of the number
 #'   `1:15`. See 'Details' for the different plots.
 #'
+#' @param show Boolean that determines if diagnostic plots are shown or only
+#'   returned. If `TRUE` and in interactive mode, will be able to enter through
+#'   each of the 1-15 plots.
+#'
 #' @param ... Arguments to be passed to subsequent methods.
 #'
 #' @export
 plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
-                       ...)
+                       show = FALSE, ...)
 {
   assert_that(
     length(site) == 1 && is.character(site),
@@ -41,6 +45,11 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   assert_that(
     length(which) > 0 && is.numeric(which) && all(which %in% 1:15),
     msg = "In `plot.knnst()`, `which` should be numeric values in 1:15"
+  )
+
+  assert_that(
+    is.logical(show) && length(show == 1),
+    msg = "In `plot.knnst()`, `show` should be a logical scalar."
   )
 
   nsim <- knnst_nsim(x)
@@ -101,7 +110,10 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   )
   gg_out <- structure(gg_out, class = "knnstplot")
 
-  gg_out
+  if (show && interactive())
+    show_knnst_plots(gg_out)
+
+  invisible(gg_out)
 }
 
 get_mon_plot_stats <- function(x_df, site)
@@ -385,4 +397,29 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   }
 
   gg
+}
+
+# TODO should this be show.knnstplot?
+show_knnst_plots <- function(gg_knn)
+{
+  if (!inherits(gg_knn, "knnstplot"))
+    stop("`gg_knn` must inherit from knnstplot.")
+
+  oask <- devAskNewPage(TRUE)
+  on.exit(devAskNewPage(oask))
+
+  plot_order <- c(
+    paste0(month.abb, "-cdf"),
+    "monthly-stats", "annual-cdf", "annual-cdf"
+  )
+
+  for (p in plot_order) {
+    if (exists(p, where = gg_knn) && !is.null(gg_knn[[p]])) {
+      dev.hold()
+      print(gg_knn[[p]])
+      dev.flush()
+    }
+  }
+
+  invisible(gg_knn)
 }

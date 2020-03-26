@@ -4,7 +4,14 @@
 \alias{plot.knnst}
 \title{Plot resulting statistics for knn space-time disaggregation}
 \usage{
-\method{plot}{knnst}(x, site = "S1", base_units = NULL, which = c(13, 14, 15), ...)
+\method{plot}{knnst}(
+  x,
+  site = "S1",
+  base_units = NULL,
+  which = c(13, 14, 15),
+  show = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}
@@ -16,6 +23,10 @@ units will be shown as the y-axis label of the plot.}
 
 \item{which}{The subset of plots to create; specify a subset of the number
 \code{1:15}. See 'Details' for the different plots.}
+
+\item{show}{Boolean that determines if diagnostic plots are shown or only
+returned. If \code{TRUE} and in interactive mode, will be able to enter through
+each of the 1-15 plots.}
 
 \item{...}{Arguments to be passed to subsequent methods.}
 }
