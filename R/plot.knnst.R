@@ -66,7 +66,17 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, ...)
 
   # TODO: add in control for which figures get plotted and interactive moving to
   # next plot
-  list(p1 = gg1, p2 = gg2, p3 = gg3, p4 = gg4)
+  gg_out <- c(
+    list(
+      "monthly-stats" = gg1,
+      "annual-stats" = gg3,
+      "annual-cdf" = gg4
+    ),
+    gg2
+  )
+  gg_out <- structure(gg_out, class = "knnstplot")
+
+  gg_out
 }
 
 get_mon_plot_stats <- function(x_df, site)
@@ -277,7 +287,12 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
 
   # 2b) and call on historical data
   hist_pdf <- lapply(1:12, function(mm) {
-    tmp <- dplyr::filter_at(hist_data, "month", dplyr::any_vars(. == mm))[[site]]
+    tmp <- dplyr::filter_at(
+      hist_data,
+      "month",
+      dplyr::any_vars(. == mm)
+    )[[site]]
+
     stats::density(
       tmp,
       n = 50,
@@ -313,22 +328,27 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
   mon_labels <- month.abb
   names(mon_labels) <- 1:12
 
-  mm <- 1:12
-  gg2 <- ggplot(
-    dplyr::filter(sim_pdf, month %in% mm),
-    aes_string("x", "density")
-  ) +
-    geom_boxplot(aes_string(group = "x")) +
-    geom_line(
-      data = dplyr::filter(hist_pdf, month %in% mm),
+  gg <- list()
+
+  for (mm in 1:12) {
+    pname <- paste0(month.abb[mm], "-cdf")
+    gg[[pname]] <- ggplot(
+      dplyr::filter(sim_pdf, month %in% mm),
       aes_string("x", "density")
     ) +
-    facet_wrap(
-      ~month,
-      ncol = 1,
-      labeller = as_labeller(mon_labels),
-      scales = "free"
-    ) +
-    labs(x = paste0("Flow (", base_units, ")"), y = "Probability Density")
-  gg2
+      geom_boxplot(aes_string(group = "x")) +
+      geom_line(
+        data = dplyr::filter(hist_pdf, month %in% mm),
+        aes_string("x", "density")
+      ) +
+      facet_wrap(
+        ~month,
+        ncol = 1,
+        labeller = as_labeller(mon_labels),
+        scales = "free"
+      ) +
+      labs(x = paste0("Flow (", base_units, ")"), y = "Probability Density")
+  }
+
+  gg
 }
