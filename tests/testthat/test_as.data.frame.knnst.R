@@ -13,7 +13,7 @@ expect_message(knnst <- knn_space_time_disagg(
   lf,
   index_flow,
   mon_flow,
-  sf_sites = 1:20,
+  scale_sites = 1:20,
   nsim = nsim
 ))
 
@@ -67,7 +67,7 @@ knnst <- knn_space_time_disagg(
   flow_mat,
   ind_flow,
   mon_flow,
-  sf_sites = 1:2,
+  scale_sites = 1:2,
   nsim = 1
 )
 

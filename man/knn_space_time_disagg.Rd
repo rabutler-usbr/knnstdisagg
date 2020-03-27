@@ -9,7 +9,7 @@ knn_space_time_disagg(
   ann_index_flow,
   mon_flow,
   nsim = 1,
-  sf_sites = NULL,
+  scale_sites = NULL,
   index_years = NULL,
   k_weights = knn_params_default(nrow(ann_index_flow))
 )
@@ -38,7 +38,7 @@ matrix.}
 
 \item{nsim}{Number of times to repeat the space/time disaggregation.}
 
-\item{sf_sites}{The site numbers (column indeces), that will scale the
+\item{scale_sites}{The site numbers (column indeces), that will scale the
 index year's volume based on the annual flow being disaggregated. The
 remaining sites will select the index year directly. See \strong{Details}.}
 
@@ -72,10 +72,10 @@ Summability is preserved using this method, if the values selected in
 
 In some cases, it is desirable to select monthly flow directly, instead of
 scaling it. This can be performed by only scaling certain sites, using
-\code{sf_sites}. \code{sf_sites} should be a boolean, or a vector of numerics. If
+\code{scale_sites}. \code{scale_sites} should be a boolean, or a vector of numerics. If
 \code{TRUE}, then all sites are scaled. If \code{FALSE}, all sites monthly values
-are selected directly. Otherwise, \code{sf_sites} should be a vector of the sites
-that should be scaled, based on their column index from \code{mon_flow}. For
+are selected directly. Otherwise, \code{scale_sites} should be a vector of the
+sites that should be scaled, based on their column index from \code{mon_flow}. For
 example, if \code{mon_flow} is a matrix with 4 columns, then setting \code{mon_flow} to
 \code{c(2, 3)} will scale the values in sites 2 and 3 (columns 2 and 3), while
 selecting flow values directly in sites 1 and 2.
@@ -91,7 +91,7 @@ mon_flow <- cbind(
   rnorm(80 * 12, mean = 20, sd = 5),
   rnorm(80 * 12, mean = 120, sd = 45)
 )
-knn_space_time_disagg(flow_mat, ind_flow, mon_flow, sf_sites = 1:2)
+knn_space_time_disagg(flow_mat, ind_flow, mon_flow, scale_sites = 1:2)
 
 }
 \references{

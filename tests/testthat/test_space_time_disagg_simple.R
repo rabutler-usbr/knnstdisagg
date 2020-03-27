@@ -15,7 +15,7 @@ ym <- zoo::as.yearmon("2019-01") + 0:35/12
 ym <- paste(format(ym, "%Y"), format(ym, "%m"), sep = "-")
 
 # ** check specifying index years, and make sure values match exactly
-# ** check specifiying 1, and no sf_sites
+# ** check specifiying 1, and no scale_sites
 setup(dir.create("tmp_disagg"))
 teardown(unlink("tmp_disagg", recursive = TRUE))
 
@@ -37,7 +37,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
       lf,
       index_flow,
       mon_flow,
-      sf_sites = 1:20,
+      scale_sites = 1:20,
       nsim = nsim
     ),
     "knnst"
@@ -111,7 +111,7 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
       lf,
       index_flow,
       mon_flow,
-      sf_sites = 1:20,
+      scale_sites = 1:20,
       nsim = nsim,
       index_years = ind_yrs
     )),

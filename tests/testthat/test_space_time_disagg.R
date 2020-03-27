@@ -36,7 +36,7 @@ index_yrs <- matrix(scan("../dp/indexpick.txt", quiet = TRUE), ncol = 1)
 #                          ann_flw,
 #                          mon_flw,
 #                          nsite = 29,
-#                          sf_sites = 1:20,
+#                          scale_sites = 1:20,
 #                          nsim = 1,
 #                          ofolder = NULL,
 #                          index_years = NULL,
@@ -50,7 +50,7 @@ test_that("disagg matches previous code's results", {
         ann_index_flow = ann_flw,
         mon_flow = mon_flw,
         index_years = index_yrs,
-        sf_sites = 1:20
+        scale_sites = 1:20
       )),
       1
     ),
@@ -67,7 +67,7 @@ orig_index <- as.matrix(read.csv("../dp/index_years_rseed408.csv"))
 dimnames(orig_index) <- NULL
 set.seed(403) # this was the first entry of .Random.seed when implementing this
 
-tmp2 <- knn_space_time_disagg(x, ann_flw, mon_flw, sf_sites = 1:20)
+tmp2 <- knn_space_time_disagg(x, ann_flw, mon_flw, scale_sites = 1:20)
 
 test_that("current random selection matches original random selection", {
   expect_equal(tmp2$disagg_sims[[1]]$index_years, as.vector(orig_index))

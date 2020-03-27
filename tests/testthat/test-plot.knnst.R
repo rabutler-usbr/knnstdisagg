@@ -21,7 +21,7 @@ disagg <- knn_space_time_disagg(
   lf,
   index_flow,
   mon_flow,
-  sf_sites = 1:20,
+  scale_sites = 1:20,
   nsim = nsim
 )
 
@@ -105,7 +105,7 @@ disagg <- knn_space_time_disagg(
   ind_flow,
   mon_flow,
   nsim = 10,
-  sf_sites = 1:2
+  scale_sites = 1:2
 )
 
 test_that("plots succeed for unnamed matrices", {

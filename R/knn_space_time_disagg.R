@@ -19,10 +19,10 @@
 #'
 #' In some cases, it is desirable to select monthly flow directly, instead of
 #' scaling it. This can be performed by only scaling certain sites, using
-#' `sf_sites`. `sf_sites` should be a boolean, or a vector of numerics. If
+#' `scale_sites`. `scale_sites` should be a boolean, or a vector of numerics. If
 #' `TRUE`, then all sites are scaled. If `FALSE`, all sites monthly values
-#' are selected directly. Otherwise, `sf_sites` should be a vector of the sites
-#' that should be scaled, based on their column index from `mon_flow`. For
+#' are selected directly. Otherwise, `scale_sites` should be a vector of the
+#' sites that should be scaled, based on their column index from `mon_flow`. For
 #' example, if `mon_flow` is a matrix with 4 columns, then setting `mon_flow` to
 #' `c(2, 3)` will scale the values in sites 2 and 3 (columns 2 and 3), while
 #' selecting flow values directly in sites 1 and 2.
@@ -40,7 +40,7 @@
 #'   performed to check this, since this is expected to be a dimensionless
 #'   matrix.
 #'
-#' @param sf_sites The site numbers (column indeces), that will scale the
+#' @param scale_sites The site numbers (column indeces), that will scale the
 #'   index year's volume based on the annual flow being disaggregated. The
 #'   remaining sites will select the index year directly. See **Details**.
 #'
@@ -73,14 +73,14 @@
 #'   rnorm(80 * 12, mean = 20, sd = 5),
 #'   rnorm(80 * 12, mean = 120, sd = 45)
 #' )
-#' knn_space_time_disagg(flow_mat, ind_flow, mon_flow, sf_sites = 1:2)
+#' knn_space_time_disagg(flow_mat, ind_flow, mon_flow, scale_sites = 1:2)
 #'
 #' @export
 knn_space_time_disagg <- function(ann_flow,
                          ann_index_flow,
                          mon_flow,
                          nsim = 1,
-                         sf_sites = NULL,
+                         scale_sites = NULL,
                          index_years = NULL,
                          k_weights = knn_params_default(nrow(ann_index_flow)))
 {
@@ -126,18 +126,18 @@ knn_space_time_disagg <- function(ann_flow,
     )
   }
 
-  if (!is.null(sf_sites)) {
+  if (!is.null(scale_sites)) {
     assert_that(
-      max(sf_sites) <= nsite,
-      msg = "max(`sf_sites`), must be <= the number of sites (`site`)."
+      max(scale_sites) <= nsite,
+      msg = "max(`scale_sites`), must be <= the number of sites (`site`)."
     )
   }
 
-  if (!all(1:nsite %in% sf_sites)) {
+  if (!all(1:nsite %in% scale_sites)) {
     # set ind_sites to the remaining sites
     # ind_sites are selected directly
     ind_sites <- 1:nsite
-    ind_sites <- ind_sites[!(1:nsite %in% sf_sites)]
+    ind_sites <- ind_sites[!(1:nsite %in% scale_sites)]
     message(
       "Sites ", toString(ind_sites), "\n",
       "will be selected directly from the index years, i.e., not scaled."
@@ -200,7 +200,7 @@ knn_space_time_disagg <- function(ann_flow,
 
       sf_mat[h, j] <- index_atts$SF
 
-      disag[h, , sf_sites, j] <- dat_a[index_atts$pos, , sf_sites] *
+      disag[h, , scale_sites, j] <- dat_a[index_atts$pos, , scale_sites] *
         index_atts$SF
       disag[h, , ind_sites, j] <- dat_a[index_atts$pos, , ind_sites]
     }
