@@ -10,7 +10,6 @@ knn_space_time_disagg(
   mon_flow,
   nsim = 1,
   sf_sites = NULL,
-  ofolder = NULL,
   index_years = NULL,
   k_weights = knn_params_default(nrow(ann_index_flow))
 )
@@ -42,12 +41,6 @@ matrix.}
 \item{sf_sites}{The site numbers (column indeces), that will scale the
 index year's volume based on the annual flow being disaggregated. The
 remaining sites will select the index year directly. See \strong{Details}.}
-
-\item{ofolder}{Optional. If specified, the disaggregated flow data and the
-selected index years are saved to this folder as csv files. There will be
-one csv file for each time the disaggregation is repeated (\code{nsim}). This
-file will contain one column for each site (\code{nsite}), and one row for each
-month of data (12 * number of years in \code{ann_flow}).}
 
 \item{index_years}{Optional. If specified, these index years will be used
 instead of selecting years based on weighted sampling via

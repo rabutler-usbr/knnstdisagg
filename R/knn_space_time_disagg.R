@@ -46,12 +46,6 @@
 #'
 #' @param nsim Number of times to repeat the space/time disaggregation.
 #'
-#' @param ofolder Optional. If specified, the disaggregated flow data and the
-#'   selected index years are saved to this folder as csv files. There will be
-#'   one csv file for each time the disaggregation is repeated (`nsim`). This
-#'   file will contain one column for each site (`nsite`), and one row for each
-#'   month of data (12 * number of years in `ann_flow`).
-#'
 #' @param index_years Optional. If specified, these index years will be used
 #'   instead of selecting years based on weighted sampling via
 #'   [knn_get_index_year()].
@@ -87,7 +81,6 @@ knn_space_time_disagg <- function(ann_flow,
                          mon_flow,
                          nsim = 1,
                          sf_sites = NULL,
-                         ofolder = NULL,
                          index_years = NULL,
                          k_weights = knn_params_default(nrow(ann_index_flow)))
 {
@@ -249,13 +242,6 @@ knn_space_time_disagg <- function(ann_flow,
   disag_out <- structure(disag_out, class = c("knnst", "list"))
   validate_knnst(disag_out)
 
-  # output to "flat" file
-
-  if (!is.null(ofolder)) {
-    write_knnst(disag_out, ofolder = ofolder)
-  }
-
-  #invisible(list(disagg_flow = disag_out, index_years = index_mat))
   disag_out
 }
 
