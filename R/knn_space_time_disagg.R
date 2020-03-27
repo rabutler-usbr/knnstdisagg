@@ -221,6 +221,7 @@ knn_space_time_disagg <- function(ann_flow,
     formatC(yy[,1], width = 2, format = "d", flag = "0"),
     sep = "-"
   )
+  site_names <- colnames(mon_flow)
 
   # convert from 4-d array to list of 2-d arrays
   disag_out <- lapply(seq_len(nsim), function(ii) {
@@ -229,6 +230,7 @@ knn_space_time_disagg <- function(ann_flow,
       lapply(seq_len(nsite), function(jj) as.vector(t(disag[,,jj,ii])))
     )
     rownames(disagg_flow) <- yy
+    colnames(disagg_flow) <- site_names
     list(
       disagg_flow = disagg_flow,
       index_years = index_mat[,ii]

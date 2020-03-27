@@ -300,7 +300,8 @@ get_pattern_flow_data_df <- function(x, site)
     simulation = 1
   )
 
-  x_mon[[site]] <- x$mon_flow[, match(site, tmp)]
+  # as.numeric, in case the monthly index data is xts
+  x_mon[[site]] <- as.numeric(x$mon_flow[, match(site, tmp)])
 
   x_mon
 }
