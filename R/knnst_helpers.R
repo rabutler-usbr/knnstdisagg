@@ -88,7 +88,7 @@ validate_knnst <- function(x)
 
 #' Get the number of diaggregation simulations from `knnst` objects
 #'
-#' @param disagg_flow A `knnst` object
+#' @param disagg A `knnst` object
 #'
 #' @return The number of diaggregation simulations
 #'
@@ -109,14 +109,14 @@ validate_knnst <- function(x)
 #' knnst_nsim(x)
 #'
 #' @export
-knnst_nsim <- function(disagg_flow)
+knnst_nsim <- function(disagg)
 {
   assertthat::assert_that(
-    is_knnst(disagg_flow),
-    msg = "`disagg_flow` should be a `knnst` object"
+    is_knnst(disagg),
+    msg = "`disagg` should be a `knnst` object"
   )
 
-  length(disagg_flow$disagg_sims)
+  length(disagg$disagg_sims)
 }
 
 #' Get all the index years from `knn_st` objects
@@ -146,18 +146,18 @@ knnst_nsim <- function(disagg_flow)
 #' knnst_index_years(x)
 #'
 #' @export
-knnst_index_years <- function(disagg_flow)
+knnst_index_years <- function(disagg)
 {
   assertthat::assert_that(
-    is_knnst(disagg_flow),
-    msg = "`disagg_flow` should be a `knnst` object"
+    is_knnst(disagg),
+    msg = "`disagg` should be a `knnst` object"
   )
 
   do.call(
     cbind,
     lapply(
-      seq_len(knnst_nsim(disagg_flow)),
-      function(x) disagg_flow$disagg_sims[[x]]$index_years
+      seq_len(knnst_nsim(disagg)),
+      function(x) disagg$disagg_sims[[x]]$index_years
     )
   )
 }

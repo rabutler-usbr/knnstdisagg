@@ -7,6 +7,8 @@
 knnst_get_disagg_data(disagg, sim_num = 1)
 }
 \arguments{
+\item{disagg}{A \code{knnst} object}
+
 \item{sim_num}{The simulation number.}
 }
 \value{

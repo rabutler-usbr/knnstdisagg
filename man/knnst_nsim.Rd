@@ -4,10 +4,10 @@
 \alias{knnst_nsim}
 \title{Get the number of diaggregation simulations from \code{knnst} objects}
 \usage{
-knnst_nsim(disagg_flow)
+knnst_nsim(disagg)
 }
 \arguments{
-\item{disagg_flow}{A \code{knnst} object}
+\item{disagg}{A \code{knnst} object}
 }
 \value{
 The number of diaggregation simulations

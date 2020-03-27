@@ -4,10 +4,10 @@
 \alias{knnst_index_years}
 \title{Get all the index years from \code{knn_st} objects}
 \usage{
-knnst_index_years(disagg_flow)
+knnst_index_years(disagg)
 }
 \arguments{
-\item{disagg_flow}{A \code{knnst} object}
+\item{disagg}{A \code{knnst} object}
 }
 \value{
 A matrix where each column is the index years selected for that
