@@ -6,6 +6,15 @@ An R package to perform space and time disaggregation of streamflow using a K-ne
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip) [![R build status](https://github.com/rabutler-usbr/knnstdisagg/workflows/R-CMD-check/badge.svg)](https://github.com/rabutler-usbr/knnstdisagg/actions) [![Codecov test coverage](https://codecov.io/gh/rabutler-usbr/knnstdisagg/branch/master/graph/badge.svg)](https://codecov.io/gh/rabutler-usbr/knnstdisagg?branch=master)
 
+## Installation 
+
+Currently only available on GitHub
+
+```
+# install.packages("remotes")
+remotes::install_github("rabutler-usbr/knnstdisagg")
+```
+
 ## Acknowledgements
 
 This package implements the methods developed by Nowak et al.: 
