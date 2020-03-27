@@ -82,6 +82,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
     )
     dimnames(lb) <- NULL
     rownames(lb) <- ym
+    colnames(lb) <- colnames(mon_flow)[21:29]
 
     expect_equal(knnst_get_disagg_data(tmp, i)[,21:29], lb)
   }
@@ -151,6 +152,7 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
     )
     dimnames(lb) <- NULL
     rownames(lb) <- ym
+    colnames(lb) <- colnames(mon_flow)[21:29]
 
     expect_equal(knnst_get_disagg_data(tmp, i)[,21:29], lb)
   }
