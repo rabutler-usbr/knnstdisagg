@@ -30,6 +30,9 @@ each of the 1-15 plots.}
 
 \item{...}{Arguments to be passed to subsequent methods.}
 }
+\value{
+A \code{knnstplot} object
+}
 \description{
 \code{plot.knnst()} implements the \code{\link[=plot]{plot()}} method for \code{knnst} objects, and relies
 on ggplot2. It plots the key statistics the knn space-time disaggregation

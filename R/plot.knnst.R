@@ -33,6 +33,8 @@
 #'
 #' @param ... Arguments to be passed to subsequent methods.
 #'
+#' @return A `knnstplot` object
+#'
 #' @export
 plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
                        show = FALSE, ...)
@@ -48,7 +50,7 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   )
 
   assert_that(
-    is.logical(show) && length(show == 1),
+    is.logical(show) && length(show) == 1,
     msg = "In `plot.knnst()`, `show` should be a logical scalar."
   )
 
@@ -296,7 +298,6 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   # instead of hist()
   # compute histograms for all simulations
   # 1) call density() initially
-
   # find which months are supposed to be processed
   proc_mon <- 1:12
   proc_mon <- proc_mon[proc_mon %in% which]
