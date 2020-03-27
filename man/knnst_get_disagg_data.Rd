@@ -4,11 +4,9 @@
 \alias{knnst_get_disagg_data}
 \title{Get the disaggregated data}
 \usage{
-knnst_get_disagg_data(disagg_flow, sim_num = 1)
+knnst_get_disagg_data(disagg, sim_num = 1)
 }
 \arguments{
-\item{disagg_flow}{A \code{knnst} object}
-
 \item{sim_num}{The simulation number.}
 }
 \value{

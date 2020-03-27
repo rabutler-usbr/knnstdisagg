@@ -254,11 +254,11 @@ as.data.frame.knnst <- function(x, ...)
 #' @export
 
 # TODO: need to add tests for this function by itsefl
-knnst_get_disagg_data <- function(disagg_flow, sim_num = 1)
+knnst_get_disagg_data <- function(disagg, sim_num = 1)
 {
-  check_sim_num(sim_num, disagg_flow, "knnst_get_disagg_data")
+  check_sim_num(sim_num, disagg, "knnst_get_disagg_data")
 
-  disagg_flow$disagg_sims[[sim_num]]$disagg_flow
+  disagg$disagg_sims[[sim_num]]$disagg_flow
 }
 
 check_sim_num <- function(sim_num, disagg_flow, called_from)
