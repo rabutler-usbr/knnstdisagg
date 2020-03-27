@@ -286,28 +286,3 @@ get_scale_factor <- function(index_year, flow, ann_index_flow)
 
   list(pos = pos, SF = SF)
 }
-
-write_knnst <- function(disagg_flow, ofolder = ".")
-{
-  assertthat::assert_that(
-    is_knnst(disagg_flow),
-    msg = "`disagg_flow` should be a `knnst` object"
-  )
-
-  nsim <- knnst_nsim(disagg_flow)
-
-  lapply(seq_len(nsim), function(ii)
-    utils::write.csv(
-      knnst_get_disagg_data(disagg_flow, ii),
-      file = file.path(ofolder, paste0("disagg_flow_", ii, ".csv")),
-      row.names = FALSE
-    )
-  )
-
-  index_mat <- knnst_index_years(disagg_flow)
-  utils::write.csv(
-    index_mat,
-    file = file.path(ofolder, "index_years.csv"),
-    row.names = FALSE
-  )
-}
