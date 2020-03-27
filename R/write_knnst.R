@@ -35,7 +35,7 @@ write_knnst <- function(disagg, path)
   lapply(seq_len(nsim), function(ii)
     utils::write.csv(
       knnst_get_disagg_data(disagg, ii),
-      file = file.path(ofolder, paste0("disagg_", ii, ".csv")),
+      file = file.path(path, paste0("disagg_", ii, ".csv")),
       row.names = FALSE
     )
   )
@@ -43,7 +43,7 @@ write_knnst <- function(disagg, path)
   index_mat <- knnst_index_years(disagg)
   utils::write.csv(
     index_mat,
-    file = file.path(ofolder, "index_years.csv"),
+    file = file.path(path, "index_years.csv"),
     row.names = FALSE
   )
 

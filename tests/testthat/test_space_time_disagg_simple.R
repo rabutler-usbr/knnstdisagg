@@ -3,7 +3,6 @@
 # disagg based on total flow for bluff, green river ut, and cisco, and int for
 # mead
 library(xts)
-context("small, but full scale test of `knn_space_time_disagg()`")
 
 load(file = "nf_test_data.rda")
 
@@ -39,13 +38,14 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
       index_flow,
       mon_flow,
       sf_sites = 1:20,
-      nsim = nsim,
-      ofolder = "tmp_disagg"
+      nsim = nsim
     ),
     "knnst"
   )
+  expect_identical(write_knnst(tmp, "tmp_disagg"), tmp)
+
   for (i in seq_len(nsim)) {
-    f1 <- file.path("tmp_disagg", paste0("disagg_flow_", i, ".csv"))
+    f1 <- file.path("tmp_disagg", paste0("disagg_", i, ".csv"))
     expect_true(file.exists(f1))
     t1 <- read.csv(f1)
     expect_identical(dim(t1), as.integer(c(36, 29)))
