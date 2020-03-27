@@ -19,7 +19,7 @@ LazyData: true
 Suggests:
     covr,
     knitr,
-    testthat,
+    testthat (>= 2.1.0),
     xts
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
