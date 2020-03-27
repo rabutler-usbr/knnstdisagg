@@ -5,6 +5,8 @@ Authors@R: person("Alan", "Butler", , "rabutler@usbr.gov", c("aut", "cre"))
 Description: Perform space and time (annual to monthly) disaggregation of 
     streamflow using a K-nearest neighbor (knn) approach.
 License: CC0
+URL: https://github.com/rabutler-usbr/knnstdisagg
+BugReports: https://github.com/rabutler-usbr/knnstdisagg/issues
 Depends:
     R (>= 2.10)
 Imports:
