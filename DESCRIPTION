@@ -10,6 +10,7 @@ Depends:
 Imports:
     assertthat,
     dplyr,
+    grDevices,
     ggplot2,
     stats,
     tidyr,
@@ -20,7 +21,8 @@ Suggests:
     covr,
     knitr,
     testthat (>= 2.1.0),
-    xts
+    xts,
+    zoo
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2

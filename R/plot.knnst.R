@@ -143,7 +143,7 @@ get_ann_plot_stats <- function(x_df, site)
   x_df %>%
     # sum to annual values
     dplyr::select_at(c("year", site, "simulation")) %>%
-    dplyr::group_by(year, simulation) %>%
+    dplyr::group_by_at(c("year", "simulation")) %>%
     dplyr::summarise_at(site, list("ann" = sum)) %>%
     # compute the same stats as monthly
     dplyr::group_by_at("simulation") %>%
@@ -351,9 +351,9 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   # 3) then create df with $y of all calls to density and $x as flow (x)
   hist_pdf <- do.call(rbind, lapply(proc_mon, function(mm) {
     data.frame(
-      month = mm,
-      x = hist_pdf[[month.abb[mm]]]$x,
-      density = hist_pdf[[month.abb[mm]]]$y
+      "month" = mm,
+      "x" = hist_pdf[[month.abb[mm]]]$x,
+      "density" = hist_pdf[[month.abb[mm]]]$y
     )
   }))
 
@@ -362,9 +362,9 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
 
     for (mm in proc_mon) {
       tmp <- rbind(tmp, data.frame(
-        month = mm,
-        x = sim_pdf[[n1]][[month.abb[mm]]]$x,
-        density = sim_pdf[[n1]][[month.abb[mm]]]$y
+        "month" = mm,
+        "x" = sim_pdf[[n1]][[month.abb[mm]]]$x,
+        "density" = sim_pdf[[n1]][[month.abb[mm]]]$y
       ))
     }
 
@@ -380,16 +380,16 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   for (mm in proc_mon) {
     pname <- paste0(month.abb[mm], "-cdf")
     gg[[pname]] <- ggplot(
-      dplyr::filter(sim_pdf, month %in% mm),
+      dplyr::filter_at(sim_pdf, "month", dplyr::all_vars(. %in% mm)),
       aes_string("x", "density")
     ) +
       geom_boxplot(aes_string(group = "x")) +
       geom_line(
-        data = dplyr::filter(hist_pdf, month %in% mm),
+        data = dplyr::filter_at(hist_pdf, "month", dplyr::all_vars(. %in% mm)),
         aes_string("x", "density")
       ) +
       facet_wrap(
-        ~month,
+        "month",
         ncol = 1,
         labeller = as_labeller(mon_labels),
         scales = "free"
@@ -406,8 +406,8 @@ show_knnst_plots <- function(gg_knn)
   if (!inherits(gg_knn, "knnstplot"))
     stop("`gg_knn` must inherit from knnstplot.")
 
-  oask <- devAskNewPage(TRUE)
-  on.exit(devAskNewPage(oask))
+  oask <- grDevices::devAskNewPage(TRUE)
+  on.exit(grDevices::devAskNewPage(oask))
 
   plot_order <- c(
     paste0(month.abb, "-cdf"),
@@ -416,9 +416,9 @@ show_knnst_plots <- function(gg_knn)
 
   for (p in plot_order) {
     if (exists(p, where = gg_knn) && !is.null(gg_knn[[p]])) {
-      dev.hold()
+      grDevices::dev.hold()
       print(gg_knn[[p]])
-      dev.flush()
+      grDevices::dev.flush()
     }
   }
 
