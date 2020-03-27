@@ -2,7 +2,7 @@
 % Please edit documentation in R/knnst_helpers.R
 \name{knnst_nsim}
 \alias{knnst_nsim}
-\title{Get the number of diaggregation simulations from \code{knnst} objects}
+\title{Get the number of disaggregation simulations from \code{knnst} objects}
 \usage{
 knnst_nsim(disagg)
 }
@@ -13,7 +13,7 @@ knnst_nsim(disagg)
 The number of diaggregation simulations
 }
 \description{
-Get the number of diaggregation simulations from \code{knnst} objects
+Get the number of disaggregation simulations from \code{knnst} objects
 }
 \examples{
 flow_mat <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))

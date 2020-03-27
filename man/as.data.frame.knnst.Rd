@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{knnst} object.}
 
-\item{...}{additional arguents to be passed to or from methods.}
+\item{...}{additional arguments to be passed to or from methods.}
 }
 \description{
 \code{knnst} objects can be converted to \code{data.frame}s. When doing so, the

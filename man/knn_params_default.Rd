@@ -15,9 +15,9 @@ definitions in Nowak et al. (2010).
 }
 \details{
 Nowak et al. (2010) selects from \code{k} nearest neighbors, where \code{k} is equal to
-the squareroot of the number of observations in the index data set. The
+the square root of the number of observations in the index data set. The
 \code{k} neighbors use a weighting function that decreases based on distance.
-The weights are eqaul to (1 / \code{n}) / sum(1 / \code{i}) where \code{i} goes from 1 to
+The weights are equal to (1 / \code{n}) / sum(1 / \code{i}) where \code{i} goes from 1 to
 \code{k}.
 }
 \examples{

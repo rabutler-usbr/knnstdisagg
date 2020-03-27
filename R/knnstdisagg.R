@@ -1,6 +1,5 @@
 #' @section Acknowledgements:
-#' This package implements the methods developed by Ken Nowak, Jim Prairie et
-#' al.
+#' This package implements the methods developed by Nowak et al.
 #'
 #' @section Reference:
 #' Nowak, K., J. Prairie, B. Rajagopalan, and U. Lall (2010), A nonparametric

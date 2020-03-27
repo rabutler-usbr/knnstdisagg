@@ -5,9 +5,9 @@
 #' definitions in Nowak et al. (2010).
 #'
 #' Nowak et al. (2010) selects from `k` nearest neighbors, where `k` is equal to
-#' the squareroot of the number of observations in the index data set. The
+#' the square root of the number of observations in the index data set. The
 #' `k` neighbors use a weighting function that decreases based on distance.
-#' The weights are eqaul to (1 / `n`) / sum(1 / `i`) where `i` goes from 1 to
+#' The weights are equal to (1 / `n`) / sum(1 / `i`) where `i` goes from 1 to
 #' `k`.
 #'
 #' @param n The number of observations in the index data set

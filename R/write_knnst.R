@@ -3,9 +3,9 @@
 #' `write_knnst()` writes all of the disaggregated data and the index years
 #' selected for the disaggregation for each simulation to disk.
 #'
-#' The disagggregated data and the index years are saved to seperate files.
+#' The disaggregated data and the index years are saved to separate files.
 #' The disaggregated data has one file for each simulation, while all index
-#' years are saved to one file. The dissaggregated data are saved as
+#' years are saved to one file. The disaggregated data are saved as
 #' "disagg_\[n\].csv", where n is the simulation number. All index years are
 #' saved to index_years.csv.
 #'

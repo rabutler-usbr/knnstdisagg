@@ -40,9 +40,9 @@ method should be preserving.
 }
 \details{
 \code{which} controls the plots that are created. There are both monthly and
-annual plots and two main plot types: a cdf of the flows accross all of the
+annual plots and two main plot types: a cdf of the flows across all of the
 different disaggregations, and a panel showing the mean, max, min, variance,
-lag-1 correlation, and skew accross all of the different disaggregations. The
+lag-1 correlation, and skew across all of the different disaggregations. The
 numbers correspond to:
 \itemize{
 \item \code{1:12}: the different monthly cdfs.

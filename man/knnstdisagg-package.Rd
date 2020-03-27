@@ -11,8 +11,7 @@ Perform space and time (annual to monthly) disaggregation of
 }
 \section{Acknowledgements}{
 
-This package implements the methods developed by Ken Nowak, Jim Prairie et
-al.
+This package implements the methods developed by Nowak et al.
 }
 
 \section{Reference}{
@@ -23,6 +22,14 @@ streamflow, Water Resour. Res., 46, W08529,
 \href{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2009WR008530}{doi:10.1029/2009WR008530.}
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/rabutler-usbr/knnstdisagg}
+  \item Report bugs at \url{https://github.com/rabutler-usbr/knnstdisagg/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Alan Butler \email{rabutler@usbr.gov}
 

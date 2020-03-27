@@ -86,7 +86,7 @@ validate_knnst <- function(x)
   x
 }
 
-#' Get the number of diaggregation simulations from `knnst` objects
+#' Get the number of disaggregation simulations from `knnst` objects
 #'
 #' @param disagg A `knnst` object
 #'
@@ -191,7 +191,7 @@ print.knnst <- function(x, ...)
 #'
 #' @param x A `knnst` object.
 #'
-#' @param ... additional arguents to be passed to or from methods.
+#' @param ... additional arguments to be passed to or from methods.
 #'
 #' @export
 

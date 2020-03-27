@@ -2,7 +2,7 @@
 % Please edit documentation in R/knn_space_time_disagg.R
 \name{knn_space_time_disagg}
 \alias{knn_space_time_disagg}
-\title{Spatial and temporal diaggregattion of flow data}
+\title{Spatial and temporal disaggregation of flow data}
 \usage{
 knn_space_time_disagg(
   ann_flow,
@@ -24,9 +24,9 @@ annual flow in column 2. This is the index gage that the flows in
 years are selected.}
 
 \item{mon_flow}{Monthly natural flow. Used for spatially and
-temporaly disaggregating the flow data (\code{ann_flow}) based on the index year
+temporally disaggregating the flow data (\code{ann_flow}) based on the index year
 selected from \code{ann_index_flow}, by \code{\link[=knn_get_index_year]{knn_get_index_year()}}. Each column
-represents a differnt site, and the annual flow at the index gage will be
+represents a different site, and the annual flow at the index gage will be
 disaggregated to each of these sites at he monthly level. If there are
 three columns in this matrix, then the values in \code{ann_flow} will be
 disaggregated to three sites. \code{mon_flow} should have the same years as
@@ -38,7 +38,7 @@ matrix.}
 
 \item{nsim}{Number of times to repeat the space/time disaggregation.}
 
-\item{scale_sites}{The site numbers (column indeces), that will scale the
+\item{scale_sites}{The site numbers (column indices), that will scale the
 index year's volume based on the annual flow being disaggregated. The
 remaining sites will select the index year directly. See \strong{Details}.}
 
@@ -54,7 +54,7 @@ A \code{\link{knnst}} object.
 }
 \description{
 \code{knn_space_time_disagg()} disaggregates annual flow data spatially and
-temporaly (to monthly), using a spatial and monthly flow pattern selected
+temporally (to monthly), using a spatial and monthly flow pattern selected
 from an "index year". The index year is selected using a k nearest-neighbor
 approach, (Knowak et al., 2010).
 }
@@ -62,10 +62,10 @@ approach, (Knowak et al., 2010).
 The method is described in detail in \emph{Knowak et al.} (2010). The methodology
 disaggregates annual flow data (\code{ann_flow}) by selecting an index year from
 \code{ann_index_flow} using \code{\link[=knn_get_index_year]{knn_get_index_year()}}. After the index year is
-selected, values from \code{ann_flow} are disaggregated spatially, and temporaly
+selected, values from \code{ann_flow} are disaggregated spatially, and temporally
 based on \code{mon_flow}. The spatial pattern is reflected by including different
 sites as columns in \code{mon_flow}, and the monthly disaggregation, uses the
-monthly pattern in \code{mon_flow} to disaggregate the data temporarly.
+monthly pattern in \code{mon_flow} to disaggregate the data temporally.
 Summability is preserved using this method, if the values selected in
 \code{mon_flow} are scaled and if the columns (or a subset of columns) in
 \code{mon_flow} sum together to equal \code{ann_index_flow}.
