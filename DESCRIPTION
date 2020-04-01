@@ -16,7 +16,8 @@ Imports:
     ggplot2,
     stats,
     tidyr,
-    tidyselect
+    tidyselect,
+    tools
 Encoding: UTF-8
 LazyData: true
 Suggests:
