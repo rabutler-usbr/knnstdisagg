@@ -411,7 +411,7 @@ show_knnst_plots <- function(gg_knn)
 
   plot_order <- c(
     paste0(month.abb, "-cdf"),
-    "monthly-stats", "annual-cdf", "annual-cdf"
+    "monthly-stats", "annual-cdf", "annual-stats"
   )
 
   for (p in plot_order) {
