@@ -113,7 +113,7 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   gg_out <- structure(gg_out, class = "knnstplot")
 
   if (show && interactive())
-    show_knnst_plots(gg_out)
+    print(gg_out)
 
   invisible(gg_out)
 }
@@ -398,29 +398,4 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   }
 
   gg
-}
-
-# TODO should this be show.knnstplot?
-show_knnst_plots <- function(gg_knn)
-{
-  if (!inherits(gg_knn, "knnstplot"))
-    stop("`gg_knn` must inherit from knnstplot.")
-
-  oask <- grDevices::devAskNewPage(TRUE)
-  on.exit(grDevices::devAskNewPage(oask))
-
-  plot_order <- c(
-    paste0(month.abb, "-cdf"),
-    "monthly-stats", "annual-cdf", "annual-stats"
-  )
-
-  for (p in plot_order) {
-    if (exists(p, where = gg_knn) && !is.null(gg_knn[[p]])) {
-      grDevices::dev.hold()
-      print(gg_knn[[p]])
-      grDevices::dev.flush()
-    }
-  }
-
-  invisible(gg_knn)
 }
