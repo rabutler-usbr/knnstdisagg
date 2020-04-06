@@ -34,11 +34,11 @@ is_knnst <- function(x)
 validate_knnst <- function(x)
 {
   assertthat::assert_that(
-    length(x) == 3,
-    msg = "Should have length == 3"
+    length(x) == 4,
+    msg = "Should have length == 4"
   )
 
-  disagg_names <- c("disagg_sims", "index_data", "mon_flow")
+  disagg_names <- c("disagg_sims", "index_data", "mon_flow", "start_month")
   assert_that(
     all(names(x) %in% disagg_names),
     msg = paste(

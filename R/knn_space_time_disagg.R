@@ -245,7 +245,8 @@ knn_space_time_disagg <- function(ann_flow,
   disag_out <- list(
     disagg_sims = disag_out,
     index_data = ann_index_flow,
-    mon_flow = mon_flow
+    mon_flow = mon_flow,
+    start_month = start_month
   )
 
   disag_out <- structure(disag_out, class = c("knnst", "list"))
