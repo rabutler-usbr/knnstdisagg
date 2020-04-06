@@ -281,10 +281,9 @@ get_pattern_flow_data_df <- function(x, site)
   tmp <- all_cols[!(all_cols %in% drop_cols)]
 
   # assume years correspond to the years from the annual index data
-  # assume that data start in January
   yy <- x$index_data[,1]
 
-  ym <- expand.grid(1:12, yy)
+  ym <- expand.grid(full_year(x$start_month), yy)
   mm <- ym[,1]
   yy <- ym[,2]
   ym <- paste(
