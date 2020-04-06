@@ -49,6 +49,7 @@ test_that("disagg matches previous code's results", {
         x,
         ann_index_flow = ann_flw,
         mon_flow = mon_flw,
+        start_month = 10,
         index_years = index_yrs,
         scale_sites = 1:20
       )),
@@ -67,7 +68,13 @@ orig_index <- as.matrix(read.csv("../dp/index_years_rseed408.csv"))
 dimnames(orig_index) <- NULL
 set.seed(403) # this was the first entry of .Random.seed when implementing this
 
-tmp2 <- knn_space_time_disagg(x, ann_flw, mon_flw, scale_sites = 1:20)
+tmp2 <- knn_space_time_disagg(
+  x,
+  ann_flw,
+  mon_flw,
+  start_month = 10,
+  scale_sites = 1:20
+)
 
 test_that("current random selection matches original random selection", {
   expect_equal(tmp2$disagg_sims[[1]]$index_years, as.vector(orig_index))
@@ -83,21 +90,36 @@ test_that("nsim and index_years are correct", {
 
 # check knn_space_time_disagg errros -----------------------------
 test_that("`knn_space_time_disagg()` errors correctly", {
-  expect_error(knn_space_time_disagg(x[,1], ann_flw, mon_flw))
-  expect_error(knn_space_time_disagg(x, ann_flw[,2], mon_flw))
+  expect_error(knn_space_time_disagg(x[,1], ann_flw, mon_flw, start_month = 1))
+  expect_error(knn_space_time_disagg(x, ann_flw[,2], mon_flw, start_month = 1))
   expect_error(
-    knn_space_time_disagg(x, ann_flw, mon_flw[1:60,]),
+    knn_space_time_disagg(x, ann_flw, mon_flw[1:60,], start_month = 1),
     "`ann_index_flow` and `mon_flow` must have the same number of years.",
     fixed = TRUE
   )
   expect_error(
-    knn_space_time_disagg(x, ann_flw[1:60,], mon_flw),
+    knn_space_time_disagg(x, ann_flw[1:60,], mon_flw, start_month = 10),
     "`ann_index_flow` and `mon_flow` must have the same number of years.",
     fixed = TRUE
   )
   expect_error(
-    knn_space_time_disagg(x, ann_flw, mon_flw[1:143,]),
+    knn_space_time_disagg(x, ann_flw, mon_flw[1:143,], start_month = 10),
     "`mon_flow` needs to have an even year's worth of data",
+    fixed = TRUE
+  )
+  expect_error(
+    knn_space_time_disagg(x, ann_flw, mon_flw),
+    "argument \"start_month\" is missing, with no default",
+    fixed = TRUE
+  )
+  expect_error(
+    knn_space_time_disagg(x, ann_flw, mon_flw, start_month = c(1,10)),
+    "`start_month` should be a single integer from 1 to 12",
+    fixed = TRUE
+  )
+  expect_error(
+    knn_space_time_disagg(x, ann_flw, mon_flw, start_month = 15),
+    "`start_month` should be a single integer from 1 to 12",
     fixed = TRUE
   )
 })

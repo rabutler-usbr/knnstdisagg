@@ -11,6 +11,7 @@ disagg <- knn_space_time_disagg(
   flow_mat,
   ind_flow,
   mon_flow,
+  start_month = 1,
   nsim = 10,
   scale_sites = 1:2
 )
@@ -24,7 +25,6 @@ p3 <- plot(disagg, which = 2, site = "S1")
 temp_dir <- file.path(tempdir(), "plots")
 
 setup(dir.create(temp_dir))
-print(temp_dir)
 teardown(unlink(temp_dir, recursive = TRUE))
 
 # errors ----------------------

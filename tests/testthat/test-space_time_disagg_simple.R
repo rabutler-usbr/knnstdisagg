@@ -37,6 +37,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
       lf,
       index_flow,
       mon_flow,
+      start_month = 1,
       scale_sites = 1:20,
       nsim = nsim
     ),
@@ -111,6 +112,7 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
       lf,
       index_flow,
       mon_flow,
+      start_month = 1,
       scale_sites = 1:20,
       nsim = nsim,
       index_years = ind_yrs
@@ -177,4 +179,12 @@ test_that("`knn_space_time_disagg()` works for index years for nsim != 1", {
     as.vector(mon_flow[as.character(ind_yrs[2, 3]), 1] /
       sum(mon_flow[as.character(ind_yrs[2, 3]), 1]))
   )
+})
+
+# knnstdisagg:::full_year -------------------
+test_that("knnstdisagg:::full_year() works", {
+  expect_identical(knnstdisagg:::full_year(1), 1:12)
+  expect_identical(knnstdisagg:::full_year(10), c(10:12, 1:9))
+  expect_identical(knnstdisagg:::full_year(12), c(as.integer(12), 1:11))
+  expect_identical(knnstdisagg:::full_year(6), c(6:12, 1:5))
 })

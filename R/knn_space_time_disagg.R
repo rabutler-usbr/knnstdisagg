@@ -28,8 +28,8 @@
 #' selecting flow values directly in sites 1 and 2.
 #'
 #' @param mon_flow Monthly natural flow. Used for spatially and
-#'   temporally disaggregating the flow data (`ann_flow`) based on the index year
-#'   selected from `ann_index_flow`, by [knn_get_index_year()]. Each column
+#'   temporally disaggregating the flow data (`ann_flow`) based on the index
+#'   year selected from `ann_index_flow`, by [knn_get_index_year()]. Each column
 #'   represents a different site, and the annual flow at the index gage will be
 #'   disaggregated to each of these sites at he monthly level. If there are
 #'   three columns in this matrix, then the values in `ann_flow` will be
@@ -39,6 +39,9 @@
 #'   for the same years as `ann_index_flow`, though there are no checks
 #'   performed to check this, since this is expected to be a dimensionless
 #'   matrix.
+#'
+#' @param start_month The start month of the `mon_flow` as an integer. 1 =
+#'   January, 2 = February, etc. Used to correctly label the output data.
 #'
 #' @param scale_sites The site numbers (column indices), that will scale the
 #'   index year's volume based on the annual flow being disaggregated. The
@@ -73,12 +76,13 @@
 #'   rnorm(80 * 12, mean = 20, sd = 5),
 #'   rnorm(80 * 12, mean = 120, sd = 45)
 #' )
-#' knn_space_time_disagg(flow_mat, ind_flow, mon_flow, scale_sites = 1:2)
+#' knn_space_time_disagg(flow_mat, ind_flow, mon_flow, 1, scale_sites = 1:2)
 #'
 #' @export
 knn_space_time_disagg <- function(ann_flow,
                          ann_index_flow,
                          mon_flow,
+                         start_month,
                          nsim = 1,
                          scale_sites = NULL,
                          index_years = NULL,
@@ -101,6 +105,11 @@ knn_space_time_disagg <- function(ann_flow,
 
   assert_that(ncol(ann_index_flow) == 2)
   assert_that(ncol(ann_flow) == 2)
+
+  assert_that(
+    length(start_month) == 1 && is.numeric(start_month) && start_month %in% 1:12,
+    msg = "`start_month` should be a single integer from 1 to 12"
+  )
 
   nsite <- ncol(mon_flow)
 
@@ -208,7 +217,7 @@ knn_space_time_disagg <- function(ann_flow,
 
   # create rownames for yyyy-mm
   # ** For now, always assume it starts in January **
-  yy <- expand.grid(1:12, ann_flow[,1])
+  yy <- expand.grid(full_year(start_month), ann_flow[,1])
   yy <- paste(
     yy[,2],
     formatC(yy[,1], width = 2, format = "d", flag = "0"),
@@ -271,4 +280,13 @@ get_scale_factor <- function(index_year, flow, ann_index_flow)
   SF <- flow/(ann_index_flow[pos, 2])
 
   list(pos = pos, SF = SF)
+}
+
+# given a start month, returns a single year of months
+full_year <- function(start_month)
+{
+  x <- rep(1:12, 2)
+  x <- x[start_month:(start_month + 11)]
+
+  x
 }

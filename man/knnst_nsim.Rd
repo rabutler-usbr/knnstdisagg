@@ -25,7 +25,7 @@ mon_flow <- cbind(
   rnorm(80 * 12, mean = 120, sd = 45)
 )
 x <- knn_space_time_disagg(
-  flow_mat, ind_flow, mon_flow, scale_sites = 1:2, nsim = 5
+  flow_mat, ind_flow, mon_flow, start_month = 1, scale_sites = 1:2, nsim = 5
 )
 
 # will return 5

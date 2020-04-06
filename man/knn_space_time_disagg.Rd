@@ -8,6 +8,7 @@ knn_space_time_disagg(
   ann_flow,
   ann_index_flow,
   mon_flow,
+  start_month,
   nsim = 1,
   scale_sites = NULL,
   index_years = NULL,
@@ -24,8 +25,8 @@ annual flow in column 2. This is the index gage that the flows in
 years are selected.}
 
 \item{mon_flow}{Monthly natural flow. Used for spatially and
-temporally disaggregating the flow data (\code{ann_flow}) based on the index year
-selected from \code{ann_index_flow}, by \code{\link[=knn_get_index_year]{knn_get_index_year()}}. Each column
+temporally disaggregating the flow data (\code{ann_flow}) based on the index
+year selected from \code{ann_index_flow}, by \code{\link[=knn_get_index_year]{knn_get_index_year()}}. Each column
 represents a different site, and the annual flow at the index gage will be
 disaggregated to each of these sites at he monthly level. If there are
 three columns in this matrix, then the values in \code{ann_flow} will be
@@ -35,6 +36,9 @@ disaggregated to three sites. \code{mon_flow} should have the same years as
 for the same years as \code{ann_index_flow}, though there are no checks
 performed to check this, since this is expected to be a dimensionless
 matrix.}
+
+\item{start_month}{The start month of the \code{mon_flow} as an integer. 1 =
+January, 2 = February, etc. Used to correctly label the output data.}
 
 \item{nsim}{Number of times to repeat the space/time disaggregation.}
 
@@ -91,7 +95,7 @@ mon_flow <- cbind(
   rnorm(80 * 12, mean = 20, sd = 5),
   rnorm(80 * 12, mean = 120, sd = 45)
 )
-knn_space_time_disagg(flow_mat, ind_flow, mon_flow, scale_sites = 1:2)
+knn_space_time_disagg(flow_mat, ind_flow, mon_flow, 1, scale_sites = 1:2)
 
 }
 \references{
