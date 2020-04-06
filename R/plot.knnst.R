@@ -17,6 +17,10 @@
 #'
 #' `...` is passed to [geom_point()] and [labs()].
 #'
+#' For the monthly statistics panel, months are ordered based on the
+#' `start_month` provided in the original disaggregation, i.e., specified by the
+#' user in [knn_space_time_disagg()].
+#'
 #' @param x An object inheriting from class `knnst`
 #'
 #' @param site The site to plot. Site name as a character.
@@ -85,7 +89,8 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   gg1 <- gg2 <- gg3 <- gg4 <- NULL
   # monthly plots ----------------
   if (14 %in% which)
-    gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, base_units, ...)
+    gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, x$start_month,
+                          base_units, ...)
 
   if (any(1:12 %in% which))
     gg2 <- create_mon_cdf(x_df, x_mon, nsim, site, base_units, which, ...)
@@ -208,8 +213,19 @@ create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL, ...)
   gg
 }
 
-create_mon_bxp <- function(sim_data, hist_data, site, base_units = NULL, ...)
+create_mon_bxp <- function(sim_data, hist_data, site, start_month,
+                           base_units = NULL, ...)
 {
+  sim_data[["month"]] <- factor(
+    sim_data[["month"]],
+    levels = month.abb[full_year(start_month)]
+  )
+
+  hist_data[["month"]] <- factor(
+    hist_data[["month"]],
+    levels = month.abb[full_year(start_month)]
+  )
+
   gg <- ggplot(sim_data, aes_string("month", "Value")) +
     geom_boxplot(aes_string(group = "month")) +
     facet_wrap("Variable", ncol = 2, scales = "free_y") +

@@ -52,4 +52,8 @@ numbers correspond to:
 }
 
 \code{...} is passed to \code{\link[=geom_point]{geom_point()}} and \code{\link[=labs]{labs()}}.
+
+For the monthly statistics panel, months are ordered based on the
+\code{start_month} provided in the original disaggregation, i.e., specified by the
+user in \code{\link[=knn_space_time_disagg]{knn_space_time_disagg()}}.
 }
