@@ -129,3 +129,22 @@ test_that("plots succeed for unnamed matrices", {
   p2[["Feb-cdf"]] <- NULL
   expect_true(all.equal(p1[["Feb-cdf"]], p2[["Feb-cdf"]]))
 })
+
+# get_agg_year() -------------------------
+test_that("knnstdisagg:::get_agg_year() works", {
+  expect_identical(knnstdisagg:::get_agg_year("2000-01", 1), 2000)
+  expect_identical(knnstdisagg:::get_agg_year("2000-12", 1), 2000)
+  expect_identical(knnstdisagg:::get_agg_year("2000-01", 10), 2000)
+  expect_identical(knnstdisagg:::get_agg_year("2000-09", 10), 2000)
+  expect_identical(knnstdisagg:::get_agg_year("2000-12", 10), 2001)
+  expect_identical(knnstdisagg:::get_agg_year("1999-10", 10), 2000)
+  expect_identical(knnstdisagg:::get_agg_year("1999-06", 7), 1999)
+  expect_identical(knnstdisagg:::get_agg_year("1999-07", 7), 2000)
+  # test vectorized version
+  expect_identical(
+    knnstdisagg:::get_agg_year(
+      c("2000-01", "2000-09", "2000-12", "1999-10"),
+      10
+    ),
+    c(2000, 2000, 2001, 2000))
+})

@@ -398,3 +398,17 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
 
   gg
 }
+
+# given a yyyy-mm and start_month, determine its "aggregation" year. ex water
+# year or fiscal year.
+get_agg_year <- function(x, start_month)
+{
+  x <- simplify2array(strsplit(x, "-", fixed = TRUE))
+  yy <- as.numeric(x[1,])
+  mm <- as.numeric(x[2,])
+
+  if (start_month != 1)
+    yy[mm %in% start_month:12] <-  yy[mm %in% start_month:12] + 1
+
+  yy
+}
