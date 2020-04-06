@@ -296,7 +296,8 @@ get_pattern_flow_data_df <- function(x, site)
     ym = ym,
     year = yy,
     month = mm,
-    simulation = 1
+    simulation = 1,
+    stringsAsFactors = FALSE
   )
 
   # as.numeric, in case the monthly index data is xts

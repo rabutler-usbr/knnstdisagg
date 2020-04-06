@@ -64,7 +64,7 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   )
 
   x_plot_data <- get_mon_plot_stats(x_df, site)
-  x_ann_plot_data <- get_ann_plot_stats(x_df, site)
+  x_ann_plot_data <- get_ann_plot_stats(x_df, site, x$start_month)
   x_ann_sim_data <- x_df %>%
     dplyr::group_by_at(c("year", "simulation")) %>%
     dplyr::summarise_at(site, sum)
@@ -79,12 +79,8 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
     get_mon_plot_stats(site)
 
   # annual historical data
-  x_ann <- x_mon %>%
-    dplyr::group_by_at(c("year", "simulation")) %>%
-    dplyr::summarise_at(site, sum)
-  x_ann_stats <- get_ann_plot_stats(x_mon, site)
-
-  # TODO: set n as a package option
+  x_ann <- get_historical_annual(x_mon, site, x$start_month)
+  x_ann_stats <- get_ann_plot_stats(x_mon, site, x$start_month)
 
   gg1 <- gg2 <- gg3 <- gg4 <- NULL
   # monthly plots ----------------
@@ -136,17 +132,21 @@ get_mon_plot_stats <- function(x_df, site)
     )
 }
 
-get_ann_plot_stats <- function(x_df, site)
+get_ann_plot_stats <- function(x_df, site, start_month)
 {
 
+  x_df[["agg_year"]] <- x_df[["ym"]]
+
   x_df %>%
+    # get the "agg_year" from ym
+    dplyr::mutate_at("agg_year", list(~ get_agg_year(., start_month))) %>%
     # sum to annual values
-    dplyr::select_at(c("year", site, "simulation")) %>%
-    dplyr::group_by_at(c("year", "simulation")) %>%
+    dplyr::select_at(c("agg_year", site, "simulation")) %>%
+    dplyr::group_by_at(c("agg_year", "simulation")) %>%
     dplyr::summarise_at(site, list("ann" = sum)) %>%
     # compute the same stats as monthly
     dplyr::group_by_at("simulation") %>%
-    dplyr::arrange_at("year") %>%
+    dplyr::arrange_at("agg_year") %>%
     get_plot_stats(var_mutate = "ann", vars_group = "simulation")
 
 }
@@ -411,4 +411,13 @@ get_agg_year <- function(x, start_month)
     yy[mm %in% start_month:12] <-  yy[mm %in% start_month:12] + 1
 
   yy
+}
+
+get_historical_annual <- function(x, site, start_month)
+{
+  x[["agg_year"]] <- x[["ym"]]
+  x %>%
+    dplyr::mutate_at("agg_year", list(~ get_agg_year(., start_month))) %>%
+    dplyr::group_by_at(c("agg_year", "simulation")) %>%
+    dplyr::summarise_at(site, sum)
 }
