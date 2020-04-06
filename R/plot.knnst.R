@@ -101,7 +101,6 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   if (13 %in% which)
     gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, nsim, site, base_units, ...)
 
-  # TODO: interactive moving to next plot
   gg_out <- c(
     list(
       "monthly-stats" = gg1,
@@ -133,7 +132,7 @@ get_mon_plot_stats <- function(x_df, site)
     dplyr::ungroup() %>%
     dplyr::mutate_at(
       "month",
-      dplyr::funs(factor(month.abb[.], levels = month.abb))
+      list(~ factor(month.abb[.], levels = month.abb))
     )
 }
 
@@ -166,15 +165,15 @@ get_plot_stats <- function(x_df, var_mutate, vars_group)
   )
 
   x_df %>%
-    dplyr::mutate_at(var_mutate, dplyr::funs("tmp" = dplyr::lag(.))) %>%
+    dplyr::mutate_at(var_mutate, list("tmp" = dplyr::lag)) %>%
 
     dplyr::group_by_at(vars_group) %>%
     # means, standard deviation, max, min, skew, lag-1 correlation
     dplyr::summarise_at(
       var_mutate,
-      dplyr::funs(
-        mean, stats::var, max, min, skew,
-        stats::cor(get(var_mutate), get("tmp"), use = "complete.obs")
+      list(
+        ~ mean(.), ~ stats::var(.), ~ max(.), ~ min(.), ~ skew(.),
+        ~ stats::cor(., get("tmp"), use = "complete.obs")
       )
     ) %>%
     tidyr::gather_(
@@ -184,7 +183,7 @@ get_plot_stats <- function(x_df, var_mutate, vars_group)
     ) %>%
     dplyr::mutate_at(
       "Variable",
-      dplyr::funs(factor(var_name_order[.], levels = var_name_order))
+      list(~ factor(var_name_order[.], levels = var_name_order))
     )
 }
 
