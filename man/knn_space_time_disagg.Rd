@@ -10,7 +10,7 @@ knn_space_time_disagg(
   mon_flow,
   start_month,
   nsim = 1,
-  scale_sites = NULL,
+  scale_sites = TRUE,
   index_years = NULL,
   k_weights = knn_params_default(nrow(ann_index_flow))
 )
@@ -42,7 +42,8 @@ January, 2 = February, etc. Used to correctly label the output data.}
 
 \item{nsim}{Number of times to repeat the space/time disaggregation.}
 
-\item{scale_sites}{The site numbers (column indices), that will scale the
+\item{scale_sites}{\code{TRUE}/\code{FALSE} - scale all the sites. Otherwise, a numeric
+vectotr specifying the site numbers (column indices), that will scale the
 index year's volume based on the annual flow being disaggregated. The
 remaining sites will select the index year directly. See \strong{Details}.}
 
@@ -74,7 +75,8 @@ Summability is preserved using this method, if the values selected in
 \code{mon_flow} are scaled and if the columns (or a subset of columns) in
 \code{mon_flow} sum together to equal \code{ann_index_flow}.
 
-In some cases, it is desirable to select monthly flow directly, instead of
+\code{scale_sites}: In some cases, it is desirable to select monthly flow
+directly, instead of
 scaling it. This can be performed by only scaling certain sites, using
 \code{scale_sites}. \code{scale_sites} should be a boolean, or a vector of numerics. If
 \code{TRUE}, then all sites are scaled. If \code{FALSE}, all sites monthly values

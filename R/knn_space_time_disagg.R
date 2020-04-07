@@ -17,7 +17,8 @@
 #' `mon_flow` are scaled and if the columns (or a subset of columns) in
 #' `mon_flow` sum together to equal `ann_index_flow`.
 #'
-#' In some cases, it is desirable to select monthly flow directly, instead of
+#' `scale_sites`: In some cases, it is desirable to select monthly flow
+#' directly, instead of
 #' scaling it. This can be performed by only scaling certain sites, using
 #' `scale_sites`. `scale_sites` should be a boolean, or a vector of numerics. If
 #' `TRUE`, then all sites are scaled. If `FALSE`, all sites monthly values
@@ -43,7 +44,8 @@
 #' @param start_month The start month of the `mon_flow` as an integer. 1 =
 #'   January, 2 = February, etc. Used to correctly label the output data.
 #'
-#' @param scale_sites The site numbers (column indices), that will scale the
+#' @param scale_sites `TRUE`/`FALSE` - scale all the sites. Otherwise, a numeric
+#'   vectotr specifying the site numbers (column indices), that will scale the
 #'   index year's volume based on the annual flow being disaggregated. The
 #'   remaining sites will select the index year directly. See **Details**.
 #'
@@ -84,7 +86,7 @@ knn_space_time_disagg <- function(ann_flow,
                          mon_flow,
                          start_month,
                          nsim = 1,
-                         scale_sites = NULL,
+                         scale_sites = TRUE,
                          index_years = NULL,
                          k_weights = knn_params_default(nrow(ann_index_flow)))
 {
@@ -111,6 +113,12 @@ knn_space_time_disagg <- function(ann_flow,
     msg = "`start_month` should be a single integer from 1 to 12"
   )
 
+  assert_that(
+    (is.logical(scale_sites) && length(scale_sites) == 1) ||
+      (is.numeric(scale_sites) && length(scale_sites) > 0),
+    msg = "`scale_sites` should be a boolean scaler or numeric vector."
+  )
+
   nsite <- ncol(mon_flow)
 
   if (!is.null(index_years)) {
@@ -135,11 +143,16 @@ knn_space_time_disagg <- function(ann_flow,
     )
   }
 
-  if (!is.null(scale_sites)) {
+  if (is.numeric(scale_sites)) {
     assert_that(
-      max(scale_sites) <= nsite,
-      msg = "max(`scale_sites`), must be <= the number of sites (`site`)."
+      all(scale_sites %in% 1:nsite),
+      msg = "All `scale_sites` must be withing the number of sites in `mon_flow`."
     )
+  } else {
+    if (scale_sites)
+      scale_sites <- 1:nsite
+    else
+      scale_sites <- integer(0)
   }
 
   if (!all(1:nsite %in% scale_sites)) {
@@ -148,7 +161,8 @@ knn_space_time_disagg <- function(ann_flow,
     ind_sites <- 1:nsite
     ind_sites <- ind_sites[!(1:nsite %in% scale_sites)]
     message(
-      "Sites ", toString(ind_sites), "\n",
+      ifelse(length(ind_sites) > 1, "Sites ", "Site "),
+      toString(ind_sites), "\n",
       "will be selected directly from the index years, i.e., not scaled."
     )
   } else {

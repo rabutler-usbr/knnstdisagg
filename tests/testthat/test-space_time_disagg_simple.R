@@ -271,3 +271,74 @@ test_that("changing start_month does not change data", {
   rownames(t2) <- NULL
   expect_identical(t1, t2)
 })
+
+# scale_sites ----------------------
+test_that("scale_sites works with different specifications", {
+  expect_identical(
+    knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = TRUE,
+      k_weights = knn_params(1, 1)
+    ),
+    knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = 1:2,
+      k_weights = knn_params(1, 1)
+    )
+  )
+  # check that indexed sites are == between disaggs
+  expect_is(
+    expect_message(d1 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = FALSE,
+      k_weights = knn_params(1, 1)
+    )),
+    "knnst"
+  )
+  expect_is(
+    expect_message(d2 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = 1,
+      k_weights = knn_params(1, 1)
+    )),
+    "knnst"
+  )
+  expect_is(
+    expect_message(d3 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = 2,
+      k_weights = knn_params(1, 1)
+    )),
+    "knnst"
+  )
+  expect_identical(
+    d1$disagg_sims[[1]]$disagg_flow[,1],
+    d3$disagg_sims[[1]]$disagg_flow[,1]
+  )
+  expect_identical(
+    d1$disagg_sims[[1]]$disagg_flow[,2],
+    d2$disagg_sims[[1]]$disagg_flow[,2]
+  )
+
+  # all scaled flow should exist in mon_flow
+  expect_true(all(d1$disagg_sims[[1]]$disagg_flow %in% mon_flow))
+  expect_true(all(d2$disagg_sims[[1]]$disagg_flow[, 2] %in% mon_flow))
+  expect_true(all(d3$disagg_sims[[1]]$disagg_flow[, 1] %in% mon_flow))
+  expect_false(all(d2$disagg_sims[[1]]$disagg_flow[, 1] %in% mon_flow))
+  expect_false(all(d3$disagg_sims[[1]]$disagg_flow[, 2] %in% mon_flow))
+})
