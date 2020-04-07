@@ -348,3 +348,35 @@ test_that("scale_sites works with different specifications", {
   expect_false(all(d2$disagg_sims[[1]]$disagg_flow[, 1] %in% mon_flow))
   expect_false(all(d3$disagg_sims[[1]]$disagg_flow[, 2] %in% mon_flow))
 })
+
+# scaled vs. unscaled -------------------------
+# simple test with monthly gages that sum to index gage
+# if input are volumes that exist in the index gage and k = 1, then monthly
+# data should also exist
+
+mon_flow <- round(matrix(rnorm(36*3, mean = 200, sd = 20), ncol = 3), 0)
+ann_ind <- cbind(2010:2012, apply(ann_sum(mon_flow), 1, sum))
+ann_flow <- cbind(
+  2020:2025,
+  c(ann_ind[2, 2], ann_ind[1, 2], ann_ind[3, 2], min(ann_ind[,2] * .7),
+    max(ann_ind[,2] * 1.23), 200*12)
+)
+
+test_that("values are identical to input as appropriate", {
+  expect_is(
+    tmp <- knn_space_time_disagg(
+      ann_flow,
+      ann_ind,
+      mon_flow,
+      start_month = 1,
+      k_weights = knn_params(1, 1)
+    ),
+    "knnst"
+  )
+
+  # first three years of data should exist in input monthly data
+  expect_true(all(knnst_get_disagg_data(tmp)[1:36,] %in% mon_flow))
+
+  # last three years of data should not exist in monthly data
+  expect_true(all(!(knnst_get_disagg_data(tmp)[37:72,] %in% mon_flow)))
+})
