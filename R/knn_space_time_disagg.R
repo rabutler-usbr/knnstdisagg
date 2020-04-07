@@ -122,6 +122,8 @@ knn_space_time_disagg <- function(ann_flow,
   nsite <- ncol(mon_flow)
 
   if (!is.null(index_years)) {
+    assert_that(is.matrix(index_years))
+
     assert_that(
       ncol(index_years) == nsim,
       msg = paste(
@@ -137,7 +139,7 @@ knn_space_time_disagg <- function(ann_flow,
     )
   }
 
-  if (!missing(index_years)) {
+  if (!is.null(index_years)) {
     message(
       "`index_years` is specified, so `k_weights` will be ignored."
     )
