@@ -148,3 +148,45 @@ test_that("knnstdisagg:::get_agg_year() works", {
     ),
     c(2000, 2000, 2001, 2000))
 })
+
+# start_year ---------------------------
+# changing start_year should not change annual stats when using k = 1
+flow_mat <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))
+# made up historical data to use as index years
+ind_flow <- cbind(1901:1980, rnorm(80, mean = 1500, sd = 300))
+# make up monthly flow for two sites
+mon_flow <- cbind(
+  rnorm(80 * 12, mean = 20, sd = 5),
+  rnorm(80 * 12, mean = 120, sd = 45)
+)
+
+test_that("changing start_month does not change data", {
+  expect_is(
+    d1 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = 1:2,
+      k_weights = knn_params(1, 1)
+    ),
+    "knnst"
+  )
+  expect_is(
+    d2 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 10,
+      scale_sites = 1:2,
+      k_weights = knn_params(1, 1)
+    ),
+    "knnst"
+  )
+  expect_is(p1 <- plot(d1, which = 15), "knnstplot")
+  expect_is(p2 <- plot(d2, which = 15), "knnstplot")
+  expect_identical(
+    p1[["annual-stats"]][["data"]],
+    p2[["annual-stats"]][["data"]]
+  )
+})
