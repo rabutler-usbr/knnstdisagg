@@ -188,3 +188,86 @@ test_that("knnstdisagg:::full_year() works", {
   expect_identical(knnstdisagg:::full_year(12), c(as.integer(12), 1:11))
   expect_identical(knnstdisagg:::full_year(6), c(6:12, 1:5))
 })
+
+# knnstdisagg:::ym_labels <- function(years, start_month) ----------------
+test_that("knnstdisagg:::ym_labels works", {
+  expect_identical(
+    knnstdisagg:::ym_labels(2000:2001, 1),
+    paste(
+      c(rep(2000, 12), rep(2001, 12)),
+      sprintf("%02d", rep(1:12, 2)),
+      sep = "-"
+    )
+  )
+  expect_identical(
+    knnstdisagg:::ym_labels(2000:2001, 10),
+    paste(
+      c(rep(1999, 3), rep(2000, 12), rep(2001, 9)),
+      sprintf("%02d", c(10:12, 1:12, 1:9)),
+      sep = "-"
+    )
+  )
+})
+
+# start_year ------------------
+# selecting the nearest neighbor, with the same data, but a different start_year
+# should result in same output data with different rownames
+
+flow_mat <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))
+# made up historical data to use as index years
+ind_flow <- cbind(1901:1980, rnorm(80, mean = 1500, sd = 300))
+# make up monthly flow for two sites
+mon_flow <- cbind(
+  rnorm(80 * 12, mean = 20, sd = 5),
+  rnorm(80 * 12, mean = 120, sd = 45)
+)
+
+test_that("changing start_month does not change data", {
+  expect_is(
+    d1 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 1,
+      scale_sites = 1:2,
+      k_weights = knn_params(1, 1)
+    ),
+    "knnst"
+  )
+  expect_is(
+    d2 <- knn_space_time_disagg(
+      flow_mat,
+      ind_flow,
+      mon_flow,
+      start_month = 10,
+      scale_sites = 1:2,
+      k_weights = knn_params(1, 1)
+    ),
+    "knnst"
+  )
+  expect_identical(knnst_index_years(d1), knnst_index_years(d2))
+
+  t1 <- d1$disagg_sims[[1]]$disagg_flow
+  expect_identical(
+    rownames(t1),
+    paste(
+      c(rep(2000, 12), rep(2001, 12), rep(2002, 12)),
+      sprintf("%02d", rep(1:12, 3)),
+      sep = "-"
+    )
+  )
+
+  t2 <- d2$disagg_sims[[1]]$disagg_flow
+  expect_identical(
+    rownames(t2),
+    paste(
+      c(rep(1999, 3), rep(2000, 12), rep(2001, 12), rep(2002, 9)),
+      sprintf("%02d", c(10:12, 1:12, 1:12, 1:9)),
+      sep = "-"
+    )
+  )
+
+  rownames(t1) <- NULL
+  rownames(t2) <- NULL
+  expect_identical(t1, t2)
+})

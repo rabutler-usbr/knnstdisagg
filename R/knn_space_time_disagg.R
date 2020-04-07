@@ -216,13 +216,7 @@ knn_space_time_disagg <- function(ann_flow,
   }
 
   # create rownames for yyyy-mm
-  # ** For now, always assume it starts in January **
-  yy <- expand.grid(full_year(start_month), ann_flow[,1])
-  yy <- paste(
-    yy[,2],
-    formatC(yy[,1], width = 2, format = "d", flag = "0"),
-    sep = "-"
-  )
+  yy <- ym_labels(ann_flow[,1], start_month)
   site_names <- colnames(mon_flow)
 
   # convert from 4-d array to list of 2-d arrays
@@ -290,4 +284,26 @@ full_year <- function(start_month)
   x <- x[start_month:(start_month + 11)]
 
   x
+}
+
+# creates row name labels
+# returns in yyyy-mm format
+ym_labels <- function(years, start_month)
+{
+  # adjust the years for start_month not == January, because for example, a
+  # start_monnth of October actually belongs to the previous year.
+  # assumes years correspond with last month in year, not first month in year
+  yy <- expand.grid(full_year(start_month), years)
+  mm <- yy[,1]
+  yy <- yy[,2]
+  if (start_month != 1)
+    yy[mm %in% start_month:12] <-  yy[mm %in% start_month:12] - 1
+
+  yy <- paste(
+    yy,
+    formatC(mm, width = 2, format = "d", flag = "0"),
+    sep = "-"
+  )
+
+  yy
 }
