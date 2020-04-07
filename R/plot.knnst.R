@@ -237,7 +237,7 @@ create_mon_bxp <- function(sim_data, hist_data, site, start_month,
     ) +
     labs(
       x = NULL,
-      title = site,
+      title = paste0(site, " - Monthly Statistics"),
       y = paste("Base units =", base_units),
       ...
     )
@@ -300,7 +300,7 @@ create_ann_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
     geom_line(data = hist_pdf, aes_string("x", "density")) +
     labs(
       x = paste0("Flow (", base_units, ")"), y = "Probability Density",
-      title = "Annual CDF"
+      title = paste(site, "- Annual CDF")
     )
 
   gg
@@ -403,13 +403,11 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
         data = dplyr::filter_at(hist_pdf, "month", dplyr::all_vars(. %in% mm)),
         aes_string("x", "density")
       ) +
-      facet_wrap(
-        "month",
-        ncol = 1,
-        labeller = as_labeller(mon_labels),
-        scales = "free"
-      ) +
-      labs(x = paste0("Flow (", base_units, ")"), y = "Probability Density")
+      labs(
+        title = paste0(site, " - ", month.name[mm], " CDF"),
+        x = paste0("Flow (", base_units, ")"),
+        y = "Probability Density"
+      )
   }
 
   gg
