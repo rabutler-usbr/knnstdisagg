@@ -16,6 +16,7 @@ simulation are also stored in the \code{knnst} object.
 The data in the \code{knnst} object can be accessed through the following
 functions:
 \itemize{
+\item \code{\link[=knnst_get_disagg_data]{knnst_get_disagg_data()}} returns the disaggregated data
 \item \code{\link[=knnst_nsim]{knnst_nsim()}} will return the number of simulations, while
 \item \code{\link[=knnst_index_years]{knnst_index_years()}} will return all of the selected index years.
 }
@@ -23,5 +24,6 @@ functions:
 \code{knnst} objects can be converted to a \code{data.frame}: \code{\link[=as.data.frame.knnst]{as.data.frame.knnst()}}
 }
 \seealso{
-\code{\link[=knn_space_time_disagg]{knn_space_time_disagg()}}, \code{\link[=knnst_nsim]{knnst_nsim()}}, \code{\link[=knnst_index_years]{knnst_index_years()}}
+\code{\link[=knn_space_time_disagg]{knn_space_time_disagg()}}, \code{\link[=knnst_nsim]{knnst_nsim()}}, \code{\link[=knnst_index_years]{knnst_index_years()}},
+\code{\link[=knnst_get_disagg_data]{knnst_get_disagg_data()}}
 }

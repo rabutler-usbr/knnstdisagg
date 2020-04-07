@@ -10,12 +10,15 @@
 #'
 #' The data in the `knnst` object can be accessed through the following
 #' functions:
+#'   - [knnst_get_disagg_data()] returns the disaggregated data
 #'   - [knnst_nsim()] will return the number of simulations, while
 #'   - [knnst_index_years()] will return all of the selected index years.
 #'
 #' `knnst` objects can be converted to a `data.frame`: [as.data.frame.knnst()]
 #'
-#' @seealso [knn_space_time_disagg()], [knnst_nsim()], [knnst_index_years()]
+#' @seealso [knn_space_time_disagg()], [knnst_nsim()], [knnst_index_years()],
+#' [knnst_get_disagg_data()]
+#'
 #' @name knnst
 NULL
 
