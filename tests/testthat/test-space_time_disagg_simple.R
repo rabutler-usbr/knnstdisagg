@@ -378,5 +378,5 @@ test_that("values are identical to input as appropriate", {
   expect_true(all(knnst_get_disagg_data(tmp)[1:36,] %in% mon_flow))
 
   # last three years of data should not exist in monthly data
-  expect_true(all(!(knnst_get_disagg_data(tmp)[37:72,] %in% mon_flow)))
+  expect_false(all(knnst_get_disagg_data(tmp)[37:72,] %in% mon_flow))
 })
