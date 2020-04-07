@@ -1,12 +1,11 @@
-context("check paleo space time disagg code")
 
 # compare to previous results ----------------------------
 tmpDir <- "../dp/tmp"
 
 dir.create(tmpDir)
-teardown(unlink(tmpDir, recursive = T))
+teardown(unlink(tmpDir, recursive = TRUE))
 
-# unzip the example nc file
+# unzip the example zip file
 unzip(file.path("../dp", "dp_to_compare.zip"), exdir = tmpDir)
 
 x <- matrix(scan("../dp/Meko.txt", quiet = TRUE), ncol = 2, byrow = TRUE)
@@ -40,9 +39,10 @@ index_yrs <- matrix(scan("../dp/indexpick.txt", quiet = TRUE), ncol = 1)
 #                          nsim = 1,
 #                          ofolder = NULL,
 #                          index_years = NULL,
-#                          k_weights = knn_params(n))
+#                          k_weights = knn_params_default(n))
 
 test_that("disagg matches previous code's results", {
+  # using equivalent so the dimnames are not compared
   expect_equivalent(
     tmp <- knnst_get_disagg_data(
       expect_message(knn_space_time_disagg(
@@ -55,11 +55,15 @@ test_that("disagg matches previous code's results", {
       )),
       1
     ),
-    zz,
-    tolerance = 0.00001
+    zz
   )
-  expect_equivalent(round(tmp, 0), round(zz, 0))
+  # now remove the dimnames and test again with equal
+  attr(tmp, "dimnames") <- NULL
+  # check to 5 decimals of precision
+  expect_equal(round(tmp, 5), round(zz, 5))
+
   expect_equal(range(tmp - zz), c(0, 0))
+  expect_true(max(abs(range(tmp - zz))) < 1e-5)
 })
 
 # compare random selection -----------------------------
@@ -125,20 +129,17 @@ test_that("`knn_space_time_disagg()` errors correctly", {
 })
 
 
-# check get_scale_factor() -----------------------------
-
-context("`knnstdisagg:::get_scale_factor()`")
-
+# knnstdisagg:::get_scale_factor() -----------------------------
 index_flow <- cbind(2000:2002, c(1000, 1100, 900))
 
-test_that("`get_scale_factor()` errors correctly", {
+test_that("`knnstdisagg:::get_scale_factor()` errors correctly", {
   expect_error(knnstdisagg:::get_scale_factor(2000, c(1000,2000), index_flow))
   expect_error(knnstdisagg:::get_scale_factor(2000:2001, 1000, index_flow))
   expect_error(knnstdisagg:::get_scale_factor(2000, 950, 2000:2002))
   expect_error(knnstdisagg:::get_scale_factor(1999, 950, index_flow))
 })
 
-test_that("`get_scale_factor()` returns correctly", {
+test_that("`knnstdisagg:::get_scale_factor()` returns correctly", {
   expect_type(
     tmp <- knnstdisagg:::get_scale_factor(2000, 950, index_flow),
     "list"
