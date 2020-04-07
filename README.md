@@ -6,11 +6,9 @@
 An R package to perform space and time disaggregation of streamflow
 using a K-nearest neighbor (knn) approach.
 
-**In development**
-
-[![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable, usable release suitable for the
-public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R build
 status](https://github.com/rabutler-usbr/knnstdisagg/workflows/R-CMD-check/badge.svg)](https://github.com/rabutler-usbr/knnstdisagg/actions)
 [![Codecov test
@@ -135,20 +133,20 @@ The results are now in `disagg`, and we can get the output using
 
 ``` r
 head(knnst_get_disagg_data(disagg)[,5:10]) # only look at a few sites
-#>          Crystal GrandJunction CiscoDolores CiscoColorado Fontenelle
-#> 761-10  5496.806      42774.55     9924.075    -11794.530   35006.34
-#> 761-11 11612.817      34891.78    10611.423      8794.297   34168.88
-#> 761-12 12760.371      29607.30     7648.717     -6256.246   20943.36
-#> 762-01 11310.621      21888.47     7702.046      6900.140   24289.25
-#> 762-02  7189.498      20530.56     9353.260      4965.494   25263.98
-#> 762-03  9582.376      28246.43    18130.768      5265.715   38276.18
+#>         Crystal GrandJunction CiscoDolores CiscoColorado Fontenelle
+#> 761-10 5034.272      84700.62    39670.062      6224.374   65747.59
+#> 761-11 4631.530      36982.77    19135.267     14840.026   45308.45
+#> 761-12 1610.967      34120.28     9108.005     10993.843   39267.32
+#> 762-01 2114.394      27275.68     8234.055      3563.258   37253.61
+#> 762-02 2617.821      34888.51    11017.000      5985.749   32219.34
+#> 762-03 4832.901      33166.79    32489.177      9785.618   61418.12
 #>        GreenRiverWY
-#> 761-10     9248.578
-#> 761-11     7672.419
-#> 761-12     6273.035
-#> 762-01     4744.279
-#> 762-02     4605.031
-#> 762-03     5102.766
+#> 761-10    12585.680
+#> 761-11     9263.060
+#> 761-12     4027.417
+#> 762-01     2919.878
+#> 762-02     4128.103
+#> 762-03    21445.998
 ```
 
 If needed, the output can be saved to disk using `write_knnst()`. This
