@@ -68,6 +68,12 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
       apply(t2[,1:20], 1, sum),
       info = paste(i, "compared to", j)
     )
+    # and those should sum to the input
+    temp_ann <- cbind(
+      c(2019:2021),
+      round(apply(t1[,1:20], 1, sum), 0)
+    )
+    expect_identical(lf, temp_ann, info = paste("sim:", i))
 
     # and LB should match the natural flow data exactly
     lb <- rbind(
