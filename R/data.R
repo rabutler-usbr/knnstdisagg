@@ -17,3 +17,18 @@
 #' @source Data download:
 #'   \url{http://www.riversimulator.org/Resources/ClimateData/Meko762-2005.xls}
 "meko"
+
+#' Example disaggregated data
+#'
+#' An example [`knnst`] object containing results of disaggregating the first
+#' 200 years in the [`meko`] data. Data were disaggregated using the
+#' [CoRiverNF](https://github.com/BoulderCodeHub/CoRiverNF) package for the
+#' historical annual data and monthly pattern data. Including this object as it
+#' is useful for using in examples and tests.
+#'
+#' @format A [`knnst`] object.
+#'
+#' @references See
+#' [data-raw](https://github.com/rabutler-usbr/knnstdisagg/data-raw) for code
+#' used to generate data.
+"ex_disagg"
