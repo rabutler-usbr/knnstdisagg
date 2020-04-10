@@ -2,6 +2,7 @@
 
 **In development**
 
+* `ex_disagg` is now an exported data object. It contains an example `knnst` object for use in examples and tests.
 
 # knnstdisagg 0.1.0
 
