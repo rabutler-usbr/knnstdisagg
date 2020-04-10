@@ -2,6 +2,7 @@
 
 S3method(as.data.frame,knnst)
 S3method(plot,knnst)
+S3method(plot,knnst_spcor)
 S3method(print,knn_params)
 S3method(print,knnst)
 S3method(print,knnstplot)
