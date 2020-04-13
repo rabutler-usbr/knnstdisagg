@@ -35,7 +35,9 @@ disaggregated to three sites. \code{mon_flow} should have the same years as
 \code{ann_index_flow}. The flow data in \code{mon_flow} should also contain values
 for the same years as \code{ann_index_flow}, though there are no checks
 performed to check this, since this is expected to be a dimensionless
-matrix.}
+matrix. \code{mon_flow} can have named or unnamed columns. If they are named,
+the names are preserved in the disaggregated output. If they are unnamed,
+the columns are renamed S1-SN where N is the number of columns.}
 
 \item{start_month}{The start month of the \code{mon_flow} as an integer. 1 =
 January, 2 = February, etc. Used to correctly label the output data.}

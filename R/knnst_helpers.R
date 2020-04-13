@@ -186,11 +186,10 @@ print.knnst <- function(x, ...)
 #' Convert a `knnst` object to a `data.frame`
 #'
 #' `knnst` objects can be converted to `data.frame`s. When doing so, the
-#' disaggregated monthly data are combined with the a simulation number, and
+#' disaggregated monthly data are combined with the simulation number, and
 #' the index years, are repeated for each month. The rownames of the
 #' disaggregated data (yyyy-mm) format are kept, and additional columns are
-#' added for year and month, by themselves. Each site (column) in the
-#' disaggregated flow data are named S1, S2, S3, ...
+#' added for year and month, by themselves.
 #'
 #' @param x A `knnst` object.
 #'
@@ -207,8 +206,6 @@ as.data.frame.knnst <- function(x, ...)
     rbind,
     lapply(seq_len(nsim), function(i) {
       tmp_m <- knnst_get_disagg_data(x, i)
-      if (is.null(colnames(tmp_m)))
-        colnames(tmp_m) <- paste0("S", 1:ncol(tmp_m))
 
       # rownames are yyyy-mm
       ym <- rownames(tmp_m)

@@ -13,9 +13,8 @@
 }
 \description{
 \code{knnst} objects can be converted to \code{data.frame}s. When doing so, the
-disaggregated monthly data are combined with the a simulation number, and
+disaggregated monthly data are combined with the simulation number, and
 the index years, are repeated for each month. The rownames of the
 disaggregated data (yyyy-mm) format are kept, and additional columns are
-added for year and month, by themselves. Each site (column) in the
-disaggregated flow data are named S1, S2, S3, ...
+added for year and month, by themselves.
 }

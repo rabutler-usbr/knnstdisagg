@@ -39,7 +39,9 @@
 #'   `ann_index_flow`. The flow data in `mon_flow` should also contain values
 #'   for the same years as `ann_index_flow`, though there are no checks
 #'   performed to check this, since this is expected to be a dimensionless
-#'   matrix.
+#'   matrix. `mon_flow` can have named or unnamed columns. If they are named,
+#'   the names are preserved in the disaggregated output. If they are unnamed,
+#'   the columns are renamed S1-SN where N is the number of columns.
 #'
 #' @param start_month The start month of the `mon_flow` as an integer. 1 =
 #'   January, 2 = February, etc. Used to correctly label the output data.
@@ -169,6 +171,17 @@ knn_space_time_disagg <- function(ann_flow,
     )
   } else {
     ind_sites <- NULL
+  }
+
+  # make up site names if input is unnamed
+  if (is.null(colnames(mon_flow)))
+  {
+    site_names <- paste0("S", 1:ncol(mon_flow))
+    message(
+      "`mon_flow` does not have colnames. Renaming to:\n",
+      paste(site_names, collapse = ", ")
+    )
+    colnames(mon_flow) <- site_names
   }
 
   # matrix for observed values - row(yr), col (month), index (site)
