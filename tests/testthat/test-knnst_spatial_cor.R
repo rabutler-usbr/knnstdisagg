@@ -1,15 +1,15 @@
 
 # errors --------------
-test_that("knnst_sp_cor() errors correctly.", {
-  expect_error(knnst_sp_cor(data.frame(1:10), "Cameo", 1))
-  expect_error(knnst_sp_cor(ex_disagg, "Cameo", c(1, 2)))
-  expect_error(knnst_sp_cor(ex_disagg, "Cameo", "weird"))
+test_that("knnst_spatial_cor() errors correctly.", {
+  expect_error(knnst_spatial_cor(data.frame(1:10), "Cameo", 1))
+  expect_error(knnst_spatial_cor(ex_disagg, "Cameo", c(1, 2)))
+  expect_error(knnst_spatial_cor(ex_disagg, "Cameo", "weird"))
 })
 
 # works w/named input -------------
-test_that("knnst_sp_cor() works with named input.", {
+test_that("knnst_spatial_cor() works with named input.", {
   expect_is(
-    zz <- knnst_sp_cor(ex_disagg, c("Cameo", "Hoover"), 50),
+    zz <- knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 50),
     "knnst_spcor"
   )
 
@@ -49,9 +49,9 @@ mon_flow <- cbind(
 )
 xx <- knn_space_time_disagg(flow_mat, ind_flow, mon_flow, 1, scale_sites = 1:2)
 
-test_that("knnst_sp_cor() works with named input.", {
+test_that("knnst_spatial_cor() works with named input.", {
   expect_is(
-    zz <- knnst_sp_cor(xx, c("S1", "S3"), 1),
+    zz <- knnst_spatial_cor(xx, c("S1", "S3"), 1),
     "knnst_spcor"
   )
 

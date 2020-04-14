@@ -12,11 +12,11 @@
 #' @return A `knnst_spcor` object.
 #'
 #' @examples
-#' knnst_sp_cor(ex_disagg, "Cameo", 100)
-#' knnst_sp_cor(ex_disagg, c("Cameo", "Hoover"), 100)
+#' knnst_spatial_cor(ex_disagg, "Cameo", 100)
+#' knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 100)
 #'
 #' @export
-knnst_sp_cor <- function(disagg, sites, bin_size)
+knnst_spatial_cor <- function(disagg, sites, bin_size)
 {
   #TODO: update to handle multiple simulations
   assert_that(

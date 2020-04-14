@@ -1,6 +1,6 @@
 test_that("plot.knnst_sp_cor() works", {
   expect_is(
-    zz <- knnst_sp_cor(ex_disagg, c("Cameo", "Hoover"), 50),
+    zz <- knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 50),
     "knnst_spcor"
   )
   expect_is(gg1 <- plot(zz), c("gg", "ggplot"))

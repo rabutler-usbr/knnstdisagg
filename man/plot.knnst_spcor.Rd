@@ -20,11 +20,11 @@ method.}
 }
 \description{
 \code{plon.knnst_spcor()} implements the \code{plot()} method for \code{knnst_spcor} objects
-relying on ggplot2. See \code{\link[=knnst_sp_cor]{knnst_sp_cor()}} to create \code{knnst_spcor} objects.
+relying on ggplot2. See \code{\link[=knnst_spatial_cor]{knnst_spatial_cor()}} to create \code{knnst_spcor} objects.
 Each site a correlation was computed from will be its own facet in the plot.
 }
 \examples{
-zz <- knnst_sp_cor(ex_disagg, c("Cameo", "Hoover"), 100)
+zz <- knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 100)
 # show as 1 column and 2 rows
 plot(zz)
 

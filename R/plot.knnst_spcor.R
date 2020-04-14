@@ -1,7 +1,7 @@
 #' Plot resulting spatial correlation values after KNN space-time disaggregation
 #'
 #' `plon.knnst_spcor()` implements the `plot()` method for `knnst_spcor` objects
-#' relying on ggplot2. See [knnst_sp_cor()] to create `knnst_spcor` objects.
+#' relying on ggplot2. See [knnst_spatial_cor()] to create `knnst_spcor` objects.
 #' Each site a correlation was computed from will be its own facet in the plot.
 #'
 #' @param x An object inheriting from class `knnst_spcor`.
@@ -16,7 +16,7 @@
 #'   method.
 #'
 #' @examples
-#' zz <- knnst_sp_cor(ex_disagg, c("Cameo", "Hoover"), 100)
+#' zz <- knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 100)
 #' # show as 1 column and 2 rows
 #' plot(zz)
 #'
