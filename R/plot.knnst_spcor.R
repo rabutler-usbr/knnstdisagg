@@ -1,10 +1,13 @@
-#' Plot resulting spatial correlation values after KNN space-time disaggregation
+#' Plot resulting correlation values after KNN space-time disaggregation
+#'
+#' Implements the `plot()` method for `knnst_spcor` and `knnst_tmpcor` objects
+#' relying on ggplot2.
 #'
 #' `plon.knnst_spcor()` implements the `plot()` method for `knnst_spcor` objects
 #' relying on ggplot2. See [knnst_spatial_cor()] to create `knnst_spcor` objects.
 #' Each site a correlation was computed from will be its own facet in the plot.
 #'
-#' @param x An object inheriting from class `knnst_spcor`.
+#' @param x An object inheriting from class `knnst_spcor` or `knnst_tmpcor`.
 #'
 #' @param x_names Boolean. If `TRUE` use names for the x axis labels, otherwise
 #'   use site numbers.
@@ -16,15 +19,15 @@
 #'   method.
 #'
 #' @examples
-#' zz <- knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 100)
+#' sp_cor <- knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 100)
 #' # show as 1 column and 2 rows
-#' plot(zz)
+#' plot(sp_cor)
 #'
 #' # show as 2 columns and 1 row
-#' plot(zz, ncol = 2)
+#' plot(sp_cor, ncol = 2)
 #'
 #' # include the site names in the x axis labels
-#' plot(zz, x_names = TRUE)
+#' plot(sp_cor, x_names = TRUE)
 #'
 #' @export
 plot.knnst_spcor <- function(x, x_names = FALSE, ncol = 1, nrow = NULL, ...) {
@@ -54,6 +57,11 @@ plot.knnst_spcor <- function(x, x_names = FALSE, ncol = 1, nrow = NULL, ...) {
     facet_wrap("site_from", ncol = ncol, nrow = nrow) +
     labs(
       title  = "Spatial correlation from:",
-      x = "with site", y = "correlation"
+      x = "with site", y = "correlation",
+      caption = paste0(
+        "Red = input/pattern; boxplots = ",
+        x[["bin_size"]],
+        "-year moving window on disaggregated data"
+      )
     )
 }

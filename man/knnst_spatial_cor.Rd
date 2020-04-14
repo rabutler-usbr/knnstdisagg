@@ -2,7 +2,7 @@
 % Please edit documentation in R/knnst_spatial_cor.R
 \name{knnst_spatial_cor}
 \alias{knnst_spatial_cor}
-\title{Computes spatial correlation after knn space-time disaggregation}
+\title{Compute spatial correlation after knn space-time disaggregation}
 \usage{
 knnst_spatial_cor(disagg, sites, bin_size)
 }
@@ -17,11 +17,14 @@ knnst_spatial_cor(disagg, sites, bin_size)
 A \code{knnst_spcor} object.
 }
 \description{
-Computes the spatial correlation for all monthly data between the specifed
-site(s) (\code{sites}) and all other sites.
+\code{knnst_spatial_cor()} computes the spatial correlation for all monthly data
+between the specifed site(s) (\code{sites}) and all other sites.
 }
 \examples{
 knnst_spatial_cor(ex_disagg, "Cameo", 100)
 knnst_spatial_cor(ex_disagg, c("Cameo", "Hoover"), 100)
 
+}
+\seealso{
+\code{\link[=plot.knnst_spcor]{plot.knnst_spcor()}}, \code{\link[=knnst_temporal_cor]{knnst_temporal_cor()}}
 }
