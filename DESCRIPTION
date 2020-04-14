@@ -17,7 +17,8 @@ Imports:
     stats,
     tidyr,
     tidyselect,
-    tools
+    tools,
+    utils
 Encoding: UTF-8
 LazyData: true
 Suggests:
