@@ -2,7 +2,7 @@
 % Please edit documentation in R/knnst_spatial_cor.R
 \name{knnst_spatial_cor}
 \alias{knnst_spatial_cor}
-\title{Compute spatial correlation after knn space-time disaggregation}
+\title{Compute spatial correlation after KNN space-time disaggregation}
 \usage{
 knnst_spatial_cor(disagg, sites, bin_size)
 }

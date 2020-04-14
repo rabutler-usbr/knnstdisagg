@@ -13,7 +13,10 @@ test_that("knnst_spatial_cor() works with named input.", {
     "knnst_spcor"
   )
 
-  expect_setequal(names(zz), c("disagg_cor", "pattern_cor", "orig_sites"))
+  expect_setequal(
+    names(zz),
+    c("disagg_cor", "pattern_cor", "orig_sites", "bin_size")
+  )
   expect_setequal(colnames(ex_disagg$mon_flow), zz[["orig_sites"]])
   expect_is(dc <- zz[["disagg_cor"]], "data.frame")
   expect_is(pc <- zz[["pattern_cor"]], "data.frame")
@@ -49,13 +52,16 @@ mon_flow <- cbind(
 )
 xx <- knn_space_time_disagg(flow_mat, ind_flow, mon_flow, 1, scale_sites = 1:2)
 
-test_that("knnst_spatial_cor() works with named input.", {
+test_that("knnst_spatial_cor() works with unnamed input.", {
   expect_is(
     zz <- knnst_spatial_cor(xx, c("S1", "S3"), 1),
     "knnst_spcor"
   )
 
-  expect_setequal(names(zz), c("disagg_cor", "pattern_cor", "orig_sites"))
+  expect_setequal(
+    names(zz),
+    c("disagg_cor", "pattern_cor", "orig_sites", "bin_size")
+  )
   expect_setequal(colnames(xx$mon_flow), zz[["orig_sites"]])
   expect_is(dc <- zz[["disagg_cor"]], "data.frame")
   expect_is(pc <- zz[["pattern_cor"]], "data.frame")

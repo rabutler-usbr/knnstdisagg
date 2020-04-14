@@ -1,7 +1,7 @@
-#' Computes spatial correlation after knn space-time disaggregation
+#' Compute spatial correlation after KNN space-time disaggregation
 #'
-#' Computes the spatial correlation for all monthly data between the specifed
-#' site(s) (`sites`) and all other sites.
+#' `knnst_spatial_cor()` computes the spatial correlation for all monthly data
+#' between the specifed site(s) (`sites`) and all other sites.
 #'
 #' @inheritParams knnst_nsim
 #'
@@ -10,6 +10,8 @@
 #' @param bin_size Number of years for each bin.
 #'
 #' @return A `knnst_spcor` object.
+#'
+#' @seealso [plot.knnst_spcor()], [knnst_temporal_cor()]
 #'
 #' @examples
 #' knnst_spatial_cor(ex_disagg, "Cameo", 100)
@@ -105,7 +107,8 @@ knnst_spatial_cor <- function(disagg, sites, bin_size)
   res <- list(
     disagg_cor = res,
     pattern_cor = hist_cor,
-    orig_sites = colnames(yy)
+    orig_sites = colnames(yy),
+    bin_size = bin_size
   )
 
   structure(
