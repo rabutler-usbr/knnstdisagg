@@ -76,11 +76,9 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   # get historical stats -------------------
   # get historical data as a data frame, organize, and compute same stats
   # as on the simulated data
-  x_mon <- x %>%
-    get_pattern_flow_data_df(site)
+  x_mon <- get_pattern_flow_data_df(x, site)
 
-  x_mon_stats <- x_mon %>%
-    get_mon_plot_stats(site)
+  x_mon_stats <- get_mon_plot_stats(x_mon, site, "agg_year")
 
   # annual historical data
   x_ann <- get_historical_annual(x_mon, site, x$start_month)
@@ -118,9 +116,10 @@ plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
   invisible(gg_out)
 }
 
-get_mon_plot_stats <- function(x_df, site)
+# yr is which year variable to keep.
+get_mon_plot_stats <- function(x_df, site, yr = "year")
 {
-  keep_cols <- c("ym", "year", "month", site, "simulation")
+  keep_cols <- c("ym", yr, "month", site, "simulation")
   vars_group <- c("month", "simulation")
 
   x_df %>%

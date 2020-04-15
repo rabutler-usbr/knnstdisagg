@@ -280,21 +280,24 @@ get_pattern_flow_data_df <- function(x, site)
 
   tmp <- all_cols[!(all_cols %in% drop_cols)]
 
-  # assume years correspond to the years from the annual index data
-  yy <- x$index_data[,1]
-
-  ym <- expand.grid(full_year(x$start_month), yy)
+  # years in index_data are end of the agg_year
+  # combine all months with all agg_years
+  ym <- expand.grid(full_year(x$start_month), x$index_data[,1])
   mm <- ym[,1]
-  yy <- ym[,2]
+  agg_year <- ym[,2]
+  # but need the calendar year so these are in correct order
+  cal_year <- agg_year_to_cal_year(mm, agg_year, x$start_month)
+
   ym <- paste(
-    ym[,2],
-    formatC(ym[,1], width = 2, format = "d", flag = "0"),
+    cal_year,
+    formatC(mm, width = 2, format = "d", flag = "0"),
     sep = "-"
   )
 
   x_mon <- data.frame(
     ym = ym,
-    year = yy,
+    cal_year = cal_year,
+    agg_year = agg_year,
     month = mm,
     simulation = 1,
     stringsAsFactors = FALSE
@@ -304,4 +307,22 @@ get_pattern_flow_data_df <- function(x, site)
   x_mon[[site]] <- as.numeric(x$mon_flow[, match(site, tmp)])
 
   x_mon
+}
+
+# given a month `m` and its `agg_year` (water year), and the start_month of the
+# agg_year, compute the calendar year. Ex, October with agg_year = 2020, if
+# October starts the agg_year would return 2019.
+# As with the other conversion functions in this package, this assumes agg_year
+# corresonds with the calendar year of the last month in the agg_year.
+agg_year_to_cal_year <- function(m, agg_year, start_month)
+{
+  if (start_month == 1) {
+    cal_year <- agg_year
+  } else {
+    adj <- rep(0, length(m))
+    adj[m >= start_month] <- -1
+    cal_year <- agg_year + adj
+  }
+
+  cal_year
 }

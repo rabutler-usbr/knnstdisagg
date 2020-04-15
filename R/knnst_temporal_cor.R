@@ -52,9 +52,8 @@ knnst_temporal_cor <- function(disagg, site, bin_size)
     tidyr::pivot_wider(names_from = "month", values_from = site)
 
   # observed data as data frame
-  # TODO: year is agg_year. Need to verify this!!!
   obs_df <- get_pattern_flow_data_df(disagg, site) %>%
-    dplyr::select_at(c("year", "month", site)) %>%
+    dplyr::select_at(c("agg_year", "month", site)) %>%
     dplyr::mutate_at("month", list(~month.abb[.])) %>%
     tidyr::pivot_wider(names_from = "month", values_from = site)
 
