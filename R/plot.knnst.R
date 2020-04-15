@@ -25,6 +25,8 @@
 #'
 #' @param site The site to plot. Site name as a character.
 #'
+#' @param bin_size Number of years for each bin.
+#'
 #' @param base_units The (input) units of the flow that was disaggregated. These
 #'   units will be shown as the y-axis label of the plot.
 #'
@@ -40,9 +42,15 @@
 #' @return A `knnstplot` object
 #'
 #' @export
-plot.knnst <- function(x, site, base_units = NULL, which = c(13, 14, 15),
-                       show = FALSE, ...)
+plot.knnst <- function(x, site, bin_size, base_units = NULL,
+                       which = c(13, 14, 15), show = FALSE, ...)
 {
+  #TODO: update to handle multiple simulations
+  assert_that(
+    knnst_nsim(x) == 1,
+    msg = "plot.knnst() is currently only setup to work with one simulation."
+  )
+
   assert_that(
     length(site) == 1 && is.character(site),
     msg = "In `plot.knnst()`, `site` should be a character with length of 1."
@@ -67,22 +75,50 @@ plot.knnst <- function(x, site, base_units = NULL, which = c(13, 14, 15),
     msg = "In `plot.knnst()`, `site` should be a valid site name."
   )
 
-  x_plot_data <- get_mon_plot_stats(x_df, site)
-  x_ann_plot_data <- get_ann_plot_stats(x_df, site, x$start_month)
-  x_ann_sim_data <- x_df %>%
-    dplyr::group_by_at(c("year", "simulation")) %>%
-    dplyr::summarise_at(site, sum)
+  # set flags for needing monthly/annual data
+  are_mon <- are_ann <- FALSE
+  if (any(which %in% c(1:12, 14)))
+    are_mon <- TRUE
 
+  if (any(which %in% c(13, 15)))
+    are_ann <- TRUE
+
+  # simulation stats ----------------
+  if (are_mon)
+    x_plot_data <- get_mon_plot_stats(
+      x_df,
+      site = site,
+      start_month = x$start_month,
+      bin_size = bin_size,
+      yr = "year"
+    )
+
+  if (are_ann) {
+    x_ann_plot_data <- get_ann_plot_stats(x_df, site, x$start_month, bin_size)
+    x_ann_sim_data <- x_df %>%
+      dplyr::group_by_at(c("year", "simulation")) %>%
+      dplyr::summarise_at(site, sum)
+  }
   # get historical stats -------------------
   # get historical data as a data frame, organize, and compute same stats
   # as on the simulated data
+  nhist_yrs <- nrow(x$mon_flow) / 12
   x_mon <- get_pattern_flow_data_df(x, site)
 
-  x_mon_stats <- get_mon_plot_stats(x_mon, site, "agg_year")
-
+  if (are_mon) {
+    x_mon_stats <- get_mon_plot_stats(
+      x_mon,
+      site = site,
+      start_month = x$start_month,
+      bin_size = nhist_yrs,
+      yr = "agg_year"
+    )
+  }
   # annual historical data
-  x_ann <- get_historical_annual(x_mon, site, x$start_month)
-  x_ann_stats <- get_ann_plot_stats(x_mon, site, x$start_month)
+  if (are_ann) {
+    x_ann <- get_historical_annual(x_mon, site, x$start_month)
+    x_ann_stats <- get_ann_plot_stats(x_mon, site, x$start_month, nhist_yrs)
+  }
 
   gg1 <- gg2 <- gg3 <- gg4 <- NULL
   # monthly plots ----------------
@@ -91,7 +127,7 @@ plot.knnst <- function(x, site, base_units = NULL, which = c(13, 14, 15),
                           base_units, ...)
 
   if (any(1:12 %in% which))
-    gg2 <- create_mon_cdf(x_df, x_mon, nsim, site, base_units, which, ...)
+    gg2 <- create_mon_cdf(x_df, x_mon, bin_size, site, base_units, which, ...)
 
   # annual plots --------------------
   if (15 %in% which)
@@ -117,10 +153,17 @@ plot.knnst <- function(x, site, base_units = NULL, which = c(13, 14, 15),
 }
 
 # yr is which year variable to keep.
-get_mon_plot_stats <- function(x_df, site, yr = "year")
+get_mon_plot_stats <- function(x_df, site, start_month, bin_size, yr = "year")
 {
   keep_cols <- c("ym", yr, "month", site, "simulation")
   vars_group <- c("month", "simulation")
+
+  # if yr is year, then convert it to agg_year
+  # convert year to agg_year
+  if (yr == "year") {
+    x_df[["year"]] <- x_df[["ym"]]
+    x_df <- mutate_at(x_df, "year", list(~knnstdisagg:::get_agg_year(., start_month)))
+  }
 
   x_df %>%
     # subset to site
@@ -128,7 +171,7 @@ get_mon_plot_stats <- function(x_df, site, yr = "year")
     dplyr::group_by_at("simulation") %>%
     dplyr::arrange_at("ym") %>%
     # compute stats for all months
-    get_plot_stats(var_mutate = site, vars_group = vars_group) %>%
+    get_plot_stats(var_mutate = site, vars_group = vars_group, bin_size = bin_size, yr = yr) %>%
     dplyr::ungroup() %>%
     dplyr::mutate_at(
       "month",
@@ -136,7 +179,7 @@ get_mon_plot_stats <- function(x_df, site, yr = "year")
     )
 }
 
-get_ann_plot_stats <- function(x_df, site, start_month)
+get_ann_plot_stats <- function(x_df, site, start_month, bin_size)
 {
 
   x_df[["agg_year"]] <- x_df[["ym"]]
@@ -151,13 +194,13 @@ get_ann_plot_stats <- function(x_df, site, start_month)
     # compute the same stats as monthly
     dplyr::group_by_at("simulation") %>%
     dplyr::arrange_at("agg_year") %>%
-    get_plot_stats(var_mutate = "ann", vars_group = "simulation")
+    get_plot_stats(var_mutate = "ann", vars_group = "simulation", bin_size, "agg_year")
 
 }
 
 # for a single variable `var_mutate`, compute the mean, variance, max, min,
 # lag-1 correlation, and skew
-get_plot_stats <- function(x_df, var_mutate, vars_group)
+get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
 {
   var_name_order <- c(
     "mean" = "Mean",
@@ -168,27 +211,49 @@ get_plot_stats <- function(x_df, var_mutate, vars_group)
     "skew" = "Skew"
   )
 
-  x_df %>%
-    dplyr::mutate_at(var_mutate, list("tmp" = dplyr::lag)) %>%
+  # it is already arranged by ym, so get the agg_year from the first and last
+  # entries to compute number of years
+  start_year <- min(x_df[[yr]])
+  nbin <- max(x_df[[yr]]) - start_year + 1 - bin_size + 1
 
-    dplyr::group_by_at(vars_group) %>%
-    # means, standard deviation, max, min, skew, lag-1 correlation
-    dplyr::summarise_at(
-      var_mutate,
-      list(
-        ~ mean(.), ~ stats::var(.), ~ max(.), ~ min(.), ~ skew(.),
-        ~ stats::cor(., get("tmp"), use = "complete.obs")
+  res <- data.frame()
+
+  # TODO: make this more efficient!!!!!
+  # pre-allocating an array and then converting to df took 1.75 seconds in a
+  # simple test, will staying as a data frame and using bind_rows to 3.08
+  # seconds
+  for (i in seq_len(nbin)) {
+    yr_st <- start_year + i - 1
+    yr_end <- yr_st + bin_size - 1
+    tmp <- x_df %>%
+      dplyr::filter_at(yr, all_vars(. %in% yr_st:yr_end)) %>%
+      dplyr::mutate_at(var_mutate, list("tmp" = dplyr::lag)) %>%
+
+      dplyr::group_by_at(vars_group) %>%
+      # means, standard deviation, max, min, skew, lag-1 correlation
+      dplyr::summarise_at(
+        var_mutate,
+        list(
+          ~ mean(.), ~ stats::var(.), ~ max(.), ~ min(.), ~ skew(.),
+          ~ stats::cor(., get("tmp"), use = "complete.obs")
+        )
+      ) %>%
+      tidyr::gather_(
+        "Variable",
+        "Value",
+        tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
+      ) %>%
+      dplyr::mutate_at(
+        "Variable",
+        list(~ factor(var_name_order[.], levels = var_name_order))
       )
-    ) %>%
-    tidyr::gather_(
-      "Variable",
-      "Value",
-      tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
-    ) %>%
-    dplyr::mutate_at(
-      "Variable",
-      list(~ factor(var_name_order[.], levels = var_name_order))
-    )
+
+    tmp[["bin"]] <- i
+
+    res <- dplyr::bind_rows(res, tmp)
+  }
+
+  res
 }
 
 create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL, ...)
@@ -305,8 +370,8 @@ create_ann_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
   gg
 }
 
-create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
-                           ...)
+create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
+                           which, ...)
 {
   # TODO: do we need to re-do this based on Balaji/Ken's code? Using density
   # instead of hist()
@@ -316,92 +381,27 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   proc_mon <- 1:12
   proc_mon <- proc_mon[proc_mon %in% which]
 
-  mon_breaks <- lapply(proc_mon, function(mm) {
-    tmp <- c(
-      dplyr::filter_at(hist_data, "month", dplyr::any_vars(. == mm))[[site]],
-      dplyr::filter_at(sim_data, "month", dplyr::any_vars(. == mm))[[site]]
-    )
-    stats::density(tmp, n = 50)$x
-  })
-  names(mon_breaks) <- month.abb[proc_mon]
-
-  # 2) then call density() with x from above
-  sim_pdf <- lapply(seq_len(nsim), function(n1) {
-    tmp <- list()
-
-    for (mm in proc_mon) {
-      t2 <- sim_data %>%
-        dplyr::filter_at("simulation", dplyr::any_vars(. == n1)) %>%
-        dplyr::filter_at("month", dplyr::any_vars(. == mm))
-      tmp[[month.abb[mm]]] <- stats::density(
-        t2[[site]],
-        n = 50,
-        from = min(mon_breaks[[month.abb[mm]]]),
-        to = max(mon_breaks[[month.abb[mm]]])
-      )
-    }
-
-    tmp
-  })
-
-  # 2b) and call on historical data
-  hist_pdf <- lapply(proc_mon, function(mm) {
-    tmp <- dplyr::filter_at(
-      hist_data,
-      "month",
-      dplyr::any_vars(. == mm)
-    )[[site]]
-
-    stats::density(
-      tmp,
-      n = 50,
-      from = min(mon_breaks[[month.abb[mm]]]),
-      to = max(mon_breaks[[month.abb[mm]]])
-    )
-  })
-
-  names(hist_pdf) <- month.abb[proc_mon]
-
-  # 3) then create df with $y of all calls to density and $x as flow (x)
-  hist_pdf <- do.call(rbind, lapply(proc_mon, function(mm) {
-    data.frame(
-      "month" = mm,
-      "x" = hist_pdf[[month.abb[mm]]]$x,
-      "density" = hist_pdf[[month.abb[mm]]]$y
-    )
-  }))
-
-  sim_pdf <- do.call(rbind, lapply(seq_len(nsim), function(n1) {
-    tmp <- c()
-
-    for (mm in proc_mon) {
-      tmp <- rbind(tmp, data.frame(
-        "month" = mm,
-        "x" = sim_pdf[[n1]][[month.abb[mm]]]$x,
-        "density" = sim_pdf[[n1]][[month.abb[mm]]]$y
-      ))
-    }
-
-    tmp
-  }))
-
-  # 4) then plot with ggplot() + geom_boxplot()
   mon_labels <- month.abb
   names(mon_labels) <- 1:12
+
+  sim_data <- dplyr::arrange_at(sim_data, "ym")
+  hist_data <- dplyr::arrange_at(hist_data, "ym")
 
   gg <- list()
 
   for (mm in proc_mon) {
+    tmp <- compute_mon_cdf_data(
+      dplyr::filter_at(sim_data, "month", dplyr::all_vars(. == mm)),
+      dplyr::filter_at(hist_data, "month", dplyr::all_vars(. == mm)),
+      bin_size,
+      site
+    )
+
+    # TODO: should boxplot width be computed?
     pname <- paste0(month.abb[mm], "-cdf")
-    gg[[pname]] <- ggplot(
-      dplyr::filter_at(sim_pdf, "month", dplyr::all_vars(. %in% mm)),
-      aes_string("x", "density")
-    ) +
+    gg[[pname]] <- ggplot(tmp$sim_cdf, aes_string("x", "density")) +
       geom_boxplot(aes_string(group = "x")) +
-      geom_line(
-        data = dplyr::filter_at(hist_pdf, "month", dplyr::all_vars(. %in% mm)),
-        aes_string("x", "density")
-      ) +
+      geom_line(data = tmp$hist_cdf, aes_string("x", "density")) +
       labs(
         title = paste0(site, " - ", month.name[mm], " CDF"),
         x = paste0("Flow (", base_units, ")"),
@@ -410,6 +410,76 @@ create_mon_cdf <- function(sim_data, hist_data, nsim, site, base_units, which,
   }
 
   gg
+}
+
+# computes monthly cdf data for one site and one month
+compute_mon_cdf_data <- function(sim_data, hist_data, bin_size, site)
+{
+  # compute the breaks ----
+  tmp <- c(hist_data[[site]], sim_data[[site]])
+  mon_breaks <- stats::density(tmp, n = 25)$x
+
+  # create all bins --------
+  # this is essentially annual data
+  all_bins <- get_all_bins(sim_data[[site]], bin_size, monthly = FALSE)
+
+  # call stats::density on each bin -------
+  dd <- apply(
+    all_bins,
+    2,
+    stats::density,
+    n = 25,
+    from = min(mon_breaks),
+    to = max(mon_breaks)
+  )
+
+  # get all the x, y values from every column and
+  sim_data_res <- do.call(rbind, lapply(1:ncol(all_bins), function(i) {
+    data.frame(
+      "x" = dd[[i]]$x,
+      "density" = dd[[i]]$y
+    )
+  }))
+
+  hist_data_res <- stats::density(
+    hist_data[[site]],
+    n = 25,
+    from = min(mon_breaks),
+    to = max(mon_breaks)
+  )
+  hist_data_res <- data.frame(
+    x = hist_data_res$x,
+    density = hist_data_res$y
+  )
+
+  list(sim_cdf = sim_data_res, hist_cdf = hist_data_res)
+}
+
+# assumes x is alreadly order correctly. Given data x, and the bin_size,
+# return a matrix of all the data which would have bin_size rows (*12 for
+# monthly), and nrow(x) - bin_size + 1 columns
+get_all_bins <- function(x, bin_size, monthly = TRUE)
+{
+  mult <- ifelse(monthly, 12, 1)
+  nbins <- length(x) / mult - bin_size + 1
+
+  select_data <- function(start_index, zz, bin_size, monthly) {
+    if (monthly) {
+      start_index <- start_index * 12 - 11
+      zz <- zz[start_index:(bin_size * 12 + start_index - 1)]
+    } else {
+      # annual data
+      zz <- zz[start_index:(bin_size + start_index - 1)]
+    }
+
+    zz
+  }
+
+  all_bins <- simplify2array(
+    lapply(1:nbins, select_data, x, bin_size, monthly)
+  )
+
+  all_bins
 }
 
 # given a yyyy-mm and start_month, determine its "aggregation" year. ex water
