@@ -12,6 +12,9 @@
 #'   `ann_flow` will be compared to. After the comparison, the nearest neighbor
 #'   years are selected.
 #'
+#' @param random_seed A single integer or `NULL`. If an integer, then it is
+#'   used with [set.seed()] so reproducible results can be guaranteed.
+#'
 #' @param k_weights A [knn_params()] object. By default, it uses
 #'   [knn_params_default()].
 #'
@@ -33,7 +36,8 @@
 #'
 #' @export
 knn_get_index_year <- function(ann_flow, ann_index_flow,
-                          k_weights = knn_params_default(nrow(ann_index_flow)))
+                          k_weights = knn_params_default(nrow(ann_index_flow)),
+                          random_seed = NULL)
 {
   # check inputs -------------------
   assert_that(
@@ -45,6 +49,11 @@ knn_get_index_year <- function(ann_flow, ann_index_flow,
     stop("`ann_index_flow` should be a 2-column matrix", call. = FALSE)
 
   n_index_yrs <- nrow(ann_index_flow)
+
+  if (!is.null(random_seed)) {
+    assert_that(is.numeric(random_seed) && length(random_seed) == 1)
+    set.seed(random_seed)
+  }
 
   # knn parameters (k) and weights
   assertthat::assert_that(

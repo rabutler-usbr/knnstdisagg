@@ -90,7 +90,8 @@ knn_space_time_disagg <- function(ann_flow,
                          nsim = 1,
                          scale_sites = TRUE,
                          index_years = NULL,
-                         k_weights = knn_params_default(nrow(ann_index_flow)))
+                         k_weights = knn_params_default(nrow(ann_index_flow)),
+                         random_seed = NULL)
 {
   n_disagg_yrs <- nrow(ann_flow)
 
@@ -139,6 +140,13 @@ knn_space_time_disagg <- function(ann_flow,
       msg =
         "`index_years` must be specified for every year in the paleo record."
     )
+  }
+
+  # set this once; do not pass it to knn_get_index_year, b/c then the multiple
+  # simulations would not be any different from one another
+  if (!is.null(random_seed)) {
+    assert_that(is.numeric(random_seed) && length(random_seed) == 1)
+    set.seed(random_seed)
   }
 
   if (!is.null(index_years)) {

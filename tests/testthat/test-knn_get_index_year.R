@@ -106,3 +106,22 @@ test_that("knn_get_index_year returns correct structure", {
   }
 })
 
+# random_seed -------------------------
+test_that("random_seed is reproducible and different", {
+  i1 <- knn_get_index_year(flow_mat, ind_flow, random_seed = 4567)
+  i2 <- knn_get_index_year(flow_mat, ind_flow)
+  i3 <- knn_get_index_year(flow_mat, ind_flow, random_seed = 4567)
+  i4 <- knn_get_index_year(flow_mat, ind_flow)
+  i5 <- knn_get_index_year(flow_mat, ind_flow)
+  i6 <- knn_get_index_year(flow_mat, ind_flow, random_seed = 4568)
+  i7 <- knn_get_index_year(flow_mat, ind_flow, random_seed = 4567)
+
+  expect_identical(i1, i3)
+  expect_identical(i1, i7)
+  expect_identical(i2, i4)
+  expect_false(isTRUE(all.equal(i1, i2)))
+  expect_false(isTRUE(all.equal(i3, i4)))
+  expect_false(isTRUE(all.equal(i3, i5)))
+  expect_false(isTRUE(all.equal(i4, i5)))
+  expect_false(isTRUE(all.equal(i1, i6)))
+})

@@ -12,7 +12,8 @@ knn_space_time_disagg(
   nsim = 1,
   scale_sites = TRUE,
   index_years = NULL,
-  k_weights = knn_params_default(nrow(ann_index_flow))
+  k_weights = knn_params_default(nrow(ann_index_flow)),
+  random_seed = NULL
 )
 }
 \arguments{
@@ -55,6 +56,9 @@ instead of selecting years based on weighted sampling via
 
 \item{k_weights}{A \code{\link[=knn_params]{knn_params()}} object. By default, it uses
 \code{\link[=knn_params_default]{knn_params_default()}}.}
+
+\item{random_seed}{A single integer or \code{NULL}. If an integer, then it is
+used with \code{\link[=set.seed]{set.seed()}} so reproducible results can be guaranteed.}
 }
 \value{
 A \code{\link{knnst}} object.

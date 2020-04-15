@@ -7,7 +7,8 @@
 knn_get_index_year(
   ann_flow,
   ann_index_flow,
-  k_weights = knn_params_default(nrow(ann_index_flow))
+  k_weights = knn_params_default(nrow(ann_index_flow)),
+  random_seed = NULL
 )
 }
 \arguments{
@@ -21,6 +22,9 @@ years are selected.}
 
 \item{k_weights}{A \code{\link[=knn_params]{knn_params()}} object. By default, it uses
 \code{\link[=knn_params_default]{knn_params_default()}}.}
+
+\item{random_seed}{A single integer or \code{NULL}. If an integer, then it is
+used with \code{\link[=set.seed]{set.seed()}} so reproducible results can be guaranteed.}
 }
 \value{
 N x 1 matrix of index years, with the number of rows, equal to the

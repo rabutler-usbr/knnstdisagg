@@ -380,3 +380,73 @@ test_that("values are identical to input as appropriate", {
   # last three years of data should not exist in monthly data
   expect_false(all(knnst_get_disagg_data(tmp)[37:72,] %in% mon_flow))
 })
+
+# random_seed -----------------------
+test_that("random_seed makes things reproducible but different", {
+  ann_flow <- cbind(c(2000, 2001, 2002), c(1400, 1567, 1325))
+  # made up historical data to use as index years
+  ann_ind <- cbind(1901:1980, rnorm(80, mean = 1500, sd = 300))
+  # make up monthly flow for two sites
+  mon_flow <- cbind(
+    rnorm(80 * 12, mean = 20, sd = 5),
+    rnorm(80 * 12, mean = 120, sd = 45)
+  )
+
+  d1 <- knn_space_time_disagg(
+    ann_flow,
+    ann_ind,
+    mon_flow,
+    start_month = 1,
+    random_seed = 131313
+  )
+
+  d2 <- knn_space_time_disagg(
+    ann_flow,
+    ann_ind,
+    mon_flow,
+    start_month = 1,
+    nsim = 5,
+    random_seed = 131313
+  )
+
+  d3 <- knn_space_time_disagg(
+    ann_flow,
+    ann_ind,
+    mon_flow,
+    start_month = 1
+  )
+
+  d4 <- knn_space_time_disagg(
+    ann_flow,
+    ann_ind,
+    mon_flow,
+    start_month = 1,
+    random_seed = 131313
+  )
+
+  d5 <- knn_space_time_disagg(
+    ann_flow,
+    ann_ind,
+    mon_flow,
+    start_month = 1,
+    nsim = 5,
+    random_seed = 131313
+  )
+
+  d6 <- knn_space_time_disagg(
+    ann_flow,
+    ann_ind,
+    mon_flow,
+    start_month = 1,
+    nsim = 5
+  )
+
+  expect_identical(d1, d4)
+  expect_identical(d1$disagg_sims[[1]], d2$disagg_sims[[1]])
+  expect_false(isTRUE(all.equal(d1, d3)))
+  expect_false(isTRUE(all.equal(d2$disagg_sims[[1]], d2$disagg_sims[[2]])))
+  expect_false(isTRUE(all.equal(d2$disagg_sims[[2]], d2$disagg_sims[[3]])))
+  expect_identical(d2, d5)
+  expect_false(identical(d2, d6))
+  expect_false(isTRUE(all.equal(d5, d6)))
+})
