@@ -4,14 +4,7 @@
 \alias{plot.knnst}
 \title{Plot resulting statistics for knn space-time disaggregation}
 \usage{
-\method{plot}{knnst}(
-  x,
-  site = "S1",
-  base_units = NULL,
-  which = c(13, 14, 15),
-  show = FALSE,
-  ...
-)
+\method{plot}{knnst}(x, site, base_units = NULL, which = c(13, 14, 15), show = FALSE, ...)
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}

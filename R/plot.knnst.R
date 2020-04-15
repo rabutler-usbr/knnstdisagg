@@ -40,7 +40,7 @@
 #' @return A `knnstplot` object
 #'
 #' @export
-plot.knnst <- function(x, site = "S1", base_units = NULL, which = c(13, 14, 15),
+plot.knnst <- function(x, site, base_units = NULL, which = c(13, 14, 15),
                        show = FALSE, ...)
 {
   assert_that(

@@ -45,27 +45,27 @@ test_that("plots fail", {
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, which = NULL),
+    plot(disagg, site = "Cameo", which = NULL),
     "In `plot.knnst()`, `which` should be numeric values in 1:15",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, which = c(0,1)),
+    plot(disagg, site = "Cameo", which = c(0,1)),
     "In `plot.knnst()`, `which` should be numeric values in 1:15",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, which = "all"),
+    plot(disagg, site = "Cameo", which = "all"),
     "In `plot.knnst()`, `which` should be numeric values in 1:15",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, show = 1),
+    plot(disagg, site = "Cameo", show = 1),
     "In `plot.knnst()`, `show` should be a logical scalar.",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, show = c(TRUE, FALSE)),
+    plot(disagg, site = "Cameo", show = c(TRUE, FALSE)),
     "In `plot.knnst()`, `show` should be a logical scalar.",
     fixed = TRUE
   )
@@ -183,8 +183,8 @@ test_that("changing start_month does not change data", {
     ),
     "knnst"
   )
-  expect_is(p1 <- plot(d1, which = 15), "knnstplot")
-  expect_is(p2 <- plot(d2, which = 15), "knnstplot")
+  expect_is(p1 <- plot(d1, site = "S1", which = 15), "knnstplot")
+  expect_is(p2 <- plot(d2, site = "S1", which = 15), "knnstplot")
   expect_identical(
     p1[["annual-stats"]][["data"]],
     p2[["annual-stats"]][["data"]]
