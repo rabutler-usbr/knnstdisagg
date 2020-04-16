@@ -13,27 +13,23 @@
 #' @export
 plot.knnst_tmpcor <- function(x, ...)
 {
-  # ggplot(rolling_res, aes(x = 1, y = cor)) +
-  #   geom_boxplot(width = 0.5) +
-  #   facet_grid(rows = vars(month1), cols = vars(month2), switch = "y") +
-  #   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-  #   geom_point(data = obs_res, color = "red") +
-  #   scale_y_continuous(position = "right")
+  shape <- plot_ops("shape", ...)
+  color <- plot_ops("color", ...)
+  size <- plot_ops("size", ...)
 
   ggplot(x[["disagg_cor"]], aes_string(x = "month2", y = "cor")) +
     geom_boxplot(aes_string(group = "month2"), width = 0.5) +
     facet_grid(rows = "month1", switch = "y") +
     theme(axis.ticks.x = element_blank()) +
-    geom_point(data = x[["pattern_cor"]], color = "red") +
+    geom_point(
+      data = x[["pattern_cor"]],
+      color = color, size = size, shape = shape
+    ) +
     scale_y_continuous(position = "right") +
     labs(
       title = paste("Temporal correlation at", x[["site"]]),
       y = "correlation", x = NULL,
-      caption = paste0(
-        "Red = input/pattern; boxplots = ",
-        x[["bin_size"]],
-        "-year moving window on disaggregated data"
-      )
+      caption = caption_text(x[["bin_size"]], "points")
     ) +
     scale_x_discrete(position = "top")
 }

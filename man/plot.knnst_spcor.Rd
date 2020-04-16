@@ -18,8 +18,7 @@ use site numbers.}
 \item{ncol, nrow}{Number of columns and rows to use in
 \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}}.}
 
-\item{...}{Arguments to be passed to subsequent methods not used in this
-method.}
+\item{...}{Arguments to be passed to subsequent methods.}
 }
 \description{
 Implements the \code{plot()} method for \code{knnst_spcor} and \code{knnst_tmpcor} objects
@@ -29,6 +28,9 @@ relying on ggplot2.
 \code{plon.knnst_spcor()} implements the \code{plot()} method for \code{knnst_spcor} objects
 relying on ggplot2. See \code{\link[=knnst_spatial_cor]{knnst_spatial_cor()}} to create \code{knnst_spcor} objects.
 Each site a correlation was computed from will be its own facet in the plot.
+
+\code{...} is passed to \code{\link[=geom_point]{geom_point()}} and \code{\link[=geom_line]{geom_line()}} to overwrite defaults for
+\code{size}, \code{shape}, and \code{color}.
 
 \code{plot.knnst_tmpcor()} implements the \code{plot()} method for \code{knnst_tmpcor}
 objects relying on ggplot2. See \code{\link[=knnst_temporal_cor]{knnst_temporal_cor()}} to create
