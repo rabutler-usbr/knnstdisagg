@@ -7,12 +7,18 @@
 #' The disaggregated data has one file for each simulation, while all index
 #' years are saved to one file. The disaggregated data are saved as
 #' "disagg_\[n\].csv", where n is the simulation number. All index years are
-#' saved to index_years.csv.
+#' saved to index_years.csv. A README.txt file is also created which includes
+#' meta data associated with how/when the data were generated.
 #'
 #' @param disagg A knnst object
 #'
 #' @param path A character scalar containing the path to the folder to write the
 #'   disaggregated data.
+#'
+#' @examples
+#' \dontrun{
+#' write_knnst(ex_disagg, ".")
+#' }
 #'
 #' @export
 
@@ -47,5 +53,21 @@ write_knnst <- function(disagg, path)
     row.names = FALSE
   )
 
+  write(format_meta(disagg[["meta"]]), file = file.path(path, "README.txt"))
+
   invisible(disagg)
+}
+
+format_meta <- function(meta)
+{
+  paste(
+    "Associated index_years.csv and disagg_[n].csv files in this folder were",
+    "generated/disaggregated using the knnstdisagg package.",
+    "========================================================================",
+    paste("user:", meta[["user"]]),
+    paste("date:", meta[["date"]]),
+    paste("version:",  meta[["version"]]),
+    paste("created by calling:", meta[["call"]]),
+    sep = "\n"
+  )
 }

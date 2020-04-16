@@ -47,4 +47,5 @@ test_that("write_knnst() creates correct files", {
     expect_true(file.exists(file.path(tempdir(), paste0("disagg_", n, ".csv"))))
   }
   expect_true(file.exists(file.path(tempdir(), "index_years.csv")))
+  expect_true(file.exists(file.path(tempdir(), "README.txt")))
 })

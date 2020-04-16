@@ -12,6 +12,7 @@
     * removed default value for `site`
     * added `bin_size` parameter
     * Changed how `...` is used and added default color, size, and shape
+* `write_knnst()` now saves a README.txt file (#25)
     
 
 # knnstdisagg 0.1.0

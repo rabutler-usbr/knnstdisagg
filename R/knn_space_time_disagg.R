@@ -272,12 +272,15 @@ knn_space_time_disagg <- function(ann_flow,
 
   # add in the historical data and index gage data, and move all the simulation
   # data in one layer.
+  meta <- get_meta_data()
+  meta[["call"]] <- deparse(sys.call())
 
   disag_out <- list(
     disagg_sims = disag_out,
     index_data = ann_index_flow,
     mon_flow = mon_flow,
-    start_month = start_month
+    start_month = start_month,
+    meta = meta
   )
 
   disag_out <- structure(disag_out, class = c("knnst", "list"))
@@ -343,4 +346,13 @@ ym_labels <- function(years, start_month)
   )
 
   yy
+}
+
+get_meta_data <- function()
+{
+  list(
+    user = Sys.info()[["user"]],
+    date = Sys.time(),
+    version = paste0("knnstdisagg v", utils::packageVersion("knnstdisagg"))
+  )
 }

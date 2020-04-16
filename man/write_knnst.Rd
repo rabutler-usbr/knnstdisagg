@@ -21,5 +21,12 @@ The disaggregated data and the index years are saved to separate files.
 The disaggregated data has one file for each simulation, while all index
 years are saved to one file. The disaggregated data are saved as
 "disagg_[n].csv", where n is the simulation number. All index years are
-saved to index_years.csv.
+saved to index_years.csv. A README.txt file is also created which includes
+meta data associated with how/when the data were generated.
+}
+\examples{
+\dontrun{
+write_knnst(ex_disagg, ".")
+}
+
 }

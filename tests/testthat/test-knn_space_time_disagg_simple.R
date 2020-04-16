@@ -280,24 +280,26 @@ test_that("changing start_month does not change data", {
 
 # scale_sites ----------------------
 test_that("scale_sites works with different specifications", {
-  expect_identical(
-    knn_space_time_disagg(
-      flow_mat,
-      ind_flow,
-      mon_flow,
-      start_month = 1,
-      scale_sites = TRUE,
-      k_weights = knn_params(1, 1)
-    ),
-    knn_space_time_disagg(
-      flow_mat,
-      ind_flow,
-      mon_flow,
-      start_month = 1,
-      scale_sites = 1:2,
-      k_weights = knn_params(1, 1)
-    )
+  t1 <-  knn_space_time_disagg(
+    flow_mat,
+    ind_flow,
+    mon_flow,
+    start_month = 1,
+    scale_sites = TRUE,
+    k_weights = knn_params(1, 1)
   )
+  t2 <- knn_space_time_disagg(
+    flow_mat,
+    ind_flow,
+    mon_flow,
+    start_month = 1,
+    scale_sites = 1:2,
+    k_weights = knn_params(1, 1)
+  )
+  # have to remove meta for them to be identical (date and call will not be ==)
+  t1$meta <- NULL
+  t2$meta <- NULL
+  expect_identical(t1, t2)
   # check that indexed sites are == between disaggs
   expect_is(
     expect_message(d1 <- knn_space_time_disagg(
@@ -440,6 +442,14 @@ test_that("random_seed makes things reproducible but different", {
     start_month = 1,
     nsim = 5
   )
+
+  # remove meta before testing equivelence as date and call may be different
+  d1$meta <- NULL
+  d2$meta <- NULL
+  d3$meta <- NULL
+  d4$meta <- NULL
+  d5$meta <- NULL
+  d6$meta <- NULL
 
   expect_identical(d1, d4)
   expect_identical(d1$disagg_sims[[1]], d2$disagg_sims[[1]])
