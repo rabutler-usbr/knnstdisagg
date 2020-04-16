@@ -155,11 +155,15 @@ selected index years.
 
 ### QA/QC
 
+#### Base Statistics
+
 The knnstdisagg package also includes plotting functionality to assist
-with QA/QC. Plots of monthly statistics (), annual statistics (same as
-monthly), annual cdf, and a monthly cdf for each month can be created
-using `plot()`. Each call to plot works for one site. Looking at
-Glenwood Springs monthly statistics:
+with QA/QC. Plots of monthly statistics (mean, max, min, variance, lag-1
+correlation, and skew), annual statistics (same as monthly), annual cdf,
+and a monthly cdf for each month can be created using `plot()`. Each
+call to plot works for one site. A `bin_size` must be specified; this is
+the moving window that all statistics on the disaggregated data are
+computed accross. Looking at Glenwood Springs monthly statistics:
 
 ``` r
 p <- plot(
@@ -167,16 +171,15 @@ p <- plot(
   site = "GlenwoodSprings", 
   base_units = "acre-feet", 
   which = 14, 
-  show = TRUE
+  show = TRUE,
+  bin_size = 50
 )
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
-Note that because we only ran one simulation/version of the
-disaggregation, the boxplot collapses to near the historical for the
-mean. However, it shows that maxima (minima) larger (smaller) than the
-observed are created.
+*If an unnamed matrix was used for input, then the sites are accessed by
+`"S1"`, `"S2"`, etc. during plotting.*
 
 We can also look at the annual cdf for Bluff, or the May cdf for
 Maybell:
@@ -187,7 +190,8 @@ p <- plot(
   site = "Bluff", 
   base_units = "acre-feet", 
   which = 13, 
-  show = TRUE
+  show = TRUE,
+  bin_size = 50
 )
 ```
 
@@ -199,7 +203,8 @@ p <- plot(
   site = "Maybell", 
   base_units = "acre-feet", 
   which = 5, 
-  show = TRUE
+  show = TRUE,
+  bin_size = 50
 )
 ```
 
@@ -215,13 +220,40 @@ p <- plot(
   site = "Cameo", 
   base_units = "acre-feet", 
   which = 1:15, 
-  show = FALSE
+  show = FALSE,
+  bin_size = 50
 )
 save_knnstplot(p, "Cameo.pdf", width = 8, height = 6)
 ```
 
-*If an unnamed matrix was used for input, then the sites are accessed by
-`"S1"`, `"S2"`, etc. during plotting.*
+#### Spatial Correlation
+
+Another statistic to check is the spatial correlation between sites.
+This is computed using `knnst_spatial_cor()`. For each specified site,
+the correlation with all other sites is computed, and then it can be
+easily plotted. To get the correlation from Cameo and Hoover to all
+other
+sites:
+
+``` r
+sp_cor <- knnst_spatial_cor(disagg, sites = c("Cameo", "Hoover"), bin_size = 50)
+plot(sp_cor)
+```
+
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+
+#### Temporal Correlation
+
+A final statistic to compare is the monthly cross correlation. This is
+computed using `knnst_temporal_cor()` and is only computed for one site
+at a time. To compute the monthly cross correlation at Greendale:
+
+``` r
+tmp_cor <- knnst_temporal_cor(disagg, site = "Greendale", bin_size = 50)
+plot(tmp_cor)
+```
+
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 ### Recreating Disaggregation
 
