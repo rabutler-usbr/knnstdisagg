@@ -49,7 +49,7 @@ test_that("`knn_space_time_disagg()` output is properly created for nsim = 5", {
     f1 <- file.path("tmp_disagg", paste0("disagg_", i, ".csv"))
     expect_true(file.exists(f1))
     t1 <- read.csv(f1)
-    expect_identical(dim(t1), as.integer(c(36, 29)))
+    expect_identical(dim(t1), as.integer(c(36, 30)))
 
     # all 5 files should not be the same at the monthly level
     j <- ifelse(i == nsim, 1, i + 1)

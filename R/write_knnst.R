@@ -42,7 +42,7 @@ write_knnst <- function(disagg, path)
     utils::write.csv(
       knnst_get_disagg_data(disagg, ii),
       file = file.path(path, paste0("disagg_", ii, ".csv")),
-      row.names = FALSE
+      row.names = TRUE
     )
   )
 
