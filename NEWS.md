@@ -1,19 +1,29 @@
-# knnstdisagg 0.1.0.9000
+# knnstdisagg 0.2.0
 
-**In development**
+**Releases April 16, 2020**
 
+## API Breaking Changes
+
+* `plot.knnst()` was changed in multiple ways, several which break any previous calls to it. 
+    * The default value for `site` was removed as it does not make sense to guess site names when they will typically be unique.
+    * Stats for the disaggregated data are now computed on a user specified `bin_size`. `bin_size` is a new argument to `plot.knnst()` with no default. (#32)
+    * The use of `...` was modified so that it is now only used for color, size, and shape. Default color, size, and shape were added for instances when these are not user specified.
+
+## Additions and Enhancements
+
+* Added spatial and temporal correlation functions and plots. (#29, #30)
+  * `knnst_spatial_cor()` computes spatial correlation between sites.
+  * `knnst_temporal_cor()` computes temporal (monthly) correlation at one site.
+  * `plot.knnst_spcor()` and `plot.knnst_tmpcor()` plot the results of `knn_spatial_cor()` or `knn_temporal_cor()`
+* Added `random_seed` argument to `knn_space_time_disagg()` and `knn_get_index_year()` to assist with reproducibility. (#28)
+* Changed how unnamed `mon_flow` input to `knn_space_time_disagg()` is treated. Now the columns (sites) are renamed in `knn_space_time_disagg()`, instead of in `as.data.frame.knnst()`. This ensures the site names always exist for any subsequent code, rather than having to convert to a data.frame to get the site names. (#33)
+* `write_knnst()` now saves a README.txt file (#25) and includes the yyyy-mm row names in the saved csv files that include the monthly disaggregated data.
 * `ex_disagg` is now an exported data object. It contains an example `knnst` object for use in examples and tests.
-* Changed how unnamed input `mon_flow` is treated. Now the columns (sites) are renamed in `knn_space_time_disagg()`, instead of in `as.data.frame.knnst()`. #33
-* Added computation of (`knnst_spatial_cor()`) and plotting for (`plot.knnst_spcor()`) spatial correlation between sites. #29
-* Added computation of (`knnst_temporal_cor()`) and plotting for (`plot.knnst_tmpcor()`) temporal correlation between months at a site. #30
-* Fixed bug related to how lag-1 correlation was computed for the historical/pattern data. #27
-* Added `random_seed` argument to `knn_space_time_disagg()` and `knn_get_index_year()` to assist with reproducibility. #28
-* Changes to `plot.knnst()` (#32)
-    * removed default value for `site`
-    * added `bin_size` parameter
-    * Changed how `...` is used and added default color, size, and shape
-* `write_knnst()` now saves a README.txt file (#25)
-    
+
+## Bug Fixes
+
+* Fixed bug related to how lag-1 correlation was computed for the historical/pattern data. This only affected January values if the start of the year was a month other than January. (#27)
+
 
 # knnstdisagg 0.1.0
 
