@@ -15,7 +15,8 @@
 #' - `14`: monthly statistics panel
 #' - `15`: annual statistics panel
 #'
-#' `...` is passed to [geom_point()] and [labs()].
+#' `...` is passed to [geom_point()] and [geom_line()] to overwrite defaults for
+#' `size`, `shape`, and `color`.
 #'
 #' For the monthly statistics panel, months are ordered based on the
 #' `start_month` provided in the original disaggregation, i.e., specified by the
@@ -124,17 +125,18 @@ plot.knnst <- function(x, site, bin_size, base_units = NULL,
   # monthly plots ----------------
   if (14 %in% which)
     gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, x$start_month,
-                          base_units, ...)
+                          base_units, bin_size, ...)
 
   if (any(1:12 %in% which))
     gg2 <- create_mon_cdf(x_df, x_mon, bin_size, site, base_units, which, ...)
 
   # annual plots --------------------
   if (15 %in% which)
-    gg3 <- create_ann_bxp(x_ann_plot_data, x_ann_stats, site, base_units, ...)
+    gg3 <- create_ann_bxp(x_ann_plot_data, x_ann_stats, site, base_units,
+                          bin_size, ...)
 
   if (13 %in% which)
-    gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, nsim, site, base_units, ...)
+    gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, bin_size, site, base_units, ...)
 
   gg_out <- c(
     list(
@@ -162,7 +164,11 @@ get_mon_plot_stats <- function(x_df, site, start_month, bin_size, yr = "year")
   # convert year to agg_year
   if (yr == "year") {
     x_df[["year"]] <- x_df[["ym"]]
-    x_df <- mutate_at(x_df, "year", list(~knnstdisagg:::get_agg_year(., start_month)))
+    x_df <- dplyr::mutate_at(
+      x_df,
+      "year",
+      list(~knnstdisagg:::get_agg_year(., start_month))
+    )
   }
 
   x_df %>%
@@ -171,7 +177,9 @@ get_mon_plot_stats <- function(x_df, site, start_month, bin_size, yr = "year")
     dplyr::group_by_at("simulation") %>%
     dplyr::arrange_at("ym") %>%
     # compute stats for all months
-    get_plot_stats(var_mutate = site, vars_group = vars_group, bin_size = bin_size, yr = yr) %>%
+    get_plot_stats(
+      var_mutate = site, vars_group = vars_group, bin_size = bin_size, yr = yr
+    ) %>%
     dplyr::ungroup() %>%
     dplyr::mutate_at(
       "month",
@@ -226,7 +234,7 @@ get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
     yr_st <- start_year + i - 1
     yr_end <- yr_st + bin_size - 1
     tmp <- x_df %>%
-      dplyr::filter_at(yr, all_vars(. %in% yr_st:yr_end)) %>%
+      dplyr::filter_at(yr, dplyr::all_vars(. %in% yr_st:yr_end)) %>%
       dplyr::mutate_at(var_mutate, list("tmp" = dplyr::lag)) %>%
 
       dplyr::group_by_at(vars_group) %>%
@@ -256,30 +264,43 @@ get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
   res
 }
 
-create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL, ...)
+create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL,
+                           bin_size, ...)
 {
+  shape <- plot_ops("shape", ...)
+  color <- plot_ops("color", ...)
+  size <- plot_ops("size", ...)
+
   gg <- ggplot(sim_data, aes_string(y = "Value")) +
     geom_boxplot() +
     facet_wrap("Variable", ncol = 2, scales = "free_y") +
     geom_point(
       data = hist_data,
       aes_string(x = 0, y = "Value"),
-      shape = 18,
-      ...
+      shape = shape,
+      color = color,
+      size = size
     ) +
     labs(
       x = NULL,
       title = paste(site, "- Annual Statistics"),
       y = paste("Base units =", base_units),
-      ...
-    )
+      caption = caption_text(bin_size, "points")
+    ) +
+    theme(axis.ticks.x = element_blank(), axis.text.x = element_blank()) +
+    scale_x_continuous(breaks = 0) +
+    coord_cartesian( xlim = c(-1, 1))
 
   gg
 }
 
 create_mon_bxp <- function(sim_data, hist_data, site, start_month,
-                           base_units = NULL, ...)
+                           base_units = NULL, bin_size, ...)
 {
+  shape <- plot_ops("shape", ...)
+  color <- plot_ops("color", ...)
+  size <- plot_ops("size", ...)
+
   sim_data[["month"]] <- factor(
     sim_data[["month"]],
     levels = month.abb[full_year(start_month)]
@@ -296,76 +317,26 @@ create_mon_bxp <- function(sim_data, hist_data, site, start_month,
     geom_point(
       data = hist_data,
       aes_string("month", "Value"),
-      shape = 18,
-      ...
+      shape = shape,
+      size = size,
+      color = color
     ) +
     labs(
       x = NULL,
       title = paste0(site, " - Monthly Statistics"),
       y = paste("Base units =", base_units),
-      ...
+      caption = caption_text(bin_size, "points")
     )
 
   gg
 }
 
-create_ann_cdf <- function(sim_data, hist_data, nsim, site, base_units, ...)
+create_ann_cdf <- function(sim_data, hist_data, bin_size, site, base_units, ...)
 {
-  tmp <- c(sim_data[[site]], hist_data[[site]])
+  cdf_data <- compute_cdf_data(sim_data, hist_data, bin_size, site)
 
-  yr_breaks <- stats::density(tmp, n = 50)$x
-
-  # 2) then call density() with x from above
-  sim_pdf <- lapply(seq_len(nsim), function(n1) {
-
-    t2 <- sim_data %>%
-      dplyr::filter_at("simulation", dplyr::any_vars(. == n1))
-
-    tmp <- stats::density(
-      t2[[site]],
-      n = 50,
-      from = min(yr_breaks),
-      to = max(yr_breaks)
-    )
-
-    tmp
-  })
-
-  # 2b) and call on historical data
-  tmp <- hist_data[[site]]
-  hist_pdf <- stats::density(
-    tmp,
-    n = 50,
-    from = min(yr_breaks),
-    to = max(yr_breaks)
-  )
-
-
-  # 3) then create df with $y of all calls to density and $x as flow (x)
-  hist_pdf <- data.frame(
-    x = hist_pdf$x,
-    density = hist_pdf$y
-  )
-
-  sim_pdf <- do.call(rbind, lapply(seq_len(nsim), function(n1) {
-
-    tmp <- data.frame(
-      x = sim_pdf[[n1]]$x,
-      density = sim_pdf[[n1]]$y
-    )
-
-    tmp
-  }))
-
-  # 4) then plot with ggplot() + geom_boxplot()
-
-  gg <- ggplot(sim_pdf, aes_string("x", "density")) +
-    geom_boxplot(aes_string(group = "x")) +
-    geom_line(data = hist_pdf, aes_string("x", "density")) +
-    labs(
-      x = paste0("Flow (", base_units, ")"), y = "Probability Density",
-      title = paste(site, "- Annual CDF")
-    )
+  gg <- cdf_plot(cdf_data, base_units, title = paste(site, "- Annual CDF"),
+                 bin_size, ...)
 
   gg
 }
@@ -390,7 +361,7 @@ create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
   gg <- list()
 
   for (mm in proc_mon) {
-    tmp <- compute_mon_cdf_data(
+    tmp <- compute_cdf_data(
       dplyr::filter_at(sim_data, "month", dplyr::all_vars(. == mm)),
       dplyr::filter_at(hist_data, "month", dplyr::all_vars(. == mm)),
       bin_size,
@@ -399,21 +370,21 @@ create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
 
     # TODO: should boxplot width be computed?
     pname <- paste0(month.abb[mm], "-cdf")
-    gg[[pname]] <- ggplot(tmp$sim_cdf, aes_string("x", "density")) +
-      geom_boxplot(aes_string(group = "x")) +
-      geom_line(data = tmp$hist_cdf, aes_string("x", "density")) +
-      labs(
-        title = paste0(site, " - ", month.name[mm], " CDF"),
-        x = paste0("Flow (", base_units, ")"),
-        y = "Probability Density"
-      )
+    gg[[pname]] <- cdf_plot(
+      tmp,
+      base_units,
+      title = paste0(site, " - ", month.name[mm], " CDF"),
+      bin_size,
+      ...
+    )
   }
 
   gg
 }
 
-# computes monthly cdf data for one site and one month
-compute_mon_cdf_data <- function(sim_data, hist_data, bin_size, site)
+# computes cdf data for one site and one month/year. Assumes sim_data and
+# hist_data have already been filtered to correct month/years
+compute_cdf_data <- function(sim_data, hist_data, bin_size, site)
 {
   # compute the breaks ----
   tmp <- c(hist_data[[site]], sim_data[[site]])
@@ -503,4 +474,48 @@ get_historical_annual <- function(x, site, start_month)
     dplyr::mutate_at("agg_year", list(~ get_agg_year(., start_month))) %>%
     dplyr::group_by_at(c("agg_year", "simulation")) %>%
     dplyr::summarise_at(site, sum)
+}
+
+cdf_plot <- function(cdf_data, base_units, title, bin_size, ...)
+{
+  color = plot_ops("color", ...)
+
+  ggplot(cdf_data$sim_cdf, aes_string("x", "density")) +
+    geom_boxplot(aes_string(group = "x")) +
+    geom_line(
+      data = cdf_data$hist_cdf,
+      aes_string("x", "density"),
+      color = color
+    ) +
+    labs(
+      title = title,
+      x = paste0("Flow (", base_units, ")"),
+      y = "Probability Density",
+      caption = caption_text(bin_size, "line")
+    )
+}
+
+caption_text <- function(bin_size, pl = "point")
+{
+  paste0("Colored ", pl, " = input/pattern; boxplots = ", bin_size,
+         "-year moving window on disaggregated data")
+}
+
+# checks ... to see if something was specified, otherwise sets it to default
+plot_ops <- function(op, ...)
+{
+  args <- list(...)
+  if (exists(op, where = args)) {
+    x <- args[[op]]
+  } else {
+    defaults <- list(
+      color = "#51B2FF",
+      size = 2,
+      shape = 17
+    )
+
+    x <- defaults[[op]]
+  }
+
+  x
 }

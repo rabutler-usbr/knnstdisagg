@@ -8,8 +8,10 @@
 * Added computation of (`knnst_temporal_cor()`) and plotting for (`plot.knnst_tmpcor()`) temporal correlation between months at a site. #30
 * Fixed bug related to how lag-1 correlation was computed for the historical/pattern data. #27
 * Added `random_seed` argument to `knn_space_time_disagg()` and `knn_get_index_year()` to assist with reproducibility. #28
-* Changes to `plot.knnst()`
+* Changes to `plot.knnst()` (#32)
     * removed default value for `site`
+    * added `bin_size` parameter
+    * Changed how `...` is used and added default color, size, and shape
     
 
 # knnstdisagg 0.1.0

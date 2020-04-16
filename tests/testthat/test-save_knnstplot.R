@@ -12,14 +12,13 @@ disagg <- knn_space_time_disagg(
   ind_flow,
   mon_flow,
   start_month = 1,
-  nsim = 10,
+  nsim = 1,
   scale_sites = 1:2
 )
 
-
-p1 <- plot(disagg, site = "S2")
-p2 <- plot(disagg, site = "S1", which = 1:15, base_units = "kaf")
-p3 <- plot(disagg, which = 2, site = "S1")
+p1 <- plot(disagg, site = "S2", bin_size = 3)
+p2 <- plot(disagg, site = "S1", which = 1:15, base_units = "kaf", bin_size = 3)
+p3 <- plot(disagg, which = 2, site = "S1", bin_size = 3)
 
 # setup dir ------------------------
 temp_dir <- file.path(tempdir(), "plots")

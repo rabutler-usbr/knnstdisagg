@@ -4,12 +4,22 @@
 \alias{plot.knnst}
 \title{Plot resulting statistics for knn space-time disaggregation}
 \usage{
-\method{plot}{knnst}(x, site, base_units = NULL, which = c(13, 14, 15), show = FALSE, ...)
+\method{plot}{knnst}(
+  x,
+  site,
+  bin_size,
+  base_units = NULL,
+  which = c(13, 14, 15),
+  show = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object inheriting from class \code{knnst}}
 
 \item{site}{The site to plot. Site name as a character.}
+
+\item{bin_size}{Number of years for each bin.}
 
 \item{base_units}{The (input) units of the flow that was disaggregated. These
 units will be shown as the y-axis label of the plot.}
@@ -44,7 +54,8 @@ numbers correspond to:
 \item \code{15}: annual statistics panel
 }
 
-\code{...} is passed to \code{\link[=geom_point]{geom_point()}} and \code{\link[=labs]{labs()}}.
+\code{...} is passed to \code{\link[=geom_point]{geom_point()}} and \code{\link[=geom_line]{geom_line()}} to overwrite defaults for
+\code{size}, \code{shape}, and \code{color}.
 
 For the monthly statistics panel, months are ordered based on the
 \code{start_month} provided in the original disaggregation, i.e., specified by the
