@@ -167,7 +167,7 @@ get_mon_plot_stats <- function(x_df, site, start_month, bin_size, yr = "year")
     x_df <- dplyr::mutate_at(
       x_df,
       "year",
-      list(~knnstdisagg:::get_agg_year(., start_month))
+      list(~get_agg_year(., start_month))
     )
   }
 
