@@ -25,42 +25,42 @@ disagg <- knn_space_time_disagg(
 
 test_that("plots fail", {
   expect_error(
-    plot(disagg, site = 1),
+    plot(disagg, site = 1, bin_size = 2),
     "In `plot.knnst()`, `site` should be a character with length of 1.",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = "S44"),
+    plot(disagg, site = "S44", bin_size = 2),
     "In `plot.knnst()`, `site` should be a valid site name.",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = c("S1", "S2")),
+    plot(disagg, site = c("S1", "S2"), bin_size = 2),
     "In `plot.knnst()`, `site` should be a character with length of 1.",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = "Cameo", which = NULL),
+    plot(disagg, site = "Cameo", which = NULL, bin_size = 2),
     "In `plot.knnst()`, `which` should be numeric values in 1:15",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = "Cameo", which = c(0,1)),
+    plot(disagg, site = "Cameo", which = c(0,1), bin_size = 2),
     "In `plot.knnst()`, `which` should be numeric values in 1:15",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = "Cameo", which = "all"),
+    plot(disagg, site = "Cameo", which = "all", bin_size = 2),
     "In `plot.knnst()`, `which` should be numeric values in 1:15",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = "Cameo", show = 1),
+    plot(disagg, site = "Cameo", show = 1, bin_size = 2),
     "In `plot.knnst()`, `show` should be a logical scalar.",
     fixed = TRUE
   )
   expect_error(
-    plot(disagg, site = "Cameo", show = c(TRUE, FALSE)),
+    plot(disagg, site = "Cameo", show = c(TRUE, FALSE), bin_size = 2),
     "In `plot.knnst()`, `show` should be a logical scalar.",
     fixed = TRUE
   )
