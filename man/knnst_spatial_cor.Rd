@@ -4,14 +4,15 @@
 \alias{knnst_spatial_cor}
 \title{Compute spatial correlation after KNN space-time disaggregation}
 \usage{
-knnst_spatial_cor(disagg, sites, bin_size)
+knnst_spatial_cor(disagg, sites, bin_size = NULL)
 }
 \arguments{
 \item{disagg}{A \code{knnst} object}
 
 \item{sites}{One or more sites to compute correlations from.}
 
-\item{bin_size}{Number of years for each bin.}
+\item{bin_size}{Number of years for each bin when there is only one
+simulation.}
 }
 \value{
 A \code{knnst_spcor} object.
@@ -19,6 +20,12 @@ A \code{knnst_spcor} object.
 \description{
 \code{knnst_spatial_cor()} computes the spatial correlation for all monthly data
 between the specifed site(s) (\code{sites}) and all other sites.
+}
+\details{
+If there are more  than one simulations, the correlation is computed for each
+simulation across all years. If there is only one simulation, then the user
+must specify the \code{bin_size} that is used to compute the correlation across
+moving windows of this specified size.
 }
 \examples{
 knnst_spatial_cor(ex_disagg, "Cameo", 100)

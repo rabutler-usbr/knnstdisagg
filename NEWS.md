@@ -1,3 +1,7 @@
+# knnstdisagg 0.2.0.9000
+
+* `knnst_spatial_cor()` now works when there is more than one simulation.
+
 # knnstdisagg 0.2.0
 
 **Releases April 16, 2020**
