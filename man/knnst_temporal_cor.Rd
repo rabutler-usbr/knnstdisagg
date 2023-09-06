@@ -4,7 +4,7 @@
 \alias{knnst_temporal_cor}
 \title{Compute temporal correlation after KNN space-time disaggregation}
 \usage{
-knnst_temporal_cor(disagg, site, bin_size)
+knnst_temporal_cor(disagg, site, bin_size = NULL)
 }
 \arguments{
 \item{disagg}{A \code{knnst} object}
@@ -19,7 +19,13 @@ A \code{knnst_tmpcor} object.
 }
 \description{
 \code{knnst_temporal_cor()} computes the temporal correlation between all months
-at the specified \code{site}.
+at the specified \code{site}
+}
+\details{
+If there are more  than one simulations, the correlation is computed for each
+simulation across all years. If there is only one simulation, then the user
+must specify the \code{bin_size} that is used to compute the correlation across
+moving windows of this specified size.
 }
 \examples{
 # use a 50-year bin size to compute the stats at Cameo
