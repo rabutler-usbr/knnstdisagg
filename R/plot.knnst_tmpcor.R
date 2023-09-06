@@ -17,8 +17,8 @@ plot.knnst_tmpcor <- function(x, ...)
   color <- plot_ops("color", ...)
   size <- plot_ops("size", ...)
 
-  ggplot(x[["disagg_cor"]], aes_string(x = "month2", y = "cor")) +
-    geom_boxplot(aes_string(group = "month2"), width = 0.5) +
+  ggplot(x[["disagg_cor"]], aes(x = .data[["month2"]], y = .data[["cor"]])) +
+    geom_boxplot(aes(group = .data[["month2"]]), width = 0.5) +
     facet_grid(rows = "month1", switch = "y") +
     theme(axis.ticks.x = element_blank()) +
     geom_point(

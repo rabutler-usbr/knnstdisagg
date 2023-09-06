@@ -49,13 +49,17 @@ knnst_temporal_cor <- function(disagg, site, bin_size)
     dplyr::mutate_at("ym", list(~get_agg_year(., disagg[["start_month"]]))) %>%
     dplyr::select_at(dplyr::vars(-dplyr::one_of("year"))) %>%
     dplyr::mutate_at("month", list(~month.abb[.])) %>%
-    tidyr::pivot_wider(names_from = "month", values_from = site)
+    tidyr::pivot_wider(
+      names_from = "month", values_from = tidyselect::all_of(site)
+    )
 
   # observed data as data frame
   obs_df <- get_pattern_flow_data_df(disagg, site) %>%
     dplyr::select_at(c("agg_year", "month", site)) %>%
     dplyr::mutate_at("month", list(~month.abb[.])) %>%
-    tidyr::pivot_wider(names_from = "month", values_from = site)
+    tidyr::pivot_wider(
+      names_from = "month", values_from = tidyselect::all_of(site)
+    )
 
 
   # all unique month combinations of months

@@ -57,11 +57,11 @@ plot.knnst_spcor <- function(x, x_names = FALSE, ncol = 1, nrow = NULL, ...) {
   size <- plot_ops("size", ...)
 
   # user parameters - ncol, nrow, max sites per page
-  ggplot(res, aes_string("site_to", "cor")) +
+  ggplot(res, aes(.data[["site_to"]], .data[["cor"]])) +
     geom_boxplot() +
     geom_point(
       data = hist_cor,
-      aes_string("site_to", "cor"),
+      aes(.data[["site_to"]], .data[["cor"]]),
       color = color, size = size, shape = shape
     ) +
     facet_wrap("site_from", ncol = ncol, nrow = nrow) +

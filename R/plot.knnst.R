@@ -256,6 +256,7 @@ get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
   for (i in seq_len(nbin)) {
     yr_st <- start_year + i - 1
     yr_end <- yr_st + bin_size - 1
+
     tmp <- x_df %>%
       dplyr::filter_at(yr, dplyr::all_vars(. %in% yr_st:yr_end)) %>%
       dplyr::mutate_at(var_mutate, list("tmp" = dplyr::lag)) %>%
@@ -269,10 +270,10 @@ get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
           ~ stats::cor(., get("tmp"), use = "complete.obs")
         )
       ) %>%
-      tidyr::gather_(
-        "Variable",
-        "Value",
-        tidyselect::vars_select(names(.), -tidyselect::one_of(vars_group))
+      tidyr::pivot_longer(
+        -tidyselect::all_of(vars_group),
+        names_to = 'Variable',
+        values_to = 'Value'
       ) %>%
       dplyr::mutate_at(
         "Variable",
@@ -294,12 +295,12 @@ create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL,
   color <- plot_ops("color", ...)
   size <- plot_ops("size", ...)
 
-  gg <- ggplot(sim_data, aes_string(y = "Value")) +
+  gg <- ggplot(sim_data, aes(y = .data[["Value"]])) +
     geom_boxplot() +
     facet_wrap("Variable", ncol = 2, scales = "free_y") +
     geom_point(
       data = hist_data,
-      aes_string(x = 0, y = "Value"),
+      aes(x = 0, y = .data[["Value"]]),
       shape = shape,
       color = color,
       size = size
@@ -334,12 +335,12 @@ create_mon_bxp <- function(sim_data, hist_data, site, start_month,
     levels = month.abb[full_year(start_month)]
   )
 
-  gg <- ggplot(sim_data, aes_string("month", "Value")) +
-    geom_boxplot(aes_string(group = "month")) +
+  gg <- ggplot(sim_data, aes(.data[["month"]], .data[["Value"]])) +
+    geom_boxplot(aes(group = .data[["month"]])) +
     facet_wrap("Variable", ncol = 2, scales = "free_y") +
     geom_point(
       data = hist_data,
-      aes_string("month", "Value"),
+      aes(.data[["month"]], .data[["Value"]]),
       shape = shape,
       size = size,
       color = color
@@ -505,11 +506,11 @@ pdf_plot <- function(pdf_data, base_units, title, bin_size, nsim, ...)
 {
   color = plot_ops("color", ...)
 
-  ggplot(pdf_data$sim_pdf, aes_string("x", "density")) +
-    geom_boxplot(aes_string(group = "x")) +
+  ggplot(pdf_data$sim_pdf, aes(.data[["x"]], .data[["density"]])) +
+    geom_boxplot(aes(group = .data[["x"]])) +
     geom_line(
       data = pdf_data$hist_pdf,
-      aes_string("x", "density"),
+      aes(.data[["x"]], .data[["density"]]),
       color = color
     ) +
     labs(
