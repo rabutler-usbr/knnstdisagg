@@ -4,6 +4,11 @@
 #' on ggplot2. It plots the key statistics the knn space-time disaggregation
 #' method should be preserving.
 #'
+#' If there are more  than one simulations, the stats are computed for each
+#' simulation across all years. If there is only one simulation, then the user
+#' must specify the `bin_size` that is used to compute the stats across
+#' moving windows of this specified size.
+#'
 #' `which` controls the plots that are created. There are both monthly and
 #' annual plots and two main plot types: a cdf of the flows across all of the
 #' different disaggregations, and a panel showing the mean, max, min, variance,
@@ -26,7 +31,8 @@
 #'
 #' @param site The site to plot. Site name as a character.
 #'
-#' @param bin_size Number of years for each bin.
+#' @param bin_size Number of years for each bin when there is only one
+#'   simulation.
 #'
 #' @param base_units The (input) units of the flow that was disaggregated. These
 #'   units will be shown as the y-axis label of the plot.
@@ -43,14 +49,14 @@
 #' @return A `knnstplot` object
 #'
 #' @export
-plot.knnst <- function(x, site, bin_size, base_units = NULL,
+plot.knnst <- function(x, site, bin_size = NULL, base_units = NULL,
                        which = c(13, 14, 15), show = FALSE, ...)
 {
   #TODO: update to handle multiple simulations
-  assert_that(
-    knnst_nsim(x) == 1,
-    msg = "plot.knnst() is currently only setup to work with one simulation."
-  )
+  # assert_that(
+  #   knnst_nsim(x) == 1,
+  #   msg = "plot.knnst() is currently only setup to work with one simulation."
+  # )
 
   assert_that(
     length(site) == 1 && is.character(site),
@@ -68,6 +74,20 @@ plot.knnst <- function(x, site, bin_size, base_units = NULL,
   )
 
   nsim <- knnst_nsim(x)
+  nyrs <- nrow(x$disagg_sims[[1]]$disagg_flow) / 12
+
+  if (nsim == 1) {
+    assert_that(is.numeric(bin_size) && length(bin_size) == 1)
+  }
+
+  # if there is more than 1 simulation, then set bin_size to full length of data
+  if (nsim > 1) {
+    message('More than 1 simulation exists, so correlation computed for all years in each simulation.')
+    bin_size <- nyrs
+  }
+
+  assert_that(bin_size <= nyrs)
+
   x_df <- as.data.frame(x)
   all_cols <- names(x_df)
 
@@ -125,18 +145,20 @@ plot.knnst <- function(x, site, bin_size, base_units = NULL,
   # monthly plots ----------------
   if (14 %in% which)
     gg1 <- create_mon_bxp(x_plot_data, x_mon_stats, site, x$start_month,
-                          base_units, bin_size, ...)
+                          base_units, bin_size, nsim, ...)
 
   if (any(1:12 %in% which))
-    gg2 <- create_mon_cdf(x_df, x_mon, bin_size, site, base_units, which, ...)
+    gg2 <- create_mon_cdf(x_df, x_mon, bin_size, site, base_units, which,
+                          nsim, ...)
 
   # annual plots --------------------
   if (15 %in% which)
     gg3 <- create_ann_bxp(x_ann_plot_data, x_ann_stats, site, base_units,
-                          bin_size, ...)
+                          bin_size, nsim, ...)
 
   if (13 %in% which)
-    gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, bin_size, site, base_units, ...)
+    gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, bin_size, site, base_units,
+                          nsim, ...)
 
   gg_out <- c(
     list(
@@ -230,6 +252,7 @@ get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
   # pre-allocating an array and then converting to df took 1.75 seconds in a
   # simple test, will staying as a data frame and using bind_rows to 3.08
   # seconds
+
   for (i in seq_len(nbin)) {
     yr_st <- start_year + i - 1
     yr_end <- yr_st + bin_size - 1
@@ -265,7 +288,7 @@ get_plot_stats <- function(x_df, var_mutate, vars_group, bin_size, yr)
 }
 
 create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL,
-                           bin_size, ...)
+                           bin_size, nsim, ...)
 {
   shape <- plot_ops("shape", ...)
   color <- plot_ops("color", ...)
@@ -285,7 +308,7 @@ create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL,
       x = NULL,
       title = paste(site, "- Annual Statistics"),
       y = paste("Base units =", base_units),
-      caption = caption_text(bin_size, "points")
+      caption = caption_text(bin_size, nsim, "points")
     ) +
     theme(axis.ticks.x = element_blank(), axis.text.x = element_blank()) +
     scale_x_continuous(breaks = 0) +
@@ -295,7 +318,7 @@ create_ann_bxp <- function(sim_data, hist_data, site, base_units = NULL,
 }
 
 create_mon_bxp <- function(sim_data, hist_data, site, start_month,
-                           base_units = NULL, bin_size, ...)
+                           base_units = NULL, bin_size, nsim, ...)
 {
   shape <- plot_ops("shape", ...)
   color <- plot_ops("color", ...)
@@ -325,24 +348,25 @@ create_mon_bxp <- function(sim_data, hist_data, site, start_month,
       x = NULL,
       title = paste0(site, " - Monthly Statistics"),
       y = paste("Base units =", base_units),
-      caption = caption_text(bin_size, "points")
+      caption = caption_text(bin_size, nsim, "points")
     )
 
   gg
 }
 
-create_ann_cdf <- function(sim_data, hist_data, bin_size, site, base_units, ...)
+create_ann_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
+                           nsim, ...)
 {
   cdf_data <- compute_cdf_data(sim_data, hist_data, bin_size, site)
 
   gg <- cdf_plot(cdf_data, base_units, title = paste(site, "- Annual CDF"),
-                 bin_size, ...)
+                 bin_size, nsim, ...)
 
   gg
 }
 
 create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
-                           which, ...)
+                           which, nsim, ...)
 {
   # TODO: do we need to re-do this based on Balaji/Ken's code? Using density
   # instead of hist()
@@ -375,6 +399,7 @@ create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
       base_units,
       title = paste0(site, " - ", month.name[mm], " CDF"),
       bin_size,
+      nsim,
       ...
     )
   }
@@ -476,7 +501,7 @@ get_historical_annual <- function(x, site, start_month)
     dplyr::summarise_at(site, sum)
 }
 
-cdf_plot <- function(cdf_data, base_units, title, bin_size, ...)
+cdf_plot <- function(cdf_data, base_units, title, bin_size, nsim, ...)
 {
   color = plot_ops("color", ...)
 
@@ -491,14 +516,19 @@ cdf_plot <- function(cdf_data, base_units, title, bin_size, ...)
       title = title,
       x = paste0("Flow (", base_units, ")"),
       y = "Probability Density",
-      caption = caption_text(bin_size, "line")
+      caption = caption_text(bin_size, nsim, "line")
     )
 }
 
-caption_text <- function(bin_size, pl = "point")
+caption_text <- function(bin_size, nsim, pl = "point")
 {
-  paste0("Colored ", pl, " = input/pattern; boxplots = ", bin_size,
-         "-year moving window on disaggregated data")
+
+  if (nsim == 1) {
+    paste0("Colored ", pl, " = input/pattern; boxplots = ", bin_size,
+           "-year moving window on disaggregated data")
+  } else {
+    paste0("Colored ", pl, " = input/pattern; boxplots = stats computed across entire period for each simulation.")
+  }
 }
 
 # checks ... to see if something was specified, otherwise sets it to default

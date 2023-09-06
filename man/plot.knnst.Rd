@@ -7,7 +7,7 @@
 \method{plot}{knnst}(
   x,
   site,
-  bin_size,
+  bin_size = NULL,
   base_units = NULL,
   which = c(13, 14, 15),
   show = FALSE,
@@ -19,7 +19,8 @@
 
 \item{site}{The site to plot. Site name as a character.}
 
-\item{bin_size}{Number of years for each bin.}
+\item{bin_size}{Number of years for each bin when there is only one
+simulation.}
 
 \item{base_units}{The (input) units of the flow that was disaggregated. These
 units will be shown as the y-axis label of the plot.}
@@ -42,6 +43,11 @@ on ggplot2. It plots the key statistics the knn space-time disaggregation
 method should be preserving.
 }
 \details{
+If there are more  than one simulations, the stats are computed for each
+simulation across all years. If there is only one simulation, then the user
+must specify the \code{bin_size} that is used to compute the stats across
+moving windows of this specified size.
+
 \code{which} controls the plots that are created. There are both monthly and
 annual plots and two main plot types: a cdf of the flows across all of the
 different disaggregations, and a panel showing the mean, max, min, variance,
