@@ -49,13 +49,13 @@ must specify the \code{bin_size} that is used to compute the stats across
 moving windows of this specified size.
 
 \code{which} controls the plots that are created. There are both monthly and
-annual plots and two main plot types: a cdf of the flows across all of the
+annual plots and two main plot types: a pdf of the flows across all of the
 different disaggregations, and a panel showing the mean, max, min, variance,
 lag-1 correlation, and skew across all of the different disaggregations. The
 numbers correspond to:
 \itemize{
-\item \code{1:12}: the different monthly cdfs.
-\item \code{13}: annual cdf
+\item \code{1:12}: the different monthly pdfs.
+\item \code{13}: annual pdf
 \item \code{14}: monthly statistics panel
 \item \code{15}: annual statistics panel
 }
