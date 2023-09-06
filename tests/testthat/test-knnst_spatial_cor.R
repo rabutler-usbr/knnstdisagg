@@ -23,7 +23,7 @@ test_that("knnst_spatial_cor() works with named input.", {
 
   expect_identical(unique(dc$site_from), c("Cameo", "Hoover"))
   expect_setequal(unique(dc$site_to), colnames(ex_disagg$mon_flow))
-  expect_identical(dim(dc), as.integer(c(2*29*(200-50+1), 3)))
+  expect_identical(dim(dc), as.integer(c(2*29*(200-50+1), 4)))
 
   expect_identical(unique(pc$site_from), c("Cameo", "Hoover"))
   expect_setequal(unique(dc$site_to), colnames(ex_disagg$mon_flow))
@@ -68,7 +68,7 @@ test_that("knnst_spatial_cor() works with unnamed input.", {
 
   expect_identical(unique(dc$site_from), c("S1", "S3"))
   expect_setequal(unique(dc$site_to), colnames(xx$mon_flow))
-  expect_identical(dim(dc), as.integer(c(2*3*(3-1+1), 3)))
+  expect_identical(dim(dc), as.integer(c(2*3*(3-1+1), 4)))
 
   expect_identical(unique(pc$site_from), c("S1", "S3"))
   expect_setequal(unique(dc$site_to), colnames(xx$mon_flow))
