@@ -11,7 +11,8 @@ knnst_temporal_cor(disagg, site, bin_size)
 
 \item{site}{Site to compute the correlations at. Scalar character.}
 
-\item{bin_size}{Number of years for each bin.}
+\item{bin_size}{Number of years for each bin when there is only one
+simulation.}
 }
 \value{
 A \code{knnst_tmpcor} object.

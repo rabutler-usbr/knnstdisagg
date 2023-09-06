@@ -4,7 +4,9 @@
 \name{ex_disagg}
 \alias{ex_disagg}
 \title{Example disaggregated data}
-\format{A \code{\link{knnst}} object.}
+\format{
+A \code{\link{knnst}} object.
+}
 \usage{
 ex_disagg
 }

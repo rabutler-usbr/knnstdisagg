@@ -4,11 +4,13 @@
 \name{meko}
 \alias{meko}
 \title{Upper Colorado River Flow Reconstruction.}
-\format{A matrix with 1244 rows and 2 columns:
+\format{
+A matrix with 1244 rows and 2 columns:
 \itemize{
 \item column 1 = water_year: the water year (October - September)
 \item column 2 = lees_ferry: reconstructed flow at Lees Ferry in acre-feet
-}}
+}
+}
 \source{
 Description of data:
 \url{https://www.treeflow.info/content/colorado-r-lees-ferry-az-meko}
