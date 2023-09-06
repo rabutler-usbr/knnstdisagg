@@ -82,7 +82,7 @@ plot.knnst <- function(x, site, bin_size = NULL, base_units = NULL,
 
   # if there is more than 1 simulation, then set bin_size to full length of data
   if (nsim > 1) {
-    message('More than 1 simulation exists, so correlation computed for all years in each simulation.')
+    message('More than 1 simulation exists, so stats computed for all years in each simulation.')
     bin_size <- nyrs
   }
 
