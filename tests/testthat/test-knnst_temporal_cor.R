@@ -34,7 +34,7 @@ test_that("knnst_temporal_cor() works with named input.", {
   expect_setequal(unique(as.character(pc$month2)), month.abb)
 
   # there are 78 unique combinations of months, including identical pairs
-  expect_identical(dim(dc), as.integer(c(78*(200-50+1), 3)))
+  expect_identical(dim(dc), as.integer(c(78*(200-50+1), 4)))
 
   expect_identical(dim(pc), as.integer(c(78, 3)))
 
@@ -83,7 +83,7 @@ test_that("knnst_temporal_cor() works with unnamed input.", {
   expect_setequal(unique(as.character(pc$month2)), month.abb)
 
   # there are 78 unique combinations of months, including identical pairs
-  expect_identical(dim(dc), as.integer(c(78*(6-3+1), 3)))
+  expect_identical(dim(dc), as.integer(c(78*(6-3+1), 4)))
 
   expect_identical(dim(pc), as.integer(c(78, 3)))
 

@@ -1,8 +1,9 @@
 # knnstdisagg 0.2.0.9000
 
-* `knnst_spatial_cor()` now works when there is more than one simulation. (#34)
+* `knnst_spatial_cor()` and `knnst_temporal_cor()` now works when there is more than one simulation. (#34)
 * `plot.knnst()` now works when there is more than one simulation.
 * Fixed labeling of PDFs (they were previously labeled CDFs) ($35)
+* Small syntax/function updates for newer versions of ggplot2 and tidyr
 
 # knnstdisagg 0.2.0
 

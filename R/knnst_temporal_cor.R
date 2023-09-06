@@ -1,7 +1,12 @@
 #' Compute temporal correlation after KNN space-time disaggregation
 #'
 #' `knnst_temporal_cor()` computes the temporal correlation between all months
-#' at the specified `site`.
+#' at the specified `site`
+#'
+#' If there are more  than one simulations, the correlation is computed for each
+#' simulation across all years. If there is only one simulation, then the user
+#' must specify the `bin_size` that is used to compute the correlation across
+#' moving windows of this specified size.
 #'
 #' @inheritParams knnst_spatial_cor
 #'
@@ -19,7 +24,7 @@
 #' tmp_cor <- knnst_temporal_cor(ex_disagg, "Hoover", 100)
 #'
 #' @export
-knnst_temporal_cor <- function(disagg, site, bin_size)
+knnst_temporal_cor <- function(disagg, site, bin_size = NULL)
 {
   # assertions -------------
   assert_that(length(site == 1) && is.character(site))
@@ -29,15 +34,20 @@ knnst_temporal_cor <- function(disagg, site, bin_size)
   )
 
   assert_that(is_knnst(disagg))
-  #TODO: update to handle multiple simulations
-  assert_that(
-    knnst_nsim(disagg) == 1,
-    msg = "knnst_sp_cor() is currently only setup to work with one simulation"
-  )
 
-  assert_that(is.numeric(bin_size) && length(bin_size) == 1)
-
+  nsim <- knnst_nsim(disagg)
   nyrs <- nrow(disagg$disagg_sims[[1]]$disagg_flow) / 12
+
+  if (nsim == 1) {
+    assert_that(is.numeric(bin_size) && length(bin_size) == 1)
+  }
+
+  # if there is more than 1 simulation, then set bin_size to full length of data
+  if (nsim > 1) {
+    message('More than 1 simulation exists, so correlation computed for all years in each simulation.')
+    bin_size <- nyrs
+  }
+
   assert_that(
     bin_size <= nyrs && bin_size > 1,
     msg = "`bin_size` should be > 1 and < the number of years of disaggregated data"
@@ -45,7 +55,7 @@ knnst_temporal_cor <- function(disagg, site, bin_size)
 
   # setup data --------------------
   df <- as.data.frame(disagg) %>%
-    dplyr::select_at(c("ym", "year", "month", site)) %>%
+    dplyr::select_at(c("ym", "year", "month", "simulation", site)) %>%
     dplyr::mutate_at("ym", list(~get_agg_year(., disagg[["start_month"]]))) %>%
     dplyr::select_at(dplyr::vars(-dplyr::one_of("year"))) %>%
     dplyr::mutate_at("month", list(~month.abb[.])) %>%
@@ -104,44 +114,54 @@ knnst_temporal_cor <- function(disagg, site, bin_size)
 
   # disagg data cor --------------------
   # try rolling bins for the modeled data
-  n <- nrow(df) - bin_size + 1
+  n <- nyrs - bin_size + 1
 
-  rolling_res <- array(
-    dim = c(12, 12, n),
-    dimnames = list(month.abb, month.abb, NULL)
-  )
+  all_res <- data.frame()
 
-  for (i in seq_len(n)) {
-    end_n <- i + bin_size - 1
-    for (cc in seq_len(ncol(comb_month))) {
-      month1 <- comb_month[1, cc]
-      month2 <- comb_month[2, cc]
+  for(s in seq_len(nsim)) {
+    tmp_df <- dplyr::filter_at(df, 'simulation', dplyr::all_vars(. == s))
 
-      tmp_cor <- stats::cor(df[[month1]][i:end_n], df[[month2]][i:end_n])
-
-      rolling_res[match(month2, month.abb), match(month1, month.abb), i] <- tmp_cor
-    }
-  }
-
-  # convert to data frame
-  rolling_res <- as.data.frame(rolling_res)
-  rolling_res[["month2"]] <- rownames(rolling_res)
-  rolling_res <- tidyr::pivot_longer(
-    rolling_res,
-    -tidyselect::one_of("month2"),
-    names_to = "month1", values_to = "cor"
-  ) %>%
-    dplyr::filter_at("cor", dplyr::all_vars(!is.na(.))) %>%
-    dplyr::mutate_at(
-      "month1",
-      list(~simplify2array(strsplit(., ".", fixed = TRUE))[1,])
+    rolling_res <- array(
+      dim = c(12, 12, n),
+      dimnames = list(month.abb, month.abb, NULL)
     )
 
-  rolling_res$month1 <- factor(rolling_res$month1, levels = month.abb)
-  rolling_res$month2 <- factor(rolling_res$month2, levels = month.abb)
+    for (i in seq_len(n)) {
+      end_n <- i + bin_size - 1
+      for (cc in seq_len(ncol(comb_month))) {
+        month1 <- comb_month[1, cc]
+        month2 <- comb_month[2, cc]
+
+        tmp_cor <- stats::cor(tmp_df[[month1]][i:end_n], tmp_df[[month2]][i:end_n])
+
+        rolling_res[match(month2, month.abb), match(month1, month.abb), i] <- tmp_cor
+      }
+    }
+
+    # convert to data frame
+    rolling_res <- as.data.frame(rolling_res)
+    rolling_res[["month2"]] <- rownames(rolling_res)
+    rolling_res <- tidyr::pivot_longer(
+      rolling_res,
+      -tidyselect::one_of("month2"),
+      names_to = "month1", values_to = "cor"
+    ) %>%
+      dplyr::filter_at("cor", dplyr::all_vars(!is.na(.))) %>%
+      dplyr::mutate_at(
+        "month1",
+        list(~simplify2array(strsplit(., ".", fixed = TRUE))[1,])
+      )
+
+    rolling_res[['simulation']] <- s
+
+    all_res <- dplyr::bind_rows(all_res, rolling_res)
+  }
+
+  all_res$month1 <- factor(all_res$month1, levels = month.abb)
+  all_res$month2 <- factor(all_res$month2, levels = month.abb)
 
   res <- list(
-    disagg_cor = rolling_res,
+    disagg_cor = all_res,
     pattern_cor = obs_res,
     bin_size = bin_size,
     site = site
