@@ -10,13 +10,13 @@
 #' moving windows of this specified size.
 #'
 #' `which` controls the plots that are created. There are both monthly and
-#' annual plots and two main plot types: a cdf of the flows across all of the
+#' annual plots and two main plot types: a pdf of the flows across all of the
 #' different disaggregations, and a panel showing the mean, max, min, variance,
 #' lag-1 correlation, and skew across all of the different disaggregations. The
 #' numbers correspond to:
 #'
-#' - `1:12`: the different monthly cdfs.
-#' - `13`: annual cdf
+#' - `1:12`: the different monthly pdfs.
+#' - `13`: annual pdf
 #' - `14`: monthly statistics panel
 #' - `15`: annual statistics panel
 #'
@@ -148,7 +148,7 @@ plot.knnst <- function(x, site, bin_size = NULL, base_units = NULL,
                           base_units, bin_size, nsim, ...)
 
   if (any(1:12 %in% which))
-    gg2 <- create_mon_cdf(x_df, x_mon, bin_size, site, base_units, which,
+    gg2 <- create_mon_pdf(x_df, x_mon, bin_size, site, base_units, which,
                           nsim, ...)
 
   # annual plots --------------------
@@ -157,14 +157,14 @@ plot.knnst <- function(x, site, bin_size = NULL, base_units = NULL,
                           bin_size, nsim, ...)
 
   if (13 %in% which)
-    gg4 <- create_ann_cdf(x_ann_sim_data, x_ann, bin_size, site, base_units,
+    gg4 <- create_ann_pdf(x_ann_sim_data, x_ann, bin_size, site, base_units,
                           nsim, ...)
 
   gg_out <- c(
     list(
       "monthly-stats" = gg1,
       "annual-stats" = gg3,
-      "annual-cdf" = gg4
+      "annual-pdf" = gg4
     ),
     gg2
   )
@@ -354,18 +354,18 @@ create_mon_bxp <- function(sim_data, hist_data, site, start_month,
   gg
 }
 
-create_ann_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
+create_ann_pdf <- function(sim_data, hist_data, bin_size, site, base_units,
                            nsim, ...)
 {
-  cdf_data <- compute_cdf_data(sim_data, hist_data, bin_size, site)
+  pdf_data <- compute_pdf_data(sim_data, hist_data, bin_size, site)
 
-  gg <- cdf_plot(cdf_data, base_units, title = paste(site, "- Annual CDF"),
+  gg <- pdf_plot(pdf_data, base_units, title = paste(site, "- Annual PDF"),
                  bin_size, nsim, ...)
 
   gg
 }
 
-create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
+create_mon_pdf <- function(sim_data, hist_data, bin_size, site, base_units,
                            which, nsim, ...)
 {
   # TODO: do we need to re-do this based on Balaji/Ken's code? Using density
@@ -385,7 +385,7 @@ create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
   gg <- list()
 
   for (mm in proc_mon) {
-    tmp <- compute_cdf_data(
+    tmp <- compute_pdf_data(
       dplyr::filter_at(sim_data, "month", dplyr::all_vars(. == mm)),
       dplyr::filter_at(hist_data, "month", dplyr::all_vars(. == mm)),
       bin_size,
@@ -393,11 +393,11 @@ create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
     )
 
     # TODO: should boxplot width be computed?
-    pname <- paste0(month.abb[mm], "-cdf")
-    gg[[pname]] <- cdf_plot(
+    pname <- paste0(month.abb[mm], "-pdf")
+    gg[[pname]] <- pdf_plot(
       tmp,
       base_units,
-      title = paste0(site, " - ", month.name[mm], " CDF"),
+      title = paste0(site, " - ", month.name[mm], " PDF"),
       bin_size,
       nsim,
       ...
@@ -407,9 +407,9 @@ create_mon_cdf <- function(sim_data, hist_data, bin_size, site, base_units,
   gg
 }
 
-# computes cdf data for one site and one month/year. Assumes sim_data and
+# computes pdf data for one site and one month/year. Assumes sim_data and
 # hist_data have already been filtered to correct month/years
-compute_cdf_data <- function(sim_data, hist_data, bin_size, site)
+compute_pdf_data <- function(sim_data, hist_data, bin_size, site)
 {
   # compute the breaks ----
   tmp <- c(hist_data[[site]], sim_data[[site]])
@@ -448,7 +448,7 @@ compute_cdf_data <- function(sim_data, hist_data, bin_size, site)
     density = hist_data_res$y
   )
 
-  list(sim_cdf = sim_data_res, hist_cdf = hist_data_res)
+  list(sim_pdf = sim_data_res, hist_pdf = hist_data_res)
 }
 
 # assumes x is alreadly order correctly. Given data x, and the bin_size,
@@ -501,14 +501,14 @@ get_historical_annual <- function(x, site, start_month)
     dplyr::summarise_at(site, sum)
 }
 
-cdf_plot <- function(cdf_data, base_units, title, bin_size, nsim, ...)
+pdf_plot <- function(pdf_data, base_units, title, bin_size, nsim, ...)
 {
   color = plot_ops("color", ...)
 
-  ggplot(cdf_data$sim_cdf, aes_string("x", "density")) +
+  ggplot(pdf_data$sim_pdf, aes_string("x", "density")) +
     geom_boxplot(aes_string(group = "x")) +
     geom_line(
-      data = cdf_data$hist_cdf,
+      data = pdf_data$hist_pdf,
       aes_string("x", "density"),
       color = color
     ) +

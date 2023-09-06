@@ -87,9 +87,9 @@ test_that("plots succeed for named xts data", {
   ) %>%
     expect_length(4)
   # remove environment and then compare
-  p1[["Feb-cdf"]] <- NULL
-  p2[["Feb-cdf"]] <- NULL
-  expect_true(all.equal(p1[["Feb-cdf"]], p2[["Feb-cdf"]]))
+  p1[["Feb-pdf"]] <- NULL
+  p2[["Feb-pdf"]] <- NULL
+  expect_true(all.equal(p1[["Feb-pdf"]], p2[["Feb-pdf"]]))
 })
 
 # plots - unnamed matrices ---------------------------
@@ -129,9 +129,9 @@ test_that("plots succeed for unnamed matrices", {
   ) %>%
     expect_length(4)
   # remove environment and then compare
-  p1[["Feb-cdf"]] <- NULL
-  p2[["Feb-cdf"]] <- NULL
-  expect_true(all.equal(p1[["Feb-cdf"]], p2[["Feb-cdf"]]))
+  p1[["Feb-pdf"]] <- NULL
+  p2[["Feb-pdf"]] <- NULL
+  expect_true(all.equal(p1[["Feb-pdf"]], p2[["Feb-pdf"]]))
 })
 
 # get_agg_year() -------------------------

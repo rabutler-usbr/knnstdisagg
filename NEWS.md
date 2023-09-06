@@ -2,6 +2,7 @@
 
 * `knnst_spatial_cor()` now works when there is more than one simulation. (#34)
 * `plot.knnst()` now works when there is more than one simulation.
+* Fixed labeling of PDFs (they were previously labeled CDFs) ($35)
 
 # knnstdisagg 0.2.0
 

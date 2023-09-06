@@ -21,8 +21,8 @@ print.knnstplot <- function(x, ...)
   on.exit(grDevices::devAskNewPage(oask))
 
   plot_order <- c(
-    paste0(month.abb, "-cdf"),
-    "monthly-stats", "annual-cdf", "annual-stats"
+    paste0(month.abb, "-pdf"),
+    "monthly-stats", "annual-pdf", "annual-stats"
   )
 
   for (p in plot_order) {
