@@ -39,8 +39,8 @@ save_knnstplot <- function(knnstplot, filename, width = NA, height = NA)
     height <- 7
 
   plot_order <- c(
-    paste0(month.abb, "-cdf"),
-    "monthly-stats", "annual-cdf", "annual-stats"
+    paste0(month.abb, "-pdf"),
+    "monthly-stats", "annual-pdf", "annual-stats"
   )
 
   if (ftype == "png") {
