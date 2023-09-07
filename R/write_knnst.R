@@ -67,7 +67,7 @@ format_meta <- function(meta)
     paste("user:", meta[["user"]]),
     paste("date:", meta[["date"]]),
     paste("version:",  meta[["version"]]),
-    paste("created by calling:", meta[["call"]]),
+    paste("created by calling:", paste(meta[["call"]], collapse = '\n'), sep = '\n'),
     sep = "\n"
   )
 }
